@@ -1,7 +1,6 @@
 from flask import Blueprint, render_template, request, jsonify
 from app.extensions import db
 from app.models.user import User
-
 main = Blueprint('main', __name__)
 
 # Página de inicio
