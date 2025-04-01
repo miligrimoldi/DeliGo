@@ -6,7 +6,7 @@ main = Blueprint('main', __name__)
 # Página de inicio
 @main.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('app/index.html')
 
 # Crear usuario (POST)
 @main.route('/usuarios', methods=['POST'])
