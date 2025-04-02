@@ -7,9 +7,9 @@ const UsersPage = () => {
 
     return (
         <div className="container mt-5">
-            <h1>📋 Lista de Usuarios</h1>
+            <h1>Lista de Usuarios</h1>
             <UserList onEdit={() => {}} />
-            <h2>➕ Crear o Modificar Usuario</h2>
+            <h2>Crear o Modificar Usuario</h2>
             <UserForm onUserSaved={() => setRefresh(!refresh)} />
         </div>
     );
