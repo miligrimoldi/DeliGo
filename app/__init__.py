@@ -18,7 +18,11 @@ def create_app():
         from app.models.servicio import Servicio
         db.create_all()
 
+
+    # Blueprints
     app.register_blueprint(main)
+    from app.routes.entidades import entidades_bp
+    app.register_blueprint(entidades_bp)
 
     # Servir el index.html de React si accedés a "/"
     @app.route('/')
