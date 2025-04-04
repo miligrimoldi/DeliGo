@@ -10,6 +10,9 @@ class User(db.Model):
     contrasena = db.Column(db.String(128), nullable=False)
     tipo = db.Column(db.String(50))
 
+    # Relacion con entidades
+    entidades = db.relationship('Entidad', secondary='usuario_entidad', back_populates='usuarios')
+
     __mapper_args__ = {
         'polymorphic_identity': 'usuario',
         'polymorphic_on': tipo

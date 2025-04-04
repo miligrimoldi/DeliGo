@@ -13,6 +13,8 @@ def create_app():
         from app.models.user import User
         from app.models.usuario_consumidor import UsuarioConsumidor
         from app.models.usuario_empleado import UsuarioEmpleado
+        from app.models.entidad import Entidad
+        from app.models.usuario_entidad import UsuarioEntidad
         db.create_all()
 
     app.register_blueprint(main)
