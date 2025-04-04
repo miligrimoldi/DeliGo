@@ -8,7 +8,7 @@ class User(db.Model):
     apellido = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     contrasena = db.Column(db.String(128), nullable=False)
-    tipo = db.Column(db.String(50))  # campo discriminador
+    tipo = db.Column(db.String(50))
 
     __mapper_args__ = {
         'polymorphic_identity': 'usuario',
