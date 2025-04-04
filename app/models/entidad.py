@@ -11,3 +11,6 @@ class Entidad(db.Model):
 
     # Relacion con usuarios
     usuarios = db.relationship('User', secondary='usuario_entidad', back_populates='entidades')
+
+    # Relacion con servicios (uno a muchos)\
+    servicios = db.relationship('Servicio', back_populates='entidad', cascade="all, delete-orphan") # lo de cascade es para si se borra una entidad, se borran los servicios

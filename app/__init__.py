@@ -15,6 +15,7 @@ def create_app():
         from app.models.usuario_empleado import UsuarioEmpleado
         from app.models.entidad import Entidad
         from app.models.usuario_entidad import UsuarioEntidad
+        from app.models.servicio import Servicio
         db.create_all()
 
     app.register_blueprint(main)
