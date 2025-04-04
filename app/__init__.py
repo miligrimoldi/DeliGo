@@ -10,7 +10,9 @@ def create_app():
     db.init_app(app)
 
     with app.app_context():
-        from app.models import User
+        from app.models.user import User
+        from app.models.usuario_consumidor import UsuarioConsumidor
+        from app.models.usuario_empleado import UsuarioEmpleado
         db.create_all()
 
     app.register_blueprint(main)
