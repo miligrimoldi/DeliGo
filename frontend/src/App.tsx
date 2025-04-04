@@ -1,4 +1,4 @@
-import UsersPage from 'C:/Users/pilis/faculty/Lab1/DeliGo/frontend/src/pages/UserPage.tsx';
+import UsersPage from './pages/UserPage';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
