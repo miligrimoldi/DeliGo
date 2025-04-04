@@ -4,7 +4,7 @@ from app.models.user import User
 
 class UsuarioConsumidor(User):
     __tablename__ = 'usuario_consumidor'
-    id = db.Column(db.Integer, db.ForeignKey('usuario.id'), primary_key=True)
+    id = db.Column(db.Integer, db.ForeignKey('usuario.id_usuario'), primary_key=True)
 
 
     __mapper_args__ = {

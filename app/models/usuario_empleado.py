@@ -4,7 +4,7 @@ from app.models.user import User
 
 class UsuarioEmpleado(User):
     __tablename__ = 'usuario_empleado'
-    id = db.Column(db.Integer, db.ForeignKey('usuario.id'), primary_key=True)
+    id = db.Column(db.Integer, db.ForeignKey('usuario.id_usuario'), primary_key=True)
     dni = db.Column(db.String(8), nullable=False)
     esAdmin = db.Column(db.Boolean, nullable=False)
 
