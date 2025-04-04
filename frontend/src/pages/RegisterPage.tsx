@@ -7,6 +7,7 @@ type FormDataType = {
     password: string;
     esAdmin: boolean;
     id_servicio?: string;
+    dni?: string;
 };
 
 const RegisterPage = () => {
@@ -17,6 +18,7 @@ const RegisterPage = () => {
         password: "",
         esAdmin: false,
         id_servicio: "",
+        dni: "",
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,6 +36,7 @@ const RegisterPage = () => {
         // Si no es administrador, eliminamos el campo id_servicio
         if (!formData.esAdmin) {
             delete dataToSend.id_servicio;
+            delete dataToSend.dni;
         }
 
         try {
@@ -70,7 +73,22 @@ const RegisterPage = () => {
                 </label>
 
                 {formData.esAdmin && (
-                    <input type="text" name="id_servicio" placeholder="ID del servicio" onChange={handleChange} />
+                    <>
+                        <input
+                            type="text"
+                            name="id_servicio"
+                            placeholder="ID del servicio"
+                            onChange={handleChange}
+                            required
+                        />
+                        <input
+                            type="text"
+                            name="dni"
+                            placeholder="DNI"
+                            onChange={handleChange}
+                            required
+                        />
+                    </>
                 )}
 
                 <button type="submit">Registrarse</button>
