@@ -81,81 +81,90 @@ const RegisterPage = () => {
         <div>
             <h2>Registro</h2>
 
-            <div style={{ color: "green", marginBottom: "1rem" }}>
-                {successMessage !== null ? `✅ ${successMessage}` : "⏳ Esperando éxito..."}
-            </div>
-            <div style={{ color: "red", marginBottom: "1rem" }}>
-                {errorMessage !== null ? `❌ ${errorMessage}` : "⏳ Sin errores aún..."}
-            </div>
+            {successMessage && (
+                <div style={{ color: "green", marginBottom: "1rem" }}>
+                    ✅ {successMessage}
+                    <br />
+                    <button onClick={() => window.location.href = "/login"} style={{ marginTop: "1rem" }}>
+                        Iniciar Sesión
+                    </button>
+                </div>
+            )}
 
+            {errorMessage && (
+                <div style={{ color: "red", marginBottom: "1rem" }}>
+                    ❌ {errorMessage}
+                </div>
+            )}
 
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    name="nombre"
-                    placeholder="Nombre"
-                    value={formData.nombre}
-                    onChange={handleChange}
-                    required
-                />
-                <input
-                    type="text"
-                    name="apellido"
-                    placeholder="Apellido"
-                    value={formData.apellido}
-                    onChange={handleChange}
-                    required
-                />
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                />
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Contraseña"
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                />
-
-                <label>
+            {!successMessage && (
+                <form onSubmit={handleSubmit}>
                     <input
-                        type="checkbox"
-                        name="esAdmin"
-                        checked={formData.esAdmin}
+                        type="text"
+                        name="nombre"
+                        placeholder="Nombre"
+                        value={formData.nombre}
                         onChange={handleChange}
+                        required
                     />
-                    Soy Administrador
-                </label>
-
-                {formData.esAdmin && (
-                    <>
+                    <input
+                        type="text"
+                        name="apellido"
+                        placeholder="Apellido"
+                        value={formData.apellido}
+                        onChange={handleChange}
+                        required
+                    />
+                    <input
+                        type="email"
+                        name="email"
+                        placeholder="Email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                    />
+                    <input
+                        type="password"
+                        name="password"
+                        placeholder="Contraseña"
+                        value={formData.password}
+                        onChange={handleChange}
+                        required
+                    />
+                    <label>
                         <input
-                            type="text"
-                            name="id_servicio"
-                            placeholder="ID del servicio"
-                            value={formData.id_servicio}
+                            type="checkbox"
+                            name="esAdmin"
+                            checked={formData.esAdmin}
                             onChange={handleChange}
-                            required
                         />
-                        <input
-                            type="text"
-                            name="dni"
-                            placeholder="DNI"
-                            value={formData.dni}
-                            onChange={handleChange}
-                            required
-                        />
-                    </>
-                )}
+                        Soy Administrador
+                    </label>
 
-                <button type="submit">Registrarse</button>
-            </form>
+                    {formData.esAdmin && (
+                        <>
+                            <input
+                                type="text"
+                                name="id_servicio"
+                                placeholder="ID del servicio"
+                                value={formData.id_servicio}
+                                onChange={handleChange}
+                                required
+                            />
+                            <input
+                                type="text"
+                                name="dni"
+                                placeholder="DNI"
+                                value={formData.dni}
+                                onChange={handleChange}
+                                required
+                            />
+                        </>
+                    )}
+
+                    <button type="submit">Registrarse</button>
+                </form>
+            )}
         </div>
     );
 };
