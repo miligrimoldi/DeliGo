@@ -19,3 +19,10 @@ export const fetchMisEntidades = async (idUsuario: number): Promise<Entidad[]> =
     const response = await api.get(`/api/entidades/usuario/${idUsuario}`);
     return response.data;
 };
+
+export const asociarAEntidad = async (idUsuario: number, idEntidad: number): Promise<void> => {
+    await api.post('/api/entidades/asociar', {
+        id_usuario: idUsuario,
+        id_entidad: idEntidad
+    });
+};

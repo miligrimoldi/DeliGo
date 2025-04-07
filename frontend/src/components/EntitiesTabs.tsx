@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import '../css/entidades.css';
-import { fetchEntidades, fetchMisEntidades } from '../api';
+import { fetchEntidades, fetchMisEntidades, asociarAEntidad } from '../api';
 
 export interface Entidad {
     id_entidad: number;
@@ -14,6 +14,7 @@ export interface Entidad {
 const EntidadesTabs: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'entidades' | 'mis'>('entidades');
     const [entidades, setEntidades] = useState<Entidad[]>([]);
+    const [misEntidades, setMisEntidades] = useState<Entidad[]>([]);
     const [search, setSearch] = useState('');
     /*
     activeTab -> guarda que pestania esta activa (entidades o mis entidades)
@@ -21,19 +22,34 @@ const EntidadesTabs: React.FC = () => {
     search -> lo que se busca en el buscador
      */
 
-    const userId = 1; // Temporal, cuando este listo el login uso el localStorage o el contexto
+    const userId = 1;
+    //const userId = parseInt(localStorage.getItem("userId") || "");
 
     // Se ejecuta cada vez que cambia activeTab:
     useEffect(() => {
         const fetchData = async () => {
-            const data =
-                activeTab === 'entidades'
-                    ? await fetchEntidades() // Si esta en entidades
-                    : await fetchMisEntidades(userId); // Si esta en mis entidades
-            setEntidades(data); // Guarda el resultado en entidades
+            if (activeTab === 'entidades') {
+                const data = await fetchEntidades(); // Si esta en entidades
+                setEntidades(data);
+
+                if (userId) {
+                    const asociadas = await fetchMisEntidades(userId); // <- para saber cuáles están asociadas
+                    setMisEntidades(asociadas);
+                }
+            } else if (userId) {
+                const data = await fetchMisEntidades(userId); // Si esta en mis entidades
+                setEntidades(data);
+            } else {
+                setEntidades([]); // No hay usuario logueado, no se muestran entidades
+            }
         };
         fetchData();
     }, [activeTab]);
+
+    // Función para saber si una entidad está en misEntidades
+    const estaAsociado = (id_entidad: number): boolean => {
+        return misEntidades.some((e) => e.id_entidad === id_entidad);
+    };
 
     return (
         <div className="entidades-container">
@@ -66,22 +82,46 @@ const EntidadesTabs: React.FC = () => {
 
             {/* Lista de entidades */}
             <div className="entidad-lista">
-                {entidades
-                    .filter((e) =>
-                        e.nombre.toLowerCase().includes(search.toLowerCase())
-                    )
-                    .map((entidad) => (
-                        <div key={entidad.id_entidad} className="entidad-card">
-                            <img
-                                src={entidad.logo_url || 'https://via.placeholder.com/40'}
-                                alt={entidad.nombre}
-                                className="entidad-logo"
-                            />
-                            <span className="entidad-nombre">
-                {entidad.nombre.toUpperCase()}
-              </span>
-                        </div>
-                    ))}
+                {activeTab === 'mis' && !userId ? (
+                    <p>Aún no tienes entidades asociadas.</p>
+                ) : (
+                    entidades
+                        .filter((e) =>
+                            e.nombre.toLowerCase().includes(search.toLowerCase())
+                        )
+                        .map((entidad) => (
+                            <div key={entidad.id_entidad} className="entidad-card">
+                                <img
+                                    src={entidad.logo_url || 'https://via.placeholder.com/40'}
+                                    alt={entidad.nombre}
+                                    className="entidad-logo"
+                                />
+                                <span className="entidad-nombre">
+                                    {entidad.nombre.toUpperCase()}
+                                </span>
+
+                                {/* Botón solo si estás en "entidades" y estás logueada */}
+                                {activeTab === 'entidades' && userId && (
+                                    estaAsociado(entidad.id_entidad) ? (
+                                        <button className="asociado-btn" disabled>
+                                            Asociado
+                                        </button>
+                                    ) : (
+                                        <button
+                                            className="asociar-btn"
+                                            onClick={async () => {
+                                                await asociarAEntidad(userId, entidad.id_entidad);
+                                                const nuevas = await fetchMisEntidades(userId);
+                                                setMisEntidades(nuevas);
+                                            }}
+                                        >
+                                            Asociarme
+                                        </button>
+                                    )
+                                )}
+                            </div>
+                        ))
+                )}
             </div>
         </div>
     );

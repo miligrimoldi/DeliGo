@@ -119,4 +119,31 @@ html, body {
     margin: 0 16px;
 }
 
+/* cartelito asociarme */
+.asociar-btn, .asociado-btn {
+    margin-left: auto;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border: none;
+}
+
+.asociar-btn {
+    background-color: #749355;
+    color: white;
+}
+
+.asociar-btn:hover {
+    background-color: #5c7844;
+}
+
+.asociado-btn {
+    background-color: #ccc;
+    color: #666;
+    cursor: default;
+}
+
+
 

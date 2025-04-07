@@ -59,6 +59,9 @@ def create_app():
     from app.routes.entidades import entidades_bp
     app.register_blueprint(entidades_bp)
 
+    from app.routes.asociar_entidad import asociar_bp
+    app.register_blueprint(asociar_bp)
+
     # Servir el index.html de React si accedés a "/"
     @app.route('/')
     def serve_react():
