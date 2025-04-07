@@ -10,7 +10,9 @@ type FormDataType = {
     dni?: string;
 };
 
+
 const RegisterPage = () => {
+
     const [formData, setFormData] = useState<FormDataType>({
         nombre: "",
         apellido: "",
@@ -20,6 +22,9 @@ const RegisterPage = () => {
         id_servicio: "",
         dni: "",
     });
+
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
@@ -31,16 +36,18 @@ const RegisterPage = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setSuccessMessage(null);
+        setErrorMessage(null);
+
         const dataToSend = { ...formData };
 
-        // Si no es administrador, eliminamos el campo id_servicio
         if (!formData.esAdmin) {
             delete dataToSend.id_servicio;
             delete dataToSend.dni;
         }
 
         try {
-            const response = await fetch("http://localhost:5000/register", {
+            const response = await fetch("/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -48,12 +55,24 @@ const RegisterPage = () => {
                 body: JSON.stringify(dataToSend),
             });
 
+            const responseData = await response.json();
+
             if (response.ok) {
-                console.log("Usuario registrado con éxito");
+                setSuccessMessage(responseData.message || "Usuario registrado con éxito");
+                setFormData({
+                    nombre: "",
+                    apellido: "",
+                    email: "",
+                    password: "",
+                    esAdmin: false,
+                    id_servicio: "",
+                    dni: "",
+                });
             } else {
-                console.error("Error en el registro");
+                setErrorMessage(responseData.error || "Ocurrió un error en el registro");
             }
         } catch (error) {
+            setErrorMessage("Error en la solicitud");
             console.error("Error en la solicitud:", error);
         }
     };
@@ -61,14 +80,56 @@ const RegisterPage = () => {
     return (
         <div>
             <h2>Registro</h2>
+
+            <div style={{ color: "green", marginBottom: "1rem" }}>
+                {successMessage !== null ? `✅ ${successMessage}` : "⏳ Esperando éxito..."}
+            </div>
+            <div style={{ color: "red", marginBottom: "1rem" }}>
+                {errorMessage !== null ? `❌ ${errorMessage}` : "⏳ Sin errores aún..."}
+            </div>
+
+
             <form onSubmit={handleSubmit}>
-                <input type="text" name="nombre" placeholder="Nombre" onChange={handleChange} required />
-                <input type="text" name="apellido" placeholder="Apellido" onChange={handleChange} required />
-                <input type="email" name="email" placeholder="Email" onChange={handleChange} required />
-                <input type="password" name="password" placeholder="Contraseña" onChange={handleChange} required />
+                <input
+                    type="text"
+                    name="nombre"
+                    placeholder="Nombre"
+                    value={formData.nombre}
+                    onChange={handleChange}
+                    required
+                />
+                <input
+                    type="text"
+                    name="apellido"
+                    placeholder="Apellido"
+                    value={formData.apellido}
+                    onChange={handleChange}
+                    required
+                />
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                />
+                <input
+                    type="password"
+                    name="password"
+                    placeholder="Contraseña"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                />
 
                 <label>
-                    <input type="checkbox" name="esAdmin" onChange={handleChange} />
+                    <input
+                        type="checkbox"
+                        name="esAdmin"
+                        checked={formData.esAdmin}
+                        onChange={handleChange}
+                    />
                     Soy Administrador
                 </label>
 
@@ -78,6 +139,7 @@ const RegisterPage = () => {
                             type="text"
                             name="id_servicio"
                             placeholder="ID del servicio"
+                            value={formData.id_servicio}
                             onChange={handleChange}
                             required
                         />
@@ -85,6 +147,7 @@ const RegisterPage = () => {
                             type="text"
                             name="dni"
                             placeholder="DNI"
+                            value={formData.dni}
                             onChange={handleChange}
                             required
                         />

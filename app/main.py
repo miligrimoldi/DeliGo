@@ -45,7 +45,7 @@ def register():
             nombre=nombre,
             apellido=apellido,
             email=email,
-            password=hashed_password,
+            contrasena=hashed_password,
             id_servicio=id_servicio,
             dni=dni,
             esAdmin=True
@@ -56,29 +56,12 @@ def register():
             nombre=nombre,
             apellido=apellido,
             email=email,
-            password=hashed_password
+            contrasena=hashed_password
         )
         db.session.add(nuevo_usuario_consumidor)
 
     db.session.commit()
     return jsonify({"message": "Registro exitoso"}), 201
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # Obtener todos los usuarios (GET)
