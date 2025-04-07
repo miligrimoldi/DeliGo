@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import '../css/entidades.css';
-import { fetchEntidades, fetchMisEntidades, asociarAEntidad } from '../api';
+import { fetchEntidades, fetchMisEntidades, asociarAEntidad } from '../api.ts';
 
 export interface Entidad {
     id_entidad: number;
@@ -22,29 +22,29 @@ const EntidadesTabs: React.FC = () => {
     search -> lo que se busca en el buscador
      */
 
-    const userId = 1;
-    //const userId = parseInt(localStorage.getItem("userId") || "");
+    const userData = localStorage.getItem("user");
+    const userId = userData ? JSON.parse(userData).id_usuario : null;
 
     // Se ejecuta cada vez que cambia activeTab:
     useEffect(() => {
         const fetchData = async () => {
+            if (!userId)  return <p>Debe iniciar sesión para ver las entidades.</p>;
+
             if (activeTab === 'entidades') {
-                const data = await fetchEntidades(); // Si esta en entidades
+                const data = await fetchEntidades();
                 setEntidades(data);
 
-                if (userId) {
-                    const asociadas = await fetchMisEntidades(userId); // <- para saber cuáles están asociadas
-                    setMisEntidades(asociadas);
-                }
-            } else if (userId) {
-                const data = await fetchMisEntidades(userId); // Si esta en mis entidades
-                setEntidades(data);
+                const asociadas = await fetchMisEntidades(userId);
+                setMisEntidades(asociadas);
             } else {
-                setEntidades([]); // No hay usuario logueado, no se muestran entidades
+                const data = await fetchMisEntidades(userId);
+                setEntidades(data);
             }
         };
+
         fetchData();
-    }, [activeTab]);
+    }, [activeTab, userId]);
+
 
     // Función para saber si una entidad está en misEntidades
     const estaAsociado = (id_entidad: number): boolean => {

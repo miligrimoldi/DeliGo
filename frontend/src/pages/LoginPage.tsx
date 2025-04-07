@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const LoginPage = () => {
     const [email, setEmail] = useState("");
@@ -21,14 +22,12 @@ const LoginPage = () => {
             const data = await response.json();
 
             if (response.ok) {
-                // Guardar datos en localStorage o en contexto (más adelante)
                 localStorage.setItem("user", JSON.stringify(data));
 
-                // Redirigir dependiendo del tipo de usuario
                 if (data.esAdmin) {
-                    window.location.href = `/admin/${data.id_servicio}`; // ej: /admin/1
+                    window.location.href = `/admin/${data.id_servicio}`;
                 } else {
-                    window.location.href = "/home"; // para usuarios consumidores
+                    window.location.href = "/entidades";
                 }
             } else {
                 setErrorMessage(data.error || "Error al iniciar sesión");
@@ -60,6 +59,14 @@ const LoginPage = () => {
                 />
                 <button type="submit">Ingresar</button>
             </form>
+
+            {/* Cartel de registro */}
+            <p style={{ marginTop: "20px" }}>
+                ¿No tienes cuenta?{" "}
+                <Link to="/register" style={{ color: "blue", textDecoration: "underline" }}>
+                    Regístrate
+                </Link>
+            </p>
         </div>
     );
 };
