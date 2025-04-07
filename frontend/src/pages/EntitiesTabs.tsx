@@ -10,25 +10,20 @@ export interface Entidad {
     descripcion: string;
 }
 
-//sintaxis (useState) -> const [valor, setValor] = useState(valorInicial);
 const EntidadesTabs: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'entidades' | 'mis'>('entidades');
     const [entidades, setEntidades] = useState<Entidad[]>([]);
     const [misEntidades, setMisEntidades] = useState<Entidad[]>([]);
     const [search, setSearch] = useState('');
-    /*
-    activeTab -> guarda que pestania esta activa (entidades o mis entidades)
-    entidades -> lista entidades (Entidad[])
-    search -> lo que se busca en el buscador
-     */
 
     const userData = localStorage.getItem("user");
-    const userId = userData ? JSON.parse(userData).id_usuario : null;
+    const user = userData ? JSON.parse(userData) : null;
+    const userId = user?.id_usuario;
+    const nombreUsuario = user?.nombre || 'Usuario';
 
-    // Se ejecuta cada vez que cambia activeTab:
     useEffect(() => {
         const fetchData = async () => {
-            if (!userId)  return <p>Debe iniciar sesión para ver las entidades.</p>;
+            if (!userId) return;
 
             if (activeTab === 'entidades') {
                 const data = await fetchEntidades();
@@ -45,15 +40,30 @@ const EntidadesTabs: React.FC = () => {
         fetchData();
     }, [activeTab, userId]);
 
-
-    // Función para saber si una entidad está en misEntidades
     const estaAsociado = (id_entidad: number): boolean => {
         return misEntidades.some((e) => e.id_entidad === id_entidad);
     };
 
+    const handleLogout = () => {
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+    };
+
+    if (!userId) {
+        return <p style={{ padding: "1rem" }}>Debe iniciar sesión para ver las entidades.</p>;
+    }
+
     return (
         <div className="entidades-container">
-            {/* tabs (dos botones para cambiar entre pestanias) */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '1rem' }}>
+                <button
+                    onClick={handleLogout}
+                    style={{ background: 'none', border: '1px solid #ccc', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer' }}
+                >
+                    Cerrar sesión
+                </button>
+            </div>
+
             <div className="tabs">
                 <button
                     className={`tab-button ${activeTab === 'entidades' ? 'active' : ''}`}
@@ -69,7 +79,6 @@ const EntidadesTabs: React.FC = () => {
                 </button>
             </div>
 
-            {/* Barra buscadora */}
             <div className="search-bar">
                 <input
                     type="text"
@@ -80,10 +89,9 @@ const EntidadesTabs: React.FC = () => {
                 />
             </div>
 
-            {/* Lista de entidades */}
             <div className="entidad-lista">
-                {activeTab === 'mis' && !userId ? (
-                    <p>Aún no tienes entidades asociadas.</p>
+                {activeTab === 'mis' && entidades.length === 0 ? (
+                    <p><strong>{nombreUsuario}</strong>: Aún no tienes entidades asociadas.</p>
                 ) : (
                     entidades
                         .filter((e) =>
@@ -100,8 +108,7 @@ const EntidadesTabs: React.FC = () => {
                                     {entidad.nombre.toUpperCase()}
                                 </span>
 
-                                {/* Botón solo si estás en "entidades" y estás logueada */}
-                                {activeTab === 'entidades' && userId && (
+                                {activeTab === 'entidades' && (
                                     estaAsociado(entidad.id_entidad) ? (
                                         <button className="asociado-btn" disabled>
                                             Asociado

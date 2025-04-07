@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.extensions import db
 from app.models.usuario import User
-from werkzeug.security import check_password_hash  # para verificar la contraseña
+from werkzeug.security import check_password_hash
 from app.models.usuario_consumidor import UsuarioConsumidor
 from app.models.usuario_empleado import UsuarioEmpleado
 
@@ -25,8 +25,9 @@ def login():
     empleado = UsuarioEmpleado.query.filter_by(id_usuario=user.id_usuario).first()
     if empleado:
         return jsonify({
-            "id": user.id_usuario,
+            "id_usuario": user.id_usuario,
             "email": user.email,
+            "nombre": user.nombre,
             "esAdmin": True,
             "id_servicio": empleado.id_servicio
         }), 200
@@ -35,10 +36,10 @@ def login():
     consumidor = UsuarioConsumidor.query.filter_by(id_usuario=user.id_usuario).first()
     if consumidor:
         return jsonify({
-            "id": user.id_usuario,
+            "id_usuario": user.id_usuario,
             "email": user.email,
+            "nombre": user.nombre,
             "esAdmin": False
         }), 200
 
-    # Si no es ni consumidor ni empleado
     return jsonify({"error": "Tipo de usuario no reconocido"}), 403
