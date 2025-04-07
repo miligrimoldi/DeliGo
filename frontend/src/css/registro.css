@@ -77,6 +77,10 @@ html, body {
     text-decoration: none;
 }
 
+.login-text a:hover {
+    text-decoration: underline;
+}
+
 /* Mensajes */
 .success-message {
     color: green;
