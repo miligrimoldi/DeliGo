@@ -1,4 +1,6 @@
 import { useState } from "react";
+import '../css/register.css';
+
 
 type FormDataType = {
     nombre: string;

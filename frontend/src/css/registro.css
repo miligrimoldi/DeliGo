@@ -1,0 +1,61 @@
+.register-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    font-family: 'Arial', sans-serif;
+    background-color: #f7f7f7;
+    height: 100vh;
+}
+
+.logo {
+    width: 180px;
+    margin-bottom: 2rem;
+}
+
+.titulo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.formulario {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 350px;
+}
+
+.input {
+    padding: 0.8rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.btn-registrarme {
+    background: linear-gradient(to right, #b4d96b, #addc8f);
+    color: white;
+    padding: 0.8rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    margin-top: 0.5rem;
+    cursor: pointer;
+}
+
+.login-text {
+    margin-top: 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.success-message {
+    color: green;
+    margin-bottom: 1rem;
+}
+
+.error-message {
+    color: red;
+    margin-bottom: 1rem;
+}
