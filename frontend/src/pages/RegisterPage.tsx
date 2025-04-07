@@ -1,5 +1,5 @@
 import { useState } from "react";
-import '../css/register.css';
+import '../css/registro.css';
 
 
 type FormDataType = {
@@ -27,6 +27,8 @@ const RegisterPage = () => {
 
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [repeatPassword, setRepeatPassword] = useState<string>("");
+
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
@@ -40,6 +42,11 @@ const RegisterPage = () => {
         e.preventDefault();
         setSuccessMessage(null);
         setErrorMessage(null);
+
+        if (formData.password !== repeatPassword) {
+            setErrorMessage("Las contraseñas no coinciden");
+            return;
+        }
 
         const dataToSend = { ...formData };
 
@@ -80,41 +87,22 @@ const RegisterPage = () => {
     };
 
     return (
-        <div>
-            <h2>Registro</h2>
+        <div className="register-container">
+            <img src="/img/logo_con_deligo.png" alt="Logo Deligo" className="logo"/>
+
+            <h2 className="titulo">Registrarse</h2>
 
             {successMessage && (
-                <div style={{ color: "green", marginBottom: "1rem" }}>
-                    ✅ {successMessage}
-                    <br />
-                </div>
+                <div className="success-message">✅ {successMessage}</div>
             )}
-
             {errorMessage && (
-                <div style={{ color: "red", marginBottom: "1rem" }}>
-                    ❌ {errorMessage}
-                </div>
+                <div className="error-message">❌ {errorMessage}</div>
             )}
 
             {!successMessage && (
-                <form onSubmit={handleSubmit}>
+                <form className="formulario" onSubmit={handleSubmit}>
                     <input
-                        type="text"
-                        name="nombre"
-                        placeholder="Nombre"
-                        value={formData.nombre}
-                        onChange={handleChange}
-                        required
-                    />
-                    <input
-                        type="text"
-                        name="apellido"
-                        placeholder="Apellido"
-                        value={formData.apellido}
-                        onChange={handleChange}
-                        required
-                    />
-                    <input
+                        className="input"
                         type="email"
                         name="email"
                         placeholder="Email"
@@ -123,6 +111,25 @@ const RegisterPage = () => {
                         required
                     />
                     <input
+                        className="input"
+                        type="text"
+                        name="nombre"
+                        placeholder="Nombre"
+                        value={formData.nombre}
+                        onChange={handleChange}
+                        required
+                    />
+                    <input
+                        className="input"
+                        type="text"
+                        name="apellido"
+                        placeholder="Apellido"
+                        value={formData.apellido}
+                        onChange={handleChange}
+                        required
+                    />
+                    <input
+                        className="input"
                         type="password"
                         name="password"
                         placeholder="Contraseña"
@@ -130,7 +137,16 @@ const RegisterPage = () => {
                         onChange={handleChange}
                         required
                     />
-                    <label>
+                    <input
+                        className="input"
+                        type="password"
+                        placeholder="Repetir contraseña"
+                        value={repeatPassword}
+                        onChange={(e) => setRepeatPassword(e.target.value)}
+                        required
+                    />
+
+                    <label className="checkbox-label">
                         <input
                             type="checkbox"
                             name="esAdmin"
@@ -143,6 +159,7 @@ const RegisterPage = () => {
                     {formData.esAdmin && (
                         <>
                             <input
+                                className="input"
                                 type="text"
                                 name="id_servicio"
                                 placeholder="ID del servicio"
@@ -151,6 +168,7 @@ const RegisterPage = () => {
                                 required
                             />
                             <input
+                                className="input"
                                 type="text"
                                 name="dni"
                                 placeholder="DNI"
@@ -161,11 +179,18 @@ const RegisterPage = () => {
                         </>
                     )}
 
-                    <button type="submit">Registrarse</button>
+                    <button className="btn-registrarme" type="submit">
+                        Registrarme
+                    </button>
+
+                    <p className="login-text">
+                        Ya tenés una cuenta? <a href="/login">Login</a>
+                    </p>
                 </form>
             )}
         </div>
     );
+
 };
 
 export default RegisterPage;
