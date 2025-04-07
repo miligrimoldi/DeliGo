@@ -13,7 +13,7 @@ def create_app():
     db.init_app(app)
 
     with app.app_context():
-        from app.models.user import User
+        from app.models.usuario import User
         from app.models.usuario_consumidor import UsuarioConsumidor
         from app.models.usuario_empleado import UsuarioEmpleado
         from app.models.entidad import Entidad
@@ -22,7 +22,7 @@ def create_app():
         db.create_all()
 
         # entidades
-        if not Entidad.query.first():
+        if not Entidad.query.first():  #el .first devuelve solo una instancia (1er resultado), el .all serian todas (todas las coincidencias)
             entidades = [
                 Entidad(
                     nombre='Universidad Austral',
@@ -38,6 +38,20 @@ def create_app():
                 ),
             ]
             db.session.add_all(entidades)
+            db.session.commit()
+
+            # servicios:
+            austral = Entidad.query.filter_by(nombre='Universidad Austral').first()
+            oakhill = Entidad.query.filter_by(nombre='Colegio Oakhill Pilar').first()
+
+            servicios = [
+                Servicio(nombre='Comedor Aus', descripcion='Comedor universitario.', entidad=austral),
+                Servicio(nombre='Foodtruck', descripcion='Foodtruck campus.', entidad=austral),
+                Servicio(nombre='Cafetería', descripcion='Café y snacks.', entidad=austral),
+                Servicio(nombre='Comedor Oak', descripcion='Comedor escolar.', entidad=oakhill),
+                Servicio(nombre='Kiosko', descripcion='Kiosko con snacks y útiles.', entidad=oakhill)
+            ]
+            db.session.add_all(servicios)
             db.session.commit()
 
     # Blueprints

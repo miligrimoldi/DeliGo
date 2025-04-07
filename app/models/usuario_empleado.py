@@ -1,6 +1,6 @@
 # app/models/usuario_empleado.py
 from app.extensions import db
-from app.models.user import User
+from app.models.usuario import User
 
 class UsuarioEmpleado(User):
     __tablename__ = 'usuario_empleado'
