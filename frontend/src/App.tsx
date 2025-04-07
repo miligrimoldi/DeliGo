@@ -1,23 +1,24 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import EntidadesTabs from './components/EntitiesTabs';
+import EntidadesTabs from './pages/EntitiesTabs.tsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
     return (
         <Router>
             <Routes>
-                {/* Redirige de "/" a "/register" */}
-                <Route path="/" element={<Navigate to="/register" />} />
+                {/* Redirige la raíz a la página de login */}
+                <Route path="/" element={<Navigate to="/login" />} />
+
+                {/* Página de login */}
+                <Route path="/login" element={<LoginPage />} />
+
                 {/* Página de registro */}
                 <Route path="/register" element={<RegisterPage />} />
 
-                <Route path="/" element={<Navigate to="/entidades" />} />
                 {/* Página de entidades */}
                 <Route path="/entidades" element={<EntidadesTabs />} />
-                {/* Página de registro */}
-                <Route path="/register" element={<RegisterPage />} />
-
             </Routes>
         </Router>
     );

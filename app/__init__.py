@@ -22,7 +22,7 @@ def create_app():
         db.create_all()
 
         # entidades
-        if not Entidad.query.first():  #el .first devuelve solo una instancia (1er resultado), el .all serian todas (todas las coincidencias)
+        if not Entidad.query.first():
             entidades = [
                 Entidad(
                     nombre='Universidad Austral',
@@ -62,17 +62,14 @@ def create_app():
     app.register_blueprint(registro_bp)
     from app.routes.login import login_bp
     app.register_blueprint(login_bp)
-
-
     from app.routes.asociar_entidad import asociar_bp
     app.register_blueprint(asociar_bp)
 
-    # Servir el index.html de React si accedés a "/"
+    # Rutas frontend
     @app.route('/')
     def serve_react():
         return send_from_directory(app.static_folder, 'index.html')
 
-    # Si usás rutas como "/about", "/contact", etc., para frontend
     @app.route('/<path:path>')
     def static_proxy(path):
         file_path = os.path.join(app.static_folder, path)
@@ -80,5 +77,10 @@ def create_app():
             return send_from_directory(app.static_folder, path)
         else:
             return send_from_directory(app.static_folder, 'index.html')
+
+
+    @app.errorhandler(404)
+    def not_found(e):
+        return send_from_directory(app.static_folder, 'index.html')
 
     return app
