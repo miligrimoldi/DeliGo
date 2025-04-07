@@ -85,9 +85,6 @@ const RegisterPage = () => {
                 <div style={{ color: "green", marginBottom: "1rem" }}>
                     ✅ {successMessage}
                     <br />
-                    <button onClick={() => window.location.href = "/login"} style={{ marginTop: "1rem" }}>
-                        Iniciar Sesión
-                    </button>
                 </div>
             )}
 

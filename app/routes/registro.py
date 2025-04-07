@@ -8,9 +8,10 @@ from app.models.usuario_empleado import UsuarioEmpleado
 from app.models.usuario_entidad import UsuarioEntidad
 
 
-main = Blueprint('main', __name__)
 
-@main.route('/register', methods=['POST'])
+registro_bp = Blueprint('register', __name__)
+
+@registro_bp.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
 
