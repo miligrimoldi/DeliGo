@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FaEnvelope, FaUser, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import '../css/registro.css';
 
 
@@ -28,6 +29,8 @@ const RegisterPage = () => {
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [repeatPassword, setRepeatPassword] = useState<string>("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [showRepeatPassword, setShowRepeatPassword] = useState(false);
 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,50 +104,70 @@ const RegisterPage = () => {
 
             {!successMessage && (
                 <form className="formulario" onSubmit={handleSubmit}>
-                    <input
-                        className="input"
-                        type="email"
-                        name="email"
-                        placeholder="Email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                    />
-                    <input
-                        className="input"
-                        type="text"
-                        name="nombre"
-                        placeholder="Nombre"
-                        value={formData.nombre}
-                        onChange={handleChange}
-                        required
-                    />
-                    <input
-                        className="input"
-                        type="text"
-                        name="apellido"
-                        placeholder="Apellido"
-                        value={formData.apellido}
-                        onChange={handleChange}
-                        required
-                    />
-                    <input
-                        className="input"
-                        type="password"
-                        name="password"
-                        placeholder="Contraseña"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                    />
-                    <input
-                        className="input"
-                        type="password"
-                        placeholder="Repetir contraseña"
-                        value={repeatPassword}
-                        onChange={(e) => setRepeatPassword(e.target.value)}
-                        required
-                    />
+                    <div className="input-container">
+                        <FaEnvelope className="icon"/>
+                        <input
+                            type="email"
+                            name="email"
+                            placeholder="Email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+
+                    <div className="input-container">
+                        <FaUser className="icon"/>
+                        <input
+                            type="text"
+                            name="nombre"
+                            placeholder="Nombre"
+                            value={formData.nombre}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+
+                    <div className="input-container">
+                        <FaUser className="icon"/>
+                        <input
+                            type="text"
+                            name="apellido"
+                            placeholder="Apellido"
+                            value={formData.apellido}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+
+                    <div className="input-container">
+                        <FaLock className="icon"/>
+                        <input
+                            type={showPassword ? "text" : "password"}
+                            name="password"
+                            placeholder="Contraseña"
+                            value={formData.password}
+                            onChange={handleChange}
+                            required
+                        />
+                        <span className="eye-icon" onClick={() => setShowPassword(!showPassword)}>
+        {showPassword ? <FaEyeSlash/> : <FaEye/>}
+    </span>
+                    </div>
+
+                    <div className="input-container">
+                        <FaLock className="icon"/>
+                        <input
+                            type={showRepeatPassword ? "text" : "password"}
+                            placeholder="Repetir contraseña"
+                            value={repeatPassword}
+                            onChange={(e) => setRepeatPassword(e.target.value)}
+                            required
+                        />
+                        <span className="eye-icon" onClick={() => setShowRepeatPassword(!showRepeatPassword)}>
+        {showRepeatPassword ? <FaEyeSlash/> : <FaEye/>}
+    </span>
+                    </div>
 
                     <label className="checkbox-label">
                         <input
@@ -179,9 +202,7 @@ const RegisterPage = () => {
                         </>
                     )}
 
-                    <button className="btn-registrarme" type="submit">
-                        Registrarme
-                    </button>
+                    <button className="btn-registrarme" type="submit">Registrarme</button>
 
                     <p className="login-text">
                         Ya tenés una cuenta? <a href="/login">Login</a>
@@ -190,7 +211,6 @@ const RegisterPage = () => {
             )}
         </div>
     );
-
 };
 
 export default RegisterPage;
