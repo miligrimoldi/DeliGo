@@ -18,11 +18,11 @@ def login():
 
     user = User.query.filter_by(email=email).first()
 
-    if not user or not check_password_hash(user.password, password):
+    if not user or not check_password_hash(user.contrasena, password):
         return jsonify({"error": "Email o contraseña incorrectos"}), 401
 
     # Verificar si es un usuario empleado
-    empleado = UsuarioEmpleado.query.filter_by(user_id=user.id_usuario).first()
+    empleado = UsuarioEmpleado.query.filter_by(id_usuario=user.id_usuario).first()
     if empleado:
         return jsonify({
             "id": user.id_usuario,
@@ -32,7 +32,7 @@ def login():
         }), 200
 
     # Verificar si es consumidor
-    consumidor = UsuarioConsumidor.query.filter_by(user_id=user.id_usuario).first()
+    consumidor = UsuarioConsumidor.query.filter_by(id_usuario=user.id_usuario).first()
     if consumidor:
         return jsonify({
             "id": user.id_usuario,
