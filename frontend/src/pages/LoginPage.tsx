@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import "../css/login.css";
 
 const LoginPage = () => {
     const [email, setEmail] = useState("");
@@ -39,11 +40,15 @@ const LoginPage = () => {
     };
 
     return (
-        <div>
-            <h2>Iniciar sesión</h2>
-            {errorMessage && <div style={{ color: "red" }}>❌ {errorMessage}</div>}
-            <form onSubmit={handleSubmit}>
+        <div className="login-container">
+            <img src="/img/logo_con_deligo.png" alt="Logo Deligo" className="logo" />
+            <h2 className="titulo">Iniciar sesión</h2>
+
+            {errorMessage && <div className="error-message">❌ {errorMessage}</div>}
+
+            <form className="formulario" onSubmit={handleSubmit}>
                 <input
+                    className="input"
                     type="email"
                     placeholder="Email"
                     value={email}
@@ -51,22 +56,22 @@ const LoginPage = () => {
                     required
                 />
                 <input
+                    className="input"
                     type="password"
                     placeholder="Contraseña"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                 />
-                <button type="submit">Ingresar</button>
-            </form>
+                <button className="btn-login" type="submit">
+                    Ingresar
+                </button>
 
-            {/* Cartel de registro */}
-            <p style={{ marginTop: "20px" }}>
-                ¿No tienes cuenta?{" "}
-                <Link to="/register" style={{ color: "blue", textDecoration: "underline" }}>
-                    Regístrate
-                </Link>
-            </p>
+                <p className="register-text">
+                    ¿No tenés cuenta?{" "}
+                    <Link to="/register">Regístrate</Link>
+                </p>
+            </form>
         </div>
     );
 };
