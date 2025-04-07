@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.extensions import db
-from app.models.user import User
+from app.models.usuario import User
 from werkzeug.security import generate_password_hash
 from app.models.entidad import Entidad
 from app.models.usuario_consumidor import UsuarioConsumidor
@@ -8,9 +8,10 @@ from app.models.usuario_empleado import UsuarioEmpleado
 from app.models.usuario_entidad import UsuarioEntidad
 
 
-main = Blueprint('main', __name__)
 
-@main.route('/register', methods=['POST'])
+registro_bp = Blueprint('register', __name__)
+
+@registro_bp.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
 
