@@ -32,10 +32,10 @@ const EntidadesTabs: React.FC = () => {
                 const data = await fetchEntidades();
                 setEntidades(data);
 
-                const asociadas = await fetchMisEntidades();;
+                const asociadas = await fetchMisEntidades(userId);;
                 setMisEntidades(asociadas);
             } else {
-                const data = await fetchMisEntidades();
+                const data = await fetchMisEntidades(userId);
                 setEntidades(data);
             }
         };
@@ -120,10 +120,17 @@ const EntidadesTabs: React.FC = () => {
                                             disabled={loadingId === entidad.id_entidad}
                                             onClick={async () => {
                                                 setLoadingId(entidad.id_entidad);
-                                                await asociarAEntidad(userId, entidad.id_entidad);
-                                                const nuevas = await fetchMisEntidades();
-                                                setMisEntidades(nuevas);
-                                                setLoadingId(null);
+                                                try {
+                                                    const res = await asociarAEntidad(entidad.id_entidad);
+                                                    console.log("Respuesta OK:", res);
+                                                    const nuevas = await fetchMisEntidades(userId);
+                                                    setMisEntidades(nuevas);
+                                                } catch (err) {
+                                                    console.error("Error asociando:", err);
+                                                    alert("Hubo un problema al asociarte. Revisá consola.");
+                                                } finally {
+                                                    setLoadingId(null);
+                                                }
                                             }}
                                         >
                                             {loadingId === entidad.id_entidad ? "Asociando..." : "Asociarme"}
@@ -136,7 +143,7 @@ const EntidadesTabs: React.FC = () => {
                                             setLoadingId(entidad.id_entidad);
                                             try {
                                                 await desasociarAEntidad(userId, entidad.id_entidad);
-                                                const nuevas = await fetchMisEntidades();
+                                                const nuevas = await fetchMisEntidades(userId);
                                                 setMisEntidades(nuevas);
                                                 setEntidades(nuevas); // ya que estamos en "mis"
                                             } catch {

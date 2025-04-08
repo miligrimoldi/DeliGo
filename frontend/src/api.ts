@@ -15,9 +15,9 @@ export const fetchEntidades = async (): Promise<Entidad[]> => {
 };
 
 // Retorna Entidad[], pero filtrado por el usuario
-export const fetchMisEntidades = async () => {
+export const fetchMisEntidades = async (userId: number): Promise<Entidad[]> => {
     const token = localStorage.getItem("token");
-    const response = await fetch('/api/entidades/usuario', {
+    const response = await fetch(`http://localhost:5000/api/entidades/usuario/${userId}`, {
         method: 'GET',
         headers: {
             Authorization: `Bearer ${token}`
@@ -26,15 +26,21 @@ export const fetchMisEntidades = async () => {
     return await response.json();
 };
 
-export const asociarAEntidad = async (id_usuario: number, id_entidad: number) => {
+export const asociarAEntidad = async (id_entidad: number) => {
+    const token = localStorage.getItem("token");
+
     const response = await fetch("http://localhost:5000/api/asociar", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id_usuario, id_entidad })
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ id_entidad }),
     });
 
     if (!response.ok) {
         const error = await response.json();
+        console.error("Error al asociar:", error);
         throw new Error(error?.error || "Error en la solicitud");
     }
 
@@ -42,9 +48,13 @@ export const asociarAEntidad = async (id_usuario: number, id_entidad: number) =>
 };
 
 export const desasociarAEntidad = async (id_usuario: number, id_entidad: number) => {
+    const token = localStorage.getItem("token");
     const response = await fetch("http://localhost:5000/api/desasociar", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ id_usuario, id_entidad }),
     });
 
@@ -63,6 +73,7 @@ export type LoginResponse = {
     apellido: string;
     esAdmin: boolean;
     id_servicio?: string;
+    access_token: string;
 };
 
 export async function loginUser(email: string, password: string): Promise<LoginResponse> {
@@ -79,7 +90,7 @@ export async function loginUser(email: string, password: string): Promise<LoginR
     if (!response.ok) {
         throw new Error(data.error || "Error al iniciar sesión");
     }
-
+    localStorage.setItem("token", data.access_token);
     return data;
 }
 
