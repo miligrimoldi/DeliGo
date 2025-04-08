@@ -48,6 +48,8 @@ const EntidadesTabs: React.FC = () => {
         localStorage.removeItem('user');
         window.location.href = '/login';
     };
+    const [loadingId, setLoadingId] = useState<number | null>(null);
+
 
     if (!userId) {
         return <p style={{ padding: "1rem" }}>Debe iniciar sesión para ver las entidades.</p>;
@@ -116,14 +118,24 @@ const EntidadesTabs: React.FC = () => {
                                     ) : (
                                         <button
                                             className="asociar-btn"
+                                            disabled={loadingId === entidad.id_entidad}
                                             onClick={async () => {
-                                                await asociarAEntidad(userId, entidad.id_entidad);
-                                                const nuevas = await fetchMisEntidades(userId);
-                                                setMisEntidades(nuevas);
+                                                setLoadingId(entidad.id_entidad);
+                                                try {
+                                                    await asociarAEntidad(userId, entidad.id_entidad);
+                                                    const nuevas = await fetchMisEntidades(userId);
+                                                    setMisEntidades(nuevas);
+                                                } catch (error) {
+                                                    console.error("Error al asociar:", error);
+                                                    alert("Hubo un error al asociar la entidad.");
+                                                } finally {
+                                                    setLoadingId(null); // esto se ejecuta sí o sí, haya error o no
+                                                }
                                             }}
                                         >
-                                            Asociarme
+                                            {loadingId === entidad.id_entidad ? "Asociando..." : "Asociarme"}
                                         </button>
+
                                     )
                                 )}
                             </div>

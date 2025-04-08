@@ -20,9 +20,17 @@ export const fetchMisEntidades = async (idUsuario: number): Promise<Entidad[]> =
     return response.data;
 };
 
-export const asociarAEntidad = async (idUsuario: number, idEntidad: number): Promise<void> => {
-    await api.post('/api/entidades/asociar', {
-        id_usuario: idUsuario,
-        id_entidad: idEntidad
+export const asociarAEntidad = async (id_usuario: number, id_entidad: number) => {
+    const response = await fetch("http://localhost:5000/api/asociar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_usuario, id_entidad })
     });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error?.error || "Error en la solicitud");
+    }
+
+    return response.json();
 };
