@@ -3,6 +3,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import EntidadesTabs from './pages/EntitiesTabs.tsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import MyProfilePage from "./pages/MyProfilePage.tsx";
 
 function App() {
     return (
@@ -19,6 +20,9 @@ function App() {
 
                 {/* Página de entidades */}
                 <Route path="/entidades" element={<EntidadesTabs />} />
+
+                {/* Página del perfil */}
+                <Route path="/perfil" element={<MyProfilePage />} />
             </Routes>
         </Router>
     );
