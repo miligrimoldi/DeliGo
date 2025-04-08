@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import '../css/entidades.css';
 import { fetchEntidades, fetchMisEntidades, asociarAEntidad } from '../api.ts';
-import { useNavigate } from "react-router-dom";
 
 export interface Entidad {
     id_entidad: number;
@@ -45,7 +44,10 @@ const EntidadesTabs: React.FC = () => {
         return misEntidades.some((e) => e.id_entidad === id_entidad);
     };
 
-    const navigate = useNavigate()
+    const handleLogout = () => {
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+    };
 
     if (!userId) {
         return <p style={{ padding: "1rem" }}>Debe iniciar sesión para ver las entidades.</p>;
@@ -55,10 +57,10 @@ const EntidadesTabs: React.FC = () => {
         <div className="entidades-container">
             <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '1rem' }}>
                 <button
-                    onClick={() => navigate("/perfil")}
+                    onClick={handleLogout}
                     style={{ background: 'none', border: '1px solid #ccc', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer' }}
                 >
-                    Mi perfil
+                    Cerrar sesión
                 </button>
             </div>
 
