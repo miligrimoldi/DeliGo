@@ -55,3 +55,60 @@ export const desasociarAEntidad = async (id_usuario: number, id_entidad: number)
 
     return response.json();
 };
+
+export type LoginResponse = {
+    id_usuario: string;
+    email: string;
+    nombre: string;
+    apellido: string;
+    esAdmin: boolean;
+    id_servicio?: string;
+};
+
+export async function loginUser(email: string, password: string): Promise<LoginResponse> {
+    const response = await fetch("/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.error || "Error al iniciar sesión");
+    }
+
+    return data;
+}
+
+export type RegisterData = {
+    nombre: string;
+    apellido: string;
+    email: string;
+    password: string;
+    esAdmin: boolean;
+    id_servicio?: string;
+    dni?: string;
+};
+
+export async function registerUser(data: RegisterData): Promise<{ message: string }> {
+    const response = await fetch("/register", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    });
+
+    const responseData = await response.json();
+
+    if (!response.ok) {
+        throw new Error(responseData.error || "Error al registrarse");
+    }
+
+    return responseData;
+}
+
+

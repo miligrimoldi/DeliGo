@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import "../css/login.css";
+import { loginUser } from "../api";
 
 const LoginPage = () => {
     const [email, setEmail] = useState("");
@@ -12,30 +13,16 @@ const LoginPage = () => {
         setErrorMessage(null);
 
         try {
-            const response = await fetch("/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ email, password }),
-            });
+            const data = await loginUser(email, password);
+            localStorage.setItem("user", JSON.stringify(data));
 
-            const data = await response.json();
-
-            if (response.ok) {
-                localStorage.setItem("user", JSON.stringify(data));
-
-                if (data.esAdmin) {
-                    window.location.href = `/admin/${data.id_servicio}`;
-                } else {
-                    window.location.href = "/entidades";
-                }
+            if (data.esAdmin) {
+                window.location.href = `/admin/${data.id_servicio}`;
             } else {
-                setErrorMessage(data.error || "Error al iniciar sesión");
+                window.location.href = "/entidades";
             }
-        } catch (err) {
-            setErrorMessage("Ocurrió un error en la solicitud");
-            console.error("Login error:", err);
+        } catch (error: any) {
+            setErrorMessage(error.message);
         }
     };
 
@@ -68,8 +55,7 @@ const LoginPage = () => {
                 </button>
 
                 <p className="register-text">
-                    ¿No tenés cuenta?{" "}
-                    <Link to="/register">Regístrate</Link>
+                    ¿No tenés cuenta? <Link to="/register">Regístrate</Link>
                 </p>
             </form>
         </div>

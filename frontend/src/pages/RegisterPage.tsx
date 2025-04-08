@@ -1,22 +1,10 @@
 import { useState } from "react";
 import { FaEnvelope, FaUser, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
-import '../css/registro.css';
-
-
-type FormDataType = {
-    nombre: string;
-    apellido: string;
-    email: string;
-    password: string;
-    esAdmin: boolean;
-    id_servicio?: string;
-    dni?: string;
-};
-
+import "../css/registro.css";
+import { registerUser, RegisterData } from "../api";
 
 const RegisterPage = () => {
-
-    const [formData, setFormData] = useState<FormDataType>({
+    const [formData, setFormData] = useState<RegisterData>({
         nombre: "",
         apellido: "",
         email: "",
@@ -26,12 +14,11 @@ const RegisterPage = () => {
         dni: "",
     });
 
-    const [successMessage, setSuccessMessage] = useState<string | null>(null);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [repeatPassword, setRepeatPassword] = useState<string>("");
+    const [repeatPassword, setRepeatPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [showRepeatPassword, setShowRepeatPassword] = useState(false);
-
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
@@ -59,53 +46,35 @@ const RegisterPage = () => {
         }
 
         try {
-            const response = await fetch("/register", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(dataToSend),
+            const response = await registerUser(dataToSend);
+            setSuccessMessage(response.message || "Usuario registrado con éxito");
+            setFormData({
+                nombre: "",
+                apellido: "",
+                email: "",
+                password: "",
+                esAdmin: false,
+                id_servicio: "",
+                dni: "",
             });
-
-            const responseData = await response.json();
-
-            if (response.ok) {
-                setSuccessMessage(responseData.message || "Usuario registrado con éxito");
-                setFormData({
-                    nombre: "",
-                    apellido: "",
-                    email: "",
-                    password: "",
-                    esAdmin: false,
-                    id_servicio: "",
-                    dni: "",
-                });
-            } else {
-                setErrorMessage(responseData.error || "Ocurrió un error en el registro");
-            }
-        } catch (error) {
-            setErrorMessage("Error en la solicitud");
-            console.error("Error en la solicitud:", error);
+            setRepeatPassword("");
+        } catch (error: any) {
+            setErrorMessage(error.message);
         }
     };
 
     return (
         <div className="register-container">
-            <img src="/img/logo_con_deligo.png" alt="Logo Deligo" className="logo"/>
-
+            <img src="/img/logo_con_deligo.png" alt="Logo Deligo" className="logo" />
             <h2 className="titulo">Registrarse</h2>
 
-            {successMessage && (
-                <div className="success-message">✅ {successMessage}</div>
-            )}
-            {errorMessage && (
-                <div className="error-message">❌ {errorMessage}</div>
-            )}
+            {successMessage && <div className="success-message">✅ {successMessage}</div>}
+            {errorMessage && <div className="error-message">❌ {errorMessage}</div>}
 
             {!successMessage && (
                 <form className="formulario" onSubmit={handleSubmit}>
                     <div className="input-container">
-                        <FaEnvelope className="icon"/>
+                        <FaEnvelope className="icon" />
                         <input
                             type="email"
                             name="email"
@@ -117,7 +86,7 @@ const RegisterPage = () => {
                     </div>
 
                     <div className="input-container">
-                        <FaUser className="icon"/>
+                        <FaUser className="icon" />
                         <input
                             type="text"
                             name="nombre"
@@ -129,7 +98,7 @@ const RegisterPage = () => {
                     </div>
 
                     <div className="input-container">
-                        <FaUser className="icon"/>
+                        <FaUser className="icon" />
                         <input
                             type="text"
                             name="apellido"
@@ -141,7 +110,7 @@ const RegisterPage = () => {
                     </div>
 
                     <div className="input-container">
-                        <FaLock className="icon"/>
+                        <FaLock className="icon" />
                         <input
                             type={showPassword ? "text" : "password"}
                             name="password"
@@ -151,12 +120,12 @@ const RegisterPage = () => {
                             required
                         />
                         <span className="eye-icon" onClick={() => setShowPassword(!showPassword)}>
-        {showPassword ? <FaEyeSlash/> : <FaEye/>}
-    </span>
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </span>
                     </div>
 
                     <div className="input-container">
-                        <FaLock className="icon"/>
+                        <FaLock className="icon" />
                         <input
                             type={showRepeatPassword ? "text" : "password"}
                             placeholder="Repetir contraseña"
@@ -165,8 +134,8 @@ const RegisterPage = () => {
                             required
                         />
                         <span className="eye-icon" onClick={() => setShowRepeatPassword(!showRepeatPassword)}>
-        {showRepeatPassword ? <FaEyeSlash/> : <FaEye/>}
-    </span>
+              {showRepeatPassword ? <FaEyeSlash /> : <FaEye />}
+            </span>
                     </div>
 
                     <label className="checkbox-label">
