@@ -3,17 +3,24 @@
     min-height: 100vh;
     padding: 200px 30px 40px 30px;
     margin: 40px auto;
-    background: #f4f5f9;
+    background-color: #f4f5f9;
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     text-align: center;
     font-family: 'Arial', sans-serif;
 }
 
-.perfil-title {
-    font-size: 2rem;
+.logo {
+    width: 200px;
+    margin: 0 auto 1.5rem auto;
+    display: block;
+}
+
+.titulo {
+    font-size: 1.5rem;
     font-weight: bold;
     margin-bottom: 2rem;
+    text-align: left;
 }
 
 .perfil-opciones {
@@ -25,31 +32,45 @@
 
 .perfil-item {
     background-color: #ffffff;
-    padding: 1rem 1.5rem;
+    padding: 1rem;
     border-radius: 10px;
     cursor: pointer;
-    font-size: 1.1rem;
-    font-weight: 500;
-    text-align: left;
     transition: background-color 0.2s ease;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.05rem;
+    font-weight: 500;
+    justify-content: flex-start;
 }
 
 .perfil-item:hover {
-    background-color: #edf0f5;
+    background-color: #e6f0dc;
+}
+
+.perfil-icon {
+    font-size: 1.2rem;
+    color: #7c9a3c;
 }
 
 .cerrar-sesion-btn {
-    background: linear-gradient(to right, #ff6b6b, #ff8787);
-    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
     padding: 0.9rem;
+    background: linear-gradient(to right, #d9534f, #c9302c);
+    color: white;
     border: none;
     border-radius: 10px;
     font-size: 1.1rem;
     font-weight: bold;
     cursor: pointer;
+    margin-top: 1rem;
+    width: 100%;
 }
 
 .cerrar-sesion-btn:hover {
-    background: linear-gradient(to right, #e15a5a, #ee7676);
+    background: linear-gradient(to right, #c9302c, #b52b27);
 }
