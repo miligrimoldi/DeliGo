@@ -23,6 +23,7 @@ function App() {
 
                 {/* Página del perfil */}
                 <Route path="/perfil" element={<MyProfilePage />} />
+
             </Routes>
         </Router>
     );

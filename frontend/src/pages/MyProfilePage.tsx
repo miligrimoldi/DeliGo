@@ -1,11 +1,8 @@
-import React, { useEffect, useState } from 'react';
 import '../css/perfil.css';
-import { fetchEntidades, fetchMisEntidades, asociarAEntidad } from '../api.ts';
-import { useNavigate } from "react-router-dom";
+
 
 const MyProfilePage = () => {
 
-    const navigate = useNavigate();
 
     const handleLogout = () => {
         localStorage.removeItem('user');
@@ -14,10 +11,25 @@ const MyProfilePage = () => {
 
     return (
 
-        <div className='perfil-opciones'>
+        <div className="perfil-container">
 
-
-
+        <div className="perfil-opciones">
+            <div className="perfil-item" onClick={() => console.log("Editar perfil")}>
+                Editar perfil
+            </div>
+            <div className="perfil-item" onClick={() => console.log("Ir a mis pedidos")}>
+                Mis pedidos
+            </div>
+            <div className="perfil-item" onClick={() => console.log("Ir a mis favoritos")}>
+                Mis favoritos
+            </div>
+            <div className="perfil-item" onClick={() => console.log("Ir a mis entidades")}>
+                Mis entidades
+            </div>
+        </div>
+        <button className="cerrar-sesion-btn" onClick={handleLogout}>
+            Cerrar sesión
+        </button>
 
         </div>
 
