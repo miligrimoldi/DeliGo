@@ -28,6 +28,7 @@ def login():
             "id_usuario": user.id_usuario,
             "email": user.email,
             "nombre": user.nombre,
+            "apellido": user.apellido,
             "esAdmin": True,
             "id_servicio": empleado.id_servicio
         }), 200
@@ -39,6 +40,7 @@ def login():
             "id_usuario": user.id_usuario,
             "email": user.email,
             "nombre": user.nombre,
+            "apellido": user.apellido,
             "esAdmin": False
         }), 200
 

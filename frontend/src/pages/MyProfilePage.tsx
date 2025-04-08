@@ -4,12 +4,18 @@ import {
     FaBox,
     FaHeart,
     FaBuilding,
-    FaSignOutAlt
+    FaSignOutAlt,
+    FaCamera
 } from 'react-icons/fa';
 import '../css/perfil.css';
 
 const MyProfilePage = () => {
     const navigate = useNavigate();
+
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const fullName = `${user.nombre || 'Nombre'} ${user.apellido || 'Apellido'}`;
+    const email = user.email || 'email@ejemplo.com';
+    const profilePhoto = "/img/PERFIL-VACIO.png"
 
     const handleLogout = () => {
         localStorage.removeItem('user');
@@ -18,8 +24,16 @@ const MyProfilePage = () => {
 
     return (
         <div className="perfil-container">
-            <img src="/img/logo_con_deligo.png" alt="Logo Deligo" className="logo" />
-            <h2 className="titulo">Mi Perfil</h2>
+
+            <div className="profile-picture-wrapper">
+                <img src={profilePhoto} alt="Foto de perfil" className="profile-picture" />
+                <div className="camera-icon">
+                    <FaCamera />
+                </div>
+            </div>
+
+            <h3 className="user-name">{fullName}</h3>
+            <p className="user-email">{email}</p>
 
             <div className="perfil-opciones">
                 <div className="perfil-item" onClick={() => navigate('/editar-perfil')}>
