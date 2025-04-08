@@ -4,6 +4,7 @@ from app.models.usuario import User
 from werkzeug.security import check_password_hash
 from app.models.usuario_consumidor import UsuarioConsumidor
 from app.models.usuario_empleado import UsuarioEmpleado
+from flask_jwt_extended import create_access_token
 
 login_bp = Blueprint('login', __name__)
 
@@ -21,10 +22,12 @@ def login():
     if not user or not check_password_hash(user.contrasena, password):
         return jsonify({"error": "Email o contraseña incorrectos"}), 401
 
-    # Verificar si es un usuario empleado
+    access_token = create_access_token(identity=user.id_usuario)
+
     empleado = UsuarioEmpleado.query.filter_by(id_usuario=user.id_usuario).first()
     if empleado:
         return jsonify({
+            "access_token": access_token,
             "id_usuario": user.id_usuario,
             "email": user.email,
             "nombre": user.nombre,
@@ -32,14 +35,13 @@ def login():
             "id_servicio": empleado.id_servicio
         }), 200
 
-    # Verificar si es consumidor
     consumidor = UsuarioConsumidor.query.filter_by(id_usuario=user.id_usuario).first()
     if consumidor:
         return jsonify({
+            "access_token": access_token,
             "id_usuario": user.id_usuario,
             "email": user.email,
             "nombre": user.nombre,
             "esAdmin": False
         }), 200
-
     return jsonify({"error": "Tipo de usuario no reconocido"}), 403

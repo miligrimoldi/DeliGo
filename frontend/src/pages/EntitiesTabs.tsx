@@ -32,10 +32,10 @@ const EntidadesTabs: React.FC = () => {
                 const data = await fetchEntidades();
                 setEntidades(data);
 
-                const asociadas = await fetchMisEntidades(userId);
+                const asociadas = await fetchMisEntidades();;
                 setMisEntidades(asociadas);
             } else {
-                const data = await fetchMisEntidades(userId);
+                const data = await fetchMisEntidades();
                 setEntidades(data);
             }
         };
@@ -121,7 +121,7 @@ const EntidadesTabs: React.FC = () => {
                                             onClick={async () => {
                                                 setLoadingId(entidad.id_entidad);
                                                 await asociarAEntidad(userId, entidad.id_entidad);
-                                                const nuevas = await fetchMisEntidades(userId);
+                                                const nuevas = await fetchMisEntidades();
                                                 setMisEntidades(nuevas);
                                                 setLoadingId(null);
                                             }}
@@ -136,7 +136,7 @@ const EntidadesTabs: React.FC = () => {
                                             setLoadingId(entidad.id_entidad);
                                             try {
                                                 await desasociarAEntidad(userId, entidad.id_entidad);
-                                                const nuevas = await fetchMisEntidades(userId);
+                                                const nuevas = await fetchMisEntidades();
                                                 setMisEntidades(nuevas);
                                                 setEntidades(nuevas); // ya que estamos en "mis"
                                             } catch {

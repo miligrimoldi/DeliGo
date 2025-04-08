@@ -15,9 +15,15 @@ export const fetchEntidades = async (): Promise<Entidad[]> => {
 };
 
 // Retorna Entidad[], pero filtrado por el usuario
-export const fetchMisEntidades = async (idUsuario: number): Promise<Entidad[]> => {
-    const response = await api.get(`/api/entidades/usuario/${idUsuario}`);
-    return response.data;
+export const fetchMisEntidades = async () => {
+    const token = localStorage.getItem("token");
+    const response = await fetch('/api/entidades/usuario', {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
+    return await response.json();
 };
 
 export const asociarAEntidad = async (id_usuario: number, id_entidad: number) => {

@@ -3,10 +3,15 @@ from flask_cors import CORS
 from app.extensions import db
 from app.main import main
 import os
+from flask_jwt_extended import JWTManager
 
 def create_app():
     app = Flask(__name__, static_folder='../frontend/dist', static_url_path='/')
     app.config.from_object('app.config')
+
+    # Configurar JWT
+    app.config["JWT_SECRET_KEY"] = "deligo-mili-pili"
+    jwt = JWTManager(app)
 
     CORS(app)
 
