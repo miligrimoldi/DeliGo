@@ -34,3 +34,18 @@ export const asociarAEntidad = async (id_usuario: number, id_entidad: number) =>
 
     return response.json();
 };
+
+export const desasociarAEntidad = async (id_usuario: number, id_entidad: number) => {
+    const response = await fetch("http://localhost:5000/api/desasociar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_usuario, id_entidad }),
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error?.error || "Error al desasociar");
+    }
+
+    return response.json();
+};

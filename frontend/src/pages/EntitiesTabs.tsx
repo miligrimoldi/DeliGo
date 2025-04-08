@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import '../css/entidades.css';
-import { fetchEntidades, fetchMisEntidades, asociarAEntidad } from '../api.ts';
+import { fetchEntidades, fetchMisEntidades, asociarAEntidad, desasociarAEntidad} from '../api.ts';
 import {useNavigate} from "react-router-dom";
 
 export interface Entidad {
@@ -21,6 +21,8 @@ const EntidadesTabs: React.FC = () => {
     const user = userData ? JSON.parse(userData) : null;
     const userId = user?.id_usuario;
     const nombreUsuario = user?.nombre || 'Usuario';
+    const [loadingId, setLoadingId] = useState<number | null>(null);
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -107,7 +109,7 @@ const EntidadesTabs: React.FC = () => {
                                     {entidad.nombre.toUpperCase()}
                                 </span>
 
-                                {activeTab === 'entidades' && (
+                                {activeTab === 'entidades' ? (
                                     estaAsociado(entidad.id_entidad) ? (
                                         <button className="asociado-btn" disabled>
                                             Asociado
@@ -115,15 +117,36 @@ const EntidadesTabs: React.FC = () => {
                                     ) : (
                                         <button
                                             className="asociar-btn"
+                                            disabled={loadingId === entidad.id_entidad}
                                             onClick={async () => {
+                                                setLoadingId(entidad.id_entidad);
                                                 await asociarAEntidad(userId, entidad.id_entidad);
                                                 const nuevas = await fetchMisEntidades(userId);
                                                 setMisEntidades(nuevas);
+                                                setLoadingId(null);
                                             }}
                                         >
-                                            Asociarme
+                                            {loadingId === entidad.id_entidad ? "Asociando..." : "Asociarme"}
                                         </button>
                                     )
+                                ) : (
+                                    <button
+                                        className="asociar-btn"
+                                        onClick={async () => {
+                                            setLoadingId(entidad.id_entidad);
+                                            try {
+                                                await desasociarAEntidad(userId, entidad.id_entidad);
+                                                const nuevas = await fetchMisEntidades(userId);
+                                                setMisEntidades(nuevas);
+                                                setEntidades(nuevas); // ya que estamos en "mis"
+                                            } catch {
+                                            alert("Error al desasociar la entidad.");
+                                        }
+                                            setLoadingId(null);
+                                        }}
+                                    >
+                                        {loadingId === entidad.id_entidad ? "Desasociando..." : "Desasociarme"}
+                                    </button>
                                 )}
                             </div>
                         ))
