@@ -5,42 +5,31 @@ const API_URL = 'http://127.0.0.1:5000';
 
 export const api = axios.create({
     baseURL: API_URL,
-    headers: { 'Content-Type': 'application/json' }
+    headers: {
+        'Content-Type': 'application/json'
+    }
 });
 
-// Retorna lista de entidades (Entidad[])
+// Endpoints
 export const fetchEntidades = async (): Promise<Entidad[]> => {
     const response = await api.get('/api/entidades');
     return response.data;
 };
 
-// Retorna Entidad[], pero filtrado por el usuario
-export const fetchMisEntidades = async (userId: number): Promise<Entidad[]> => {
-    const token = localStorage.getItem("token");
-    const response = await fetch(`http://localhost:5000/api/entidades/usuario/${userId}`, {
-        method: 'GET',
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    });
-    return await response.json();
+export const fetchMisEntidades = async (id_usuario: number): Promise<Entidad[]> => {
+    const response = await api.get(`/api/entidades/usuario/${id_usuario}`);
+    return response.data;
 };
 
-export const asociarAEntidad = async (id_entidad: number) => {
-    const token = localStorage.getItem("token");
-
+export const asociarAEntidad = async (id_usuario: number, id_entidad: number) => {
     const response = await fetch("http://localhost:5000/api/asociar", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ id_entidad }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_usuario, id_entidad })
     });
 
     if (!response.ok) {
         const error = await response.json();
-        console.error("Error al asociar:", error);
         throw new Error(error?.error || "Error en la solicitud");
     }
 
@@ -48,14 +37,10 @@ export const asociarAEntidad = async (id_entidad: number) => {
 };
 
 export const desasociarAEntidad = async (id_usuario: number, id_entidad: number) => {
-    const token = localStorage.getItem("token");
     const response = await fetch("http://localhost:5000/api/desasociar", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ id_usuario, id_entidad }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_usuario, id_entidad })
     });
 
     if (!response.ok) {
@@ -77,20 +62,17 @@ export type LoginResponse = {
 };
 
 export async function loginUser(email: string, password: string): Promise<LoginResponse> {
-    const response = await fetch("/login", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
+    const response = await api.post<LoginResponse>("/login", {
+        email,
+        password
     });
 
-    const data = await response.json();
+    const data = response.data;
 
-    if (!response.ok) {
-        throw new Error(data.error || "Error al iniciar sesión");
-    }
     localStorage.setItem("token", data.access_token);
+    localStorage.setItem("user", JSON.stringify(data));
+    console.log("Login exitoso, token guardado:", data.access_token);
+
     return data;
 }
 
@@ -105,21 +87,6 @@ export type RegisterData = {
 };
 
 export async function registerUser(data: RegisterData): Promise<{ message: string }> {
-    const response = await fetch("/register", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-    });
-
-    const responseData = await response.json();
-
-    if (!response.ok) {
-        throw new Error(responseData.error || "Error al registrarse");
-    }
-
-    return responseData;
+    const response = await api.post("/register", data);
+    return response.data;
 }
-
-

@@ -1,9 +1,10 @@
 from flask import Flask, send_from_directory
-from flask_cors import CORS
 from app.extensions import db
 from app.main import main
 import os
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS
+
 
 def create_app():
     app = Flask(__name__, static_folder='../frontend/dist', static_url_path='/')
@@ -11,9 +12,15 @@ def create_app():
 
     # Configurar JWT
     app.config["JWT_SECRET_KEY"] = "deligo-mili-pili"
-    jwt = JWTManager(app)
+    app.config['JWT_TOKEN_LOCATION'] = ['headers']
+    app.config['JWT_HEADER_NAME'] = 'Authorization'
+    app.config['JWT_HEADER_TYPE'] = 'Bearer'
+    JWTManager(app)
 
-    CORS(app)
+    CORS(app,
+         resources={r"/api/*": {"origins": "*"}},
+         supports_credentials=True,
+         expose_headers=["Authorization"])
 
     db.init_app(app)
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import '../css/entidades.css';
-import { fetchEntidades, fetchMisEntidades, asociarAEntidad, desasociarAEntidad} from '../api.ts';
-import {useNavigate} from "react-router-dom";
+import { fetchEntidades, fetchMisEntidades, asociarAEntidad, desasociarAEntidad } from '../api.ts';
+import { useNavigate } from "react-router-dom";
 
 export interface Entidad {
     id_entidad: number;
@@ -16,13 +16,14 @@ const EntidadesTabs: React.FC = () => {
     const [entidades, setEntidades] = useState<Entidad[]>([]);
     const [misEntidades, setMisEntidades] = useState<Entidad[]>([]);
     const [search, setSearch] = useState('');
+    const [loadingId, setLoadingId] = useState<number | null>(null);
 
     const userData = localStorage.getItem("user");
     const user = userData ? JSON.parse(userData) : null;
     const userId = user?.id_usuario;
     const nombreUsuario = user?.nombre || 'Usuario';
-    const [loadingId, setLoadingId] = useState<number | null>(null);
 
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -32,7 +33,7 @@ const EntidadesTabs: React.FC = () => {
                 const data = await fetchEntidades();
                 setEntidades(data);
 
-                const asociadas = await fetchMisEntidades(userId);;
+                const asociadas = await fetchMisEntidades(userId);
                 setMisEntidades(asociadas);
             } else {
                 const data = await fetchMisEntidades(userId);
@@ -46,9 +47,6 @@ const EntidadesTabs: React.FC = () => {
     const estaAsociado = (id_entidad: number): boolean => {
         return misEntidades.some((e) => e.id_entidad === id_entidad);
     };
-
-    const navigate = useNavigate();
-
 
     if (!userId) {
         return <p style={{ padding: "1rem" }}>Debe iniciar sesión para ver las entidades.</p>;
@@ -120,17 +118,10 @@ const EntidadesTabs: React.FC = () => {
                                             disabled={loadingId === entidad.id_entidad}
                                             onClick={async () => {
                                                 setLoadingId(entidad.id_entidad);
-                                                try {
-                                                    const res = await asociarAEntidad(entidad.id_entidad);
-                                                    console.log("Respuesta OK:", res);
-                                                    const nuevas = await fetchMisEntidades(userId);
-                                                    setMisEntidades(nuevas);
-                                                } catch (err) {
-                                                    console.error("Error asociando:", err);
-                                                    alert("Hubo un problema al asociarte. Revisá consola.");
-                                                } finally {
-                                                    setLoadingId(null);
-                                                }
+                                                await asociarAEntidad(userId, entidad.id_entidad);
+                                                const nuevas = await fetchMisEntidades(userId);
+                                                setMisEntidades(nuevas);
+                                                setLoadingId(null);
                                             }}
                                         >
                                             {loadingId === entidad.id_entidad ? "Asociando..." : "Asociarme"}
@@ -146,9 +137,10 @@ const EntidadesTabs: React.FC = () => {
                                                 const nuevas = await fetchMisEntidades(userId);
                                                 setMisEntidades(nuevas);
                                                 setEntidades(nuevas); // ya que estamos en "mis"
-                                            } catch {
-                                            alert("Error al desasociar la entidad.");
-                                        }
+                                            } catch (e) {
+                                                console.error("Error al desasociar:", e);
+                                                alert("Error al desasociar la entidad.");
+                                            }
                                             setLoadingId(null);
                                         }}
                                     >
