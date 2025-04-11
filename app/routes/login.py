@@ -22,7 +22,8 @@ def login():
     if not user or not check_password_hash(user.contrasena, password):
         return jsonify({"error": "Email o contraseña incorrectos"}), 401
 
-    access_token = create_access_token(identity=user.id_usuario)
+    access_token = create_access_token(identity=str(user.id_usuario))
+
 
     empleado = UsuarioEmpleado.query.filter_by(id_usuario=user.id_usuario).first()
     if empleado:

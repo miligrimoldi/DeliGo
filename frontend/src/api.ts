@@ -10,45 +10,37 @@ export const api = axios.create({
     }
 });
 
+api.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem("token");
+        if (token && config.headers) {
+            config.headers['Authorization'] = `Bearer ${token}`;
+        }
+        console.log("Request headers:", config.headers);
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
+
 // Endpoints
 export const fetchEntidades = async (): Promise<Entidad[]> => {
     const response = await api.get('/api/entidades');
     return response.data;
 };
 
-export const fetchMisEntidades = async (id_usuario: number): Promise<Entidad[]> => {
-    const response = await api.get(`/api/entidades/usuario/${id_usuario}`);
+export const fetchMisEntidades = async (): Promise<Entidad[]> => {
+    const response = await api.get('/api/entidades/usuario');
     return response.data;
 };
 
-export const asociarAEntidad = async (id_usuario: number, id_entidad: number) => {
-    const response = await fetch("http://localhost:5000/api/asociar", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id_usuario, id_entidad })
-    });
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error?.error || "Error en la solicitud");
-    }
-
-    return response.json();
+export const asociarAEntidad = async (id_entidad: number) => {
+    const response = await api.post('/api/asociar', { id_entidad });
+    return response.data;
 };
 
-export const desasociarAEntidad = async (id_usuario: number, id_entidad: number) => {
-    const response = await fetch("http://localhost:5000/api/desasociar", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id_usuario, id_entidad })
-    });
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error?.error || "Error al desasociar");
-    }
-
-    return response.json();
+export const desasociarAEntidad = async (id_entidad: number) => {
+    const response = await api.post('/api/desasociar', { id_entidad });
+    return response.data;
 };
 
 export type LoginResponse = {

@@ -18,39 +18,36 @@ const EntidadesTabs: React.FC = () => {
     const [search, setSearch] = useState('');
     const [loadingId, setLoadingId] = useState<number | null>(null);
 
-    const userData = localStorage.getItem("user");
-    const user = userData ? JSON.parse(userData) : null;
-    const userId = user?.id_usuario;
-    const nombreUsuario = user?.nombre || 'Usuario';
-
     const navigate = useNavigate();
+
+    // Obtenemos solo el nombre del usuario si existe (opcional para mostrar en UI)
+    const userData = localStorage.getItem("user");
+    const nombreUsuario = userData ? JSON.parse(userData)?.nombre || 'Usuario' : 'Usuario';
 
     useEffect(() => {
         const fetchData = async () => {
-            if (!userId) return;
+            try {
+                if (activeTab === 'entidades') {
+                    const data = await fetchEntidades();
+                    setEntidades(data);
 
-            if (activeTab === 'entidades') {
-                const data = await fetchEntidades();
-                setEntidades(data);
-
-                const asociadas = await fetchMisEntidades(userId);
-                setMisEntidades(asociadas);
-            } else {
-                const data = await fetchMisEntidades(userId);
-                setEntidades(data);
+                    const asociadas = await fetchMisEntidades();
+                    setMisEntidades(asociadas);
+                } else {
+                    const data = await fetchMisEntidades();
+                    setEntidades(data);
+                }
+            } catch (error) {
+                console.error("Error al obtener entidades:", error);
             }
         };
 
         fetchData();
-    }, [activeTab, userId]);
+    }, [activeTab]);
 
     const estaAsociado = (id_entidad: number): boolean => {
         return misEntidades.some((e) => e.id_entidad === id_entidad);
     };
-
-    if (!userId) {
-        return <p style={{ padding: "1rem" }}>Debe iniciar sesión para ver las entidades.</p>;
-    }
 
     return (
         <div className="entidades-container">
@@ -118,8 +115,8 @@ const EntidadesTabs: React.FC = () => {
                                             disabled={loadingId === entidad.id_entidad}
                                             onClick={async () => {
                                                 setLoadingId(entidad.id_entidad);
-                                                await asociarAEntidad(userId, entidad.id_entidad);
-                                                const nuevas = await fetchMisEntidades(userId);
+                                                await asociarAEntidad(entidad.id_entidad);
+                                                const nuevas = await fetchMisEntidades();
                                                 setMisEntidades(nuevas);
                                                 setLoadingId(null);
                                             }}
@@ -133,10 +130,10 @@ const EntidadesTabs: React.FC = () => {
                                         onClick={async () => {
                                             setLoadingId(entidad.id_entidad);
                                             try {
-                                                await desasociarAEntidad(userId, entidad.id_entidad);
-                                                const nuevas = await fetchMisEntidades(userId);
+                                                await desasociarAEntidad(entidad.id_entidad);
+                                                const nuevas = await fetchMisEntidades();
                                                 setMisEntidades(nuevas);
-                                                setEntidades(nuevas); // ya que estamos en "mis"
+                                                setEntidades(nuevas);
                                             } catch (e) {
                                                 console.error("Error al desasociar:", e);
                                                 alert("Error al desasociar la entidad.");
