@@ -3,6 +3,7 @@ from app.extensions import db
 from app.models.usuario import User
 from app.models.entidad import Entidad
 from app.models.usuario_entidad import UsuarioEntidad
+from flask_jwt_extended import JWTManager # el que vamos a usar para comparar tokens.
 
 asociar_bp = Blueprint('asociar_entidad', __name__)
 

@@ -8,7 +8,6 @@ from app.models.usuario_empleado import UsuarioEmpleado
 from app.models.usuario_entidad import UsuarioEntidad
 
 
-
 registro_bp = Blueprint('register', __name__)
 
 @registro_bp.route('/register', methods=['POST'])

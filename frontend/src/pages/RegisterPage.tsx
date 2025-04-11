@@ -2,8 +2,12 @@ import { useState } from "react";
 import { FaEnvelope, FaUser, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import "../css/registro.css";
 import { registerUser, RegisterData } from "../api";
+import { useNavigate } from "react-router-dom";
 
 const RegisterPage = () => {
+
+    const navigate = useNavigate();
+
     const [formData, setFormData] = useState<RegisterData>({
         nombre: "",
         apellido: "",
@@ -68,7 +72,16 @@ const RegisterPage = () => {
             <img src="/img/logo_con_deligo.png" alt="Logo Deligo" className="logo" />
             <h2 className="titulo">Registrarse</h2>
 
-            {successMessage && <div className="success-message">✅ {successMessage}</div>}
+            {successMessage && (
+                <div className="success-message">✅ {successMessage}
+                    <div className="go-login-container">
+                        <button
+                            className="btn-ingresar"
+                            onClick={() => navigate("/login")}>
+                            Ingresar
+                        </button>
+                    </div>
+                </div>)}
             {errorMessage && <div className="error-message">❌ {errorMessage}</div>}
 
             {!successMessage && (
