@@ -94,15 +94,19 @@ const EntidadesTabs: React.FC = () => {
                             e.nombre.toLowerCase().includes(search.toLowerCase())
                         )
                         .map((entidad) => (
-                            <div key={entidad.id_entidad} className="entidad-card">
+                            <div
+                                className="entidad-card"
+                                onClick={() => navigate(`/entidad/${entidad.id_entidad}`)}
+                                style={{ cursor: 'pointer' }}
+                            >
                                 <img
                                     src={entidad.logo_url || 'https://via.placeholder.com/40'}
                                     alt={entidad.nombre}
                                     className="entidad-logo"
                                 />
                                 <span className="entidad-nombre">
-                                    {entidad.nombre.toUpperCase()}
-                                </span>
+        {entidad.nombre.toUpperCase()}
+    </span>
 
                                 {activeTab === 'entidades' ? (
                                     estaAsociado(entidad.id_entidad) ? (
@@ -113,7 +117,8 @@ const EntidadesTabs: React.FC = () => {
                                         <button
                                             className="asociar-btn"
                                             disabled={loadingId === entidad.id_entidad}
-                                            onClick={async () => {
+                                            onClick={async (e) => {
+                                                e.stopPropagation();  // Evita que el click sobre este botón también active el onClick de la tarjeta
                                                 setLoadingId(entidad.id_entidad);
                                                 await asociarAEntidad(entidad.id_entidad);
                                                 const nuevas = await fetchMisEntidades();
@@ -127,7 +132,8 @@ const EntidadesTabs: React.FC = () => {
                                 ) : (
                                     <button
                                         className="asociar-btn"
-                                        onClick={async () => {
+                                        onClick={async (e) => {
+                                            e.stopPropagation();  // Evita que el click sobre este botón también active el onClick de la tarjeta
                                             setLoadingId(entidad.id_entidad);
                                             try {
                                                 await desasociarAEntidad(entidad.id_entidad);
@@ -145,6 +151,7 @@ const EntidadesTabs: React.FC = () => {
                                     </button>
                                 )}
                             </div>
+
                         ))
                 )}
             </div>

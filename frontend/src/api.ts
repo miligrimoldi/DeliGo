@@ -82,3 +82,16 @@ export async function registerUser(data: RegisterData): Promise<{ message: strin
     const response = await api.post("/register", data);
     return response.data;
 }
+
+export type Servicio = {
+    id_servicio: number;
+    nombre: string;
+    descripcion: string;
+};
+
+export const fetchServiciosEntidad = async (id_entidad: number): Promise<Servicio[]> => {
+    const response = await api.get(`/api/entidades/${id_entidad}/servicios`);
+    return response.data;
+};
+
+
