@@ -35,6 +35,7 @@ def create_app():
         from app.models.usuario_entidad import UsuarioEntidad
         from app.models.servicio import Servicio
         from app.models.categoria import Categoria
+        from app.models.producto_servicio import ProductoServicio
         db.create_all()
 
         # entidades
