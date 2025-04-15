@@ -63,7 +63,11 @@ const RegisterPage = () => {
             });
             setRepeatPassword("");
         } catch (error: any) {
-            setErrorMessage(error.message);
+            if (error.response && error.response.data && error.response.data.error) {
+                setErrorMessage(error.response.data.error);
+            } else {
+                setErrorMessage("Ocurrió un error al registrar el usuario");
+            }
         }
     };
 
