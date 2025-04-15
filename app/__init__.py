@@ -34,6 +34,7 @@ def create_app():
         from app.models.entidad import Entidad
         from app.models.usuario_entidad import UsuarioEntidad
         from app.models.servicio import Servicio
+        from app.models.categoria import Categoria
         db.create_all()
 
         # entidades
@@ -68,6 +69,51 @@ def create_app():
             ]
             db.session.add_all(servicios)
             db.session.commit()
+
+            if not Categoria.query.first():
+                # Buscar los servicios
+                comedor_aus = Servicio.query.filter_by(nombre='Comedor Aus').first()
+                comedor_oak = Servicio.query.filter_by(nombre='Comedor Oak').first()
+                cafeteria = Servicio.query.filter_by(nombre='Cafetería').first()
+                kiosko = Servicio.query.filter_by(nombre='Kiosko').first()
+                foodtruck = Servicio.query.filter_by(nombre='Foodtruck').first()
+
+                # Categorías para Comedores
+                categorias_comedor = [
+                    Categoria(nombre='MENÚ', servicio=comedor_aus),
+                    Categoria(nombre='ENSALADA', servicio=comedor_aus),
+                    Categoria(nombre='EXTRAS', servicio=comedor_aus),
+                    Categoria(nombre='BEBIDAS', servicio=comedor_aus),
+
+                    Categoria(nombre='MENÚ', servicio=comedor_oak),
+                    Categoria(nombre='ENSALADA', servicio=comedor_oak),
+                    Categoria(nombre='EXTRAS', servicio=comedor_oak),
+                    Categoria(nombre='BEBIDAS', servicio=comedor_oak),
+                ]
+
+                # Categorías para Cafetería y Kiosko
+                categorias_otros = [
+                    Categoria(nombre='DULCE', servicio=cafeteria),
+                    Categoria(nombre='SALADO', servicio=cafeteria),
+                    Categoria(nombre='KIOSKO', servicio=cafeteria),
+                    Categoria(nombre='BEBIDAS', servicio=cafeteria),
+
+                    Categoria(nombre='DULCE', servicio=kiosko),
+                    Categoria(nombre='SALADO', servicio=kiosko),
+                    Categoria(nombre='KIOSKO', servicio=kiosko),
+                    Categoria(nombre='BEBIDAS', servicio=kiosko),
+                ]
+
+                # Categorías para Foodtruck
+                categorias_foodtruck = [
+                    Categoria(nombre='GUARNICIONES', servicio=foodtruck),
+                    Categoria(nombre='PRINCIPALES', servicio=foodtruck),
+                    Categoria(nombre='EXTRAS', servicio=foodtruck),
+                    Categoria(nombre='BEBIDAS', servicio=foodtruck),
+                ]
+
+                db.session.add_all(categorias_comedor + categorias_otros + categorias_foodtruck)
+                db.session.commit()
 
     # Blueprints
     app.register_blueprint(main)

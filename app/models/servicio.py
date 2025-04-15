@@ -8,3 +8,4 @@ class Servicio(db.Model):
     descripcion = db.Column(db.String(255))
     id_entidad = db.Column(db.Integer, db.ForeignKey('entidad.id_entidad'), nullable=False)
     entidad = db.relationship('Entidad', back_populates='servicios') #back_populates es para relacion bidireccional
+    categorias = db.relationship('Categoria', back_populates='servicio')
