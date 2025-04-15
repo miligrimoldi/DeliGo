@@ -4,7 +4,6 @@ import RegisterPage from './pages/RegisterPage';
 import EntidadesTabs from './pages/EntitiesTabs.tsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import MyProfilePage from "./pages/MyProfilePage.tsx";
-import ComedorPage from "./pages/entidad/austral/ComedorPage.tsx";
 import ServiciosEntidad from "./pages/ServiciosEntidad.tsx";
 
 function App() {
@@ -25,9 +24,6 @@ function App() {
 
                 {/* Página del perfil */}
                 <Route path="/perfil" element={<MyProfilePage />} />
-
-                {/* Página del comedor Austral */}
-                <Route path="/entidad/austral/comedor" element={<ComedorPage />} />
 
                 <Route path="/entidad/:id_entidad" element={<ServiciosEntidad />} />
 
