@@ -1,4 +1,5 @@
 from app.extensions import db
+from app.models.servicio_categoria import ServicioCategoria
 
 class Servicio(db.Model):
     __tablename__ = 'servicio'
