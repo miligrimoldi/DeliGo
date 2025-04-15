@@ -5,7 +5,7 @@ from app.models.categoria import Categoria
 from app.models.producto_servicio import ProductoServicio
 from app.models.servicio import Servicio
 
-# Obtener info del servivio (nombre + entidad)
+# Obtener info del servivio especifico (nombre + entidad)
 
 info_servicio_bp = Blueprint('info_servicio', __name__)
 
