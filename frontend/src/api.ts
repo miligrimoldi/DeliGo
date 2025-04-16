@@ -94,4 +94,35 @@ export const fetchServiciosEntidad = async (id_entidad: number): Promise<Servici
     return response.data;
 };
 
+export type ServicioInfor = {
+    nombre_servicio: string;
+    nombre_entidad: string;
+};
+
+export const fetchServicioAdmin = async (id_servicio: number ): Promise<ServicioInfor> => {
+    const response = await api.get(`/api/servicios/${id_servicio}`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    });
+
+    return response.data;
+};
+
+export type Categoria = {
+    id_categoria: number;
+    nombre: string;
+};
+
+export const fetchCategoriasPorServicio = async (id_servicio: number): Promise<Categoria[]> => {
+    const response = await api.get(`/api/servicios/${id_servicio}/categorias`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    });
+    return response.data;
+};
+
+
+
 

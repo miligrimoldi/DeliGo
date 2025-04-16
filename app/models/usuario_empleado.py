@@ -12,3 +12,4 @@ class UsuarioEmpleado(User):
     __mapper_args__ = {
         'polymorphic_identity': 'empleado',
     }
+
