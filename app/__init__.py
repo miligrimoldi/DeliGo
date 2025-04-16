@@ -38,7 +38,7 @@ def create_app():
         from app.models.producto_servicio import ProductoServicio
         db.create_all()
 
-        # entidades
+        # ENTIDADES
         if not Entidad.query.first():
             entidades = [
                 Entidad(
@@ -57,7 +57,8 @@ def create_app():
             db.session.add_all(entidades)
             db.session.commit()
 
-            # servicios:
+        # SERVICIOS
+        if not Servicio.query.first():
             austral = Entidad.query.filter_by(nombre='Universidad Austral').first()
             oakhill = Entidad.query.filter_by(nombre='Colegio Oakhill Pilar').first()
 
@@ -71,34 +72,34 @@ def create_app():
             db.session.add_all(servicios)
             db.session.commit()
 
-            if not Categoria.query.first():
-                menu = Categoria(nombre='MENÚ')
-                ensalada = Categoria(nombre='ENSALADA')
-                extras = Categoria(nombre='EXTRAS')
-                bebidas = Categoria(nombre='BEBIDAS')
-                dulce = Categoria(nombre='DULCE')
-                salado = Categoria(nombre='SALADO')
-                kiosko = Categoria(nombre='KIOSKO')
-                guarniciones = Categoria(nombre='GUARNICIONES')
-                principales = Categoria(nombre='PRINCIPALES')
+        # CATEGORÍAS
+        if not Categoria.query.first():
+            menu = Categoria(nombre='MENÚ')
+            ensalada = Categoria(nombre='ENSALADA')
+            extras = Categoria(nombre='EXTRAS')
+            bebidas = Categoria(nombre='BEBIDAS')
+            dulce = Categoria(nombre='DULCE')
+            salado = Categoria(nombre='SALADO')
+            kiosko = Categoria(nombre='KIOSKO')
+            guarniciones = Categoria(nombre='GUARNICIONES')
+            principales = Categoria(nombre='PRINCIPALES')
 
-                db.session.add_all([menu, ensalada, extras, bebidas, dulce, salado, kiosko, guarniciones, principales])
-                db.session.commit()
+            db.session.add_all([menu, ensalada, extras, bebidas, dulce, salado, kiosko, guarniciones, principales])
+            db.session.commit()
 
-                comedor_aus = Servicio.query.filter_by(nombre='Comedor Aus').first()
-                comedor_oak = Servicio.query.filter_by(nombre='Comedor Oak').first()
-                cafeteria = Servicio.query.filter_by(nombre='Cafetería').first()
-                kiosko_servicio = Servicio.query.filter_by(nombre='Kiosko').first()
-                foodtruck = Servicio.query.filter_by(nombre='Foodtruck').first()
+            comedor_aus = Servicio.query.filter_by(nombre='Comedor Aus').first()
+            comedor_oak = Servicio.query.filter_by(nombre='Comedor Oak').first()
+            cafeteria = Servicio.query.filter_by(nombre='Cafetería').first()
+            kiosko_servicio = Servicio.query.filter_by(nombre='Kiosko').first()
+            foodtruck = Servicio.query.filter_by(nombre='Foodtruck').first()
 
-                # asociar categorias
-                comedor_aus.categorias.extend([menu, ensalada, extras, bebidas])
-                comedor_oak.categorias.extend([menu, ensalada, extras, bebidas])
-                cafeteria.categorias.extend([dulce, salado, kiosko, bebidas])
-                kiosko_servicio.categorias.extend([dulce, salado, kiosko, bebidas])
-                foodtruck.categorias.extend([guarniciones, principales, extras, bebidas])
-
-                db.session.commit()
+            # asociar categorias
+            comedor_aus.categorias.extend([menu, ensalada, extras, bebidas])
+            comedor_oak.categorias.extend([menu, ensalada, extras, bebidas])
+            cafeteria.categorias.extend([dulce, salado, kiosko, bebidas])
+            kiosko_servicio.categorias.extend([dulce, salado, kiosko, bebidas])
+            foodtruck.categorias.extend([guarniciones, principales, extras, bebidas])
+            db.session.commit()
 
     # Blueprints
     app.register_blueprint(main)

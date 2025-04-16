@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { fetchServiciosEntidad } from '../api.ts';
 
-
-interface Servicio{
+interface Servicio {
     id_servicio: number;
     nombre: string;
     descripcion: string;
 }
 
 const ServiciosEntidad: React.FC = () => {
-    const {id_entidad} = useParams<{ id_entidad: string }>();
+    const { id_entidad } = useParams<{ id_entidad: string }>();
     const [servicios, setServicios] = useState<Servicio[]>([]);
     const [error, setError] = useState('');
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchServicios = async () => {
@@ -36,7 +36,11 @@ const ServiciosEntidad: React.FC = () => {
                     <h2>Servicios disponibles</h2>
                     <ul>
                         {servicios.map((s) => (
-                            <li key={s.id_servicio}>
+                            <li
+                                key={s.id_servicio}
+                                onClick={() => navigate(`/home/${s.id_servicio}`)}
+                                style={{ cursor: 'pointer', marginBottom: '10px' }}
+                            >
                                 <strong>{s.nombre}</strong>: {s.descripcion}
                             </li>
                         ))}
@@ -45,7 +49,6 @@ const ServiciosEntidad: React.FC = () => {
             )}
         </div>
     );
-
 };
 
 export default ServiciosEntidad;

@@ -20,3 +20,24 @@ def obtener_servicios_entidad(id_entidad):
 
     servicios = Servicio.query.filter_by(id_entidad=id_entidad).all()
     return jsonify([{'id_servicio': s.id_servicio, 'nombre': s.nombre, 'descripcion': s.descripcion} for s in servicios])
+
+@servicios_bp.route('/api/servicio/<int:id_servicio>', methods=['GET'])
+def detalle_servicio(id_servicio):
+    servicio = Servicio.query.get(id_servicio)
+    if not servicio:
+        return jsonify({'error': 'Servicio no encontrado'}), 404
+
+    entidad = servicio.entidad
+    categorias = [{'id_categoria': c.id_categoria, 'nombre': c.nombre} for c in servicio.categorias]
+
+    return jsonify({
+        'servicio': {
+            'id_servicio': servicio.id_servicio,
+            'nombre': servicio.nombre
+        },
+        'entidad': {
+            'id_entidad': entidad.id_entidad,
+            'nombre': entidad.nombre
+        },
+        'categorias': categorias
+    })

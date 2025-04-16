@@ -95,3 +95,7 @@ export const fetchServiciosEntidad = async (id_entidad: number): Promise<Servici
 };
 
 
+export const getDetalleServicio = async (id_servicio: number) => {
+    const res = await fetch(`http://localhost:5000/api/servicio/${id_servicio}`);
+    return res.json(); // { servicio, entidad, categorias }
+};
