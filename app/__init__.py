@@ -114,6 +114,13 @@ def create_app():
     app.register_blueprint(desasociar_bp)
     from app.routes.servicios import servicios_bp
     app.register_blueprint(servicios_bp)
+    from app.routes.admin import info_servicio_bp
+    app.register_blueprint(info_servicio_bp)
+    from app.routes.admin import categorias_servicio_bp
+    app.register_blueprint(categorias_servicio_bp)
+    from app.routes.admin import productos_servicio_bp
+    app.register_blueprint(productos_servicio_bp)
+
 
     # Rutas frontend
     @app.route('/')
