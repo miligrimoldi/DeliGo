@@ -30,7 +30,7 @@ def login():
             "id_servicio": empleado.id_servicio
         }), 200
 
-    # Intentar encontrar un UsuarioConsumidor
+    # Intentar encontrar un UsuarioConsumidor.
     consumidor = UsuarioConsumidor.query.filter_by(email=email).first()
     if consumidor and check_password_hash(consumidor.contrasena, password):
         access_token = create_access_token(identity=str(consumidor.id))
