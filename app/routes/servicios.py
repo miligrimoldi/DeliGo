@@ -13,13 +13,31 @@ def obtener_servicios_entidad(id_entidad):
     current_user_id = int(get_jwt_identity())
 
     # Verificar si el usuario está asociado
-    asociacion = UsuarioEntidad.query.filter_by(id_usuario = current_user_id, id_entidad=id_entidad).first()
+    asociacion = UsuarioEntidad.query.filter_by(id_usuario=current_user_id, id_entidad=id_entidad).first()
 
     if not asociacion:
         return jsonify({'error': 'Debes asociarte a la entidad para ver sus servicios.'}), 403
 
+    entidad = Entidad.query.get(id_entidad)
+    if not entidad:
+        return jsonify({'error': 'Entidad no encontrada'}), 404
+
     servicios = Servicio.query.filter_by(id_entidad=id_entidad).all()
-    return jsonify([{'id_servicio': s.id_servicio, 'nombre': s.nombre, 'descripcion': s.descripcion} for s in servicios])
+    servicios_json = [
+        {
+            'id_servicio': s.id_servicio,
+            'nombre': s.nombre,
+            'descripcion': s.descripcion
+        } for s in servicios
+    ]
+
+    return jsonify({
+        'entidad': {
+            'id_entidad': entidad.id_entidad,
+            'nombre': entidad.nombre
+        },
+        'servicios': servicios_json
+    })
 
 @servicios_bp.route('/api/servicio/<int:id_servicio>', methods=['GET'])
 def detalle_servicio(id_servicio):

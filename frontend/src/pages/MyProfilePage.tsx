@@ -45,13 +45,13 @@ const MyProfilePage = () => {
                 <div className="perfil-item" onClick={() => navigate('/favoritos')}>
                     <FaHeart className="perfil-icon" /> Mis favoritos
                 </div>
-                <div className="perfil-item" onClick={() => navigate('/mis-entidades')}>
-                    <FaBuilding className="perfil-icon" /> Mis entidades
+                <div className="perfil-item" onClick={() => navigate('/entidades', {state: {tab: 'mis'}})}>
+                    <FaBuilding className="perfil-icon"/> Mis entidades
                 </div>
             </div>
 
             <button className="cerrar-sesion-btn" onClick={handleLogout}>
-                <FaSignOutAlt className="perfil-icon" /> Cerrar sesión
+            <FaSignOutAlt className="perfil-icon" /> Cerrar sesión
             </button>
         </div>
     );

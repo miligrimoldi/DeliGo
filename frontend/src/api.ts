@@ -89,9 +89,13 @@ export type Servicio = {
     descripcion: string;
 };
 
-export const fetchServiciosEntidad = async (id_entidad: number): Promise<Servicio[]> => {
-    const response = await api.get(`/api/entidades/${id_entidad}/servicios`);
-    return response.data;
+export const fetchServiciosEntidad = async (id_entidad: number) => {
+    const response = await axios.get(`/api/entidades/${id_entidad}/servicios`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+    });
+    return response.data; // { entidad, servicios }
 };
 
 

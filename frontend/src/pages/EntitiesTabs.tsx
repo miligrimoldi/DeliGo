@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import '../css/entidades.css';
 import { fetchEntidades, fetchMisEntidades, asociarAEntidad, desasociarAEntidad } from '../api.ts';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export interface Entidad {
     id_entidad: number;
@@ -12,7 +12,9 @@ export interface Entidad {
 }
 
 const EntidadesTabs: React.FC = () => {
-    const [activeTab, setActiveTab] = useState<'entidades' | 'mis'>('entidades');
+    const location = useLocation();
+    const initialTab = location.state?.tab === 'mis' ? 'mis' : 'entidades';
+    const [activeTab, setActiveTab] = useState<'entidades' | 'mis'>(initialTab);
     const [entidades, setEntidades] = useState<Entidad[]>([]);
     const [misEntidades, setMisEntidades] = useState<Entidad[]>([]);
     const [search, setSearch] = useState('');
@@ -96,8 +98,10 @@ const EntidadesTabs: React.FC = () => {
                         .map((entidad) => (
                             <div
                                 className="entidad-card"
-                                onClick={() => navigate(`/entidad/${entidad.id_entidad}`)}
-                                style={{ cursor: 'pointer' }}
+                                onClick={() => navigate(`/entidad/${entidad.id_entidad}`, {
+                                    state: {tab: activeTab}
+                                })}
+                                style={{cursor: 'pointer'}}
                             >
                                 <img
                                     src={entidad.logo_url || 'https://via.placeholder.com/40'}
