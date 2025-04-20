@@ -1,9 +1,12 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from app.models.categoria import Categoria
 from app.models.producto_servicio import ProductoServicio
 from app.models.servicio import Servicio
+from app.extensions import db
+from app.models.producto_servicio import ProductoServicio
+
 
 # Obtener info del servivio especifico (nombre + entidad)
 
@@ -45,6 +48,26 @@ def productos_servicio(id_servicio, id_categoria):
             "nombre": p.nombre,
             "precio_actual": p.precio_actual,
             "descripcion": p.descripcion,
-            "info_nutricional": p.info_nutricional,
+            "informacion_nutricional": p.informacion_nutricional,
             "foto": p.foto
         } for p in productos])
+
+@productos_servicio_bp.route('/admin/servicio/<int:id_servicio>/categoria/<int:id_categoria>/producto', methods=['POST'])
+@jwt_required()
+def nuevo_producto(id_servicio, id_categoria):
+    data = request.get_json()
+
+    nuevo_producto = ProductoServicio(
+        id_servicio=id_servicio,
+        id_categoria=id_categoria,
+        nombre=data.get("nombre"),
+        descripcion=data.get("descripcion"),
+        informacion_nutricional=data.get("informacion_nutricional"),
+        precio_actual=data.get("precio_actual"),
+        foto=data.get("foto")
+    )
+
+    db.session.add(nuevo_producto)
+    db.session.commit()
+
+    return jsonify({"mensaje": "Producto creado con éxito"}), 201

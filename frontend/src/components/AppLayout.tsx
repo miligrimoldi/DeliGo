@@ -6,7 +6,6 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    // Detecta en qué ruta estás para activar el botón correspondiente
     const isActive = (path: string) => {
         return location.pathname.startsWith(path);
     };
@@ -45,7 +44,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     <FaHeart size={24} color={isActive('/favoritos') ? '#4B614C' : '#999'} />
                 </div>
 
-                {/* Botón Compras (destacado con círculo verde si activo) */}
+                {/* Botón Compras*/}
                 <div onClick={() => navigate('/compras')} style={{
                     cursor: 'pointer',
                     backgroundColor: isActive('/compras') ? '#B1C89A' : 'transparent',

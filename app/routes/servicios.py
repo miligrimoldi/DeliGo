@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.usuario_entidad import UsuarioEntidad
 from app.models.servicio import Servicio
 from app.models.entidad import Entidad
+from app.models.producto_servicio import ProductoServicio
 from app.extensions import db
 
 servicios_bp = Blueprint('servicios', __name__)

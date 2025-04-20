@@ -1,10 +1,19 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { getDetalleServicio } from "../api";
+import { useEffect, useRef, useState } from "react";
+import { getDetalleServicio, fetchProductosPorCategoria } from "../api.ts";
+import { FaArrowLeft } from "react-icons/fa";
 
 type Categoria = {
     id_categoria: number;
     nombre: string;
+};
+
+type Producto = {
+    id_producto: number;
+    nombre: string;
+    descripcion: string;
+    precio_actual: number;
+    foto: string;
 };
 
 type Servicio = {
@@ -18,141 +27,264 @@ type Entidad = {
 };
 
 const HomeServicioUsuario = () => {
-    const { id_servicio } = useParams();
+    const { id_servicio } = useParams<{ id_servicio: string }>();
     const navigate = useNavigate();
     const [servicio, setServicio] = useState<Servicio | null>(null);
     const [entidad, setEntidad] = useState<Entidad | null>(null);
     const [categorias, setCategorias] = useState<Categoria[]>([]);
+    const [productosPorCategoria, setProductosPorCategoria] = useState<Record<number, Producto[]>>({});
+    const [filtro, setFiltro] = useState("");
+    const refs = useRef<Record<number, HTMLDivElement | null>>({});
 
     useEffect(() => {
         if (!id_servicio) return;
 
-        getDetalleServicio(Number(id_servicio)).then((data) => {
+        getDetalleServicio(Number(id_servicio)).then(async (data) => {
             setServicio(data.servicio);
             setEntidad(data.entidad);
             setCategorias(data.categorias);
+
+            const productosMap: Record<number, Producto[]> = {};
+            await Promise.all(
+                data.categorias.map(async (cat: Categoria) => {
+                    const productos = await fetchProductosPorCategoria(Number(id_servicio), cat.id_categoria);
+                    productosMap[cat.id_categoria] = productos;
+                })
+            );
+            setProductosPorCategoria(productosMap);
         });
     }, [id_servicio]);
+
+    const handleClickCategoria = (id_categoria: number) => {
+        refs.current[id_categoria]?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    const handleFiltroChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFiltro(e.target.value.toLowerCase());
+    };
 
     if (!servicio || !entidad) return <p>Cargando...</p>;
 
     return (
-        <div style={{ backgroundColor: '#F4F5F9', minHeight: '100vh', padding: '1rem' }}>
-            {/* Encabezado */}
+        <div style={{ height: "100vh", overflow: "hidden", backgroundColor: "#F4F5F9" }}>
+            {/* Header fijo */}
             <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '1rem',
-                backgroundColor: 'white',
-                borderRadius: '10px',
-                marginBottom: '1rem',
-                position: 'relative'
+                background: "white",
+                padding: "20px",
+                position: "fixed",
+                top: 0,
+                left: 0,
+                right: 0,
+                zIndex: 10,
+                boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
             }}>
-                <h2 style={{
-                    fontSize: '18px',
-                    fontFamily: 'Poppins',
-                    fontWeight: 500,
-                    letterSpacing: '0.54px',
-                    color: '#000'
-                }}>
-                    {servicio.nombre} - {entidad.nombre}
-                </h2>
-
-                {/* 🛒 Carrito */}
-                <button
-                    onClick={() => navigate('/carrito')}
+                <FaArrowLeft
+                    onClick={() => navigate(-1)}
                     style={{
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        position: 'absolute',
-                        top: '1rem',
-                        right: '1rem'
+                        cursor: "pointer",
+                        fontSize: "20px",
+                        position: "absolute",
+                        top: 25,
+                        left: 20,
+                        color: "black"
+                    }}
+                />
+                <h2
+                    style={{
+                        fontSize: 18,
+                        fontFamily: "Poppins",
+                        fontWeight: 500,
+                        letterSpacing: "0.54px",
+                        textAlign: "center",
+                        margin: 0
                     }}
                 >
-                    <img
-                        src="/img/carrito_compras.png"
-                        alt="Carrito"
-                        style={{ width: '30px', height: '30px' }}
+                    {entidad.nombre} - {servicio.nombre}
+                </h2>
+                <img
+                    src="/img/carrito_compras.png"
+                    alt="Carrito"
+                    style={{
+                        width: 30,
+                        height: 30,
+                        position: "absolute",
+                        top: 20,
+                        right: 20,
+                        cursor: "pointer"
+                    }}
+                    onClick={() => navigate("/carrito")}
+                />
+            </div>
+
+            <div style={{ paddingTop: "100px", height: "100%", overflowY: "auto" }}>
+                {/* Buscador */}
+                <div style={{ padding: "0 20px", marginTop: "10px" }}>
+                    <input
+                        type="text"
+                        placeholder="Buscar..."
+                        value={filtro}
+                        onChange={handleFiltroChange}
+                        style={{
+                            width: "100%",
+                            padding: "10px",
+                            borderRadius: "10px",
+                            border: "1px solid #ccc",
+                            fontFamily: "Montserrat"
+                        }}
                     />
-                </button>
-            </div>
+                </div>
 
-            {/* Promo desperdicio cero */}
-            <div style={{
-                backgroundColor: '#9AAA88',
-                borderRadius: '20px',
-                padding: '1rem',
-                color: 'white',
-                fontFamily: 'Fredoka One',
-                marginBottom: '1rem',
-                position: 'relative'
-            }}>
-                <div style={{ fontSize: '25px' }}>DESPERDICIO CERO</div>
-                <div style={{ color: '#4B614C', fontSize: '25px' }}>70% OFF</div>
-                <button style={{
-                    position: 'absolute',
-                    bottom: '1rem',
-                    left: '1rem',
-                    backgroundColor: '#4B614C',
-                    color: 'white',
-                    padding: '0.5rem 1.2rem',
-                    borderRadius: '30px',
-                    border: 'none',
-                    fontFamily: 'Montserrat',
-                    fontWeight: 700
-                }}>Comprar</button>
-            </div>
-
-            {/* Categorías */}
-            <div style={{
-                backgroundColor: 'white',
-                borderRadius: '10px',
-                padding: '1rem'
-            }}>
-                <h3 style={{
-                    fontSize: '17px',
-                    fontFamily: 'Montserrat',
-                    fontWeight: 700,
-                    color: 'black'
-                }}>Categorías</h3>
                 <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    marginTop: '1rem',
-                    flexWrap: 'wrap',
-                    gap: '10px'
+                    backgroundColor: "#9AAA88",
+                    borderRadius: 20,
+                    margin: "20px",
+                    padding: "20px",
+                    color: "white",
+                    fontFamily: "Fredoka One",
+                    position: "relative"
                 }}>
-                    {categorias.map((c) => (
-                        <div key={c.id_categoria} style={{
-                            width: '80px',
-                            height: '130px',
-                            backgroundColor: '#9AAA88',
-                            borderRadius: '10px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                        }}>
-                            <div style={{
-                                width: '59px',
-                                height: '66px',
-                                backgroundColor: '#B1C89A',
-                                borderRadius: '50%',
-                                marginBottom: '0.5rem'
-                            }} />
-                            <span style={{
-                                textAlign: 'center',
-                                color: '#4B614C',
-                                fontSize: '13px',
-                                fontFamily: 'Lato',
-                                fontWeight: 800
-                            }}>
-                                {c.nombre.toUpperCase()}
-                            </span>
-                        </div>
-                    ))}
+                    <div style={{ fontSize: 25 }}>DESPERDICIO CERO</div>
+                    <div style={{ color: "#4B614C", fontSize: 25 }}>70% OFF</div>
+                    <button style={{
+                        position: "absolute",
+                        bottom: 20,
+                        left: 20,
+                        backgroundColor: "#4B614C",
+                        color: "white",
+                        padding: "10px 20px",
+                        borderRadius: "30px",
+                        border: "none",
+                        fontFamily: "Montserrat",
+                        fontWeight: 700,
+                        fontSize: 17
+                    }}>Comprar</button>
+                </div>
+
+                {/* Categorías */}
+                <div style={{
+                    backgroundColor: "white",
+                    borderRadius: 10,
+                    padding: "20px",
+                    margin: "0 10px"
+                }}>
+                    <h3 style={{
+                        fontSize: 17,
+                        fontFamily: "Montserrat",
+                        fontWeight: 700
+                    }}>Categorías</h3>
+                    <div style={{
+                        display: "flex",
+                        overflowX: "auto",
+                        gap: 10,
+                        paddingTop: 10
+                    }}>
+                        {categorias.map((cat) => (
+                            <div
+                                key={cat.id_categoria}
+                                onClick={() => handleClickCategoria(cat.id_categoria)}
+                                style={{
+                                    minWidth: 83,
+                                    height: 132,
+                                    backgroundColor: "#9AAA88",
+                                    borderRadius: 10,
+                                    textAlign: "center",
+                                    color: "#4B614C",
+                                    fontFamily: "Lato",
+                                    fontWeight: 800,
+                                    fontSize: 13,
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    justifyContent: "center",
+                                    cursor: "pointer"
+                                }}
+                            >
+                                <div style={{
+                                    width: 59,
+                                    height: 66,
+                                    backgroundColor: "#B1C89A",
+                                    borderRadius: "50%",
+                                    margin: "0 auto 8px"
+                                }} />
+                                {cat.nombre.toUpperCase()}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Productos */}
+                <div style={{ padding: "20px" }}>
+                    {categorias.map((cat) => {
+                        const productosFiltrados = productosPorCategoria[cat.id_categoria]?.filter((p) =>
+                            p.nombre.toLowerCase().includes(filtro)
+                        );
+                        if (!productosFiltrados || productosFiltrados.length === 0) return null;
+
+                        return (
+                            <div
+                                key={cat.id_categoria}
+                                ref={(el) => { refs.current[cat.id_categoria] = el; }}
+                                style={{ marginBottom: "2rem" }}
+                            >
+                                <h3 style={{
+                                    color: "#4B614C",
+                                    fontSize: 20,
+                                    fontFamily: "Lato",
+                                    fontWeight: 800,
+                                    marginBottom: 10
+                                }}>{cat.nombre}</h3>
+
+                                {productosFiltrados.map((producto) => (
+                                    <div key={producto.id_producto} style={{
+                                        backgroundColor: "white",
+                                        borderRadius: 20,
+                                        display: "flex",
+                                        overflow: "hidden",
+                                        marginBottom: 20,
+                                        boxShadow: "0 1px 5px rgba(0,0,0,0.1)"
+                                    }}>
+                                        <div style={{ width: 176, backgroundColor: "#4B614C" }}>
+                                            <img
+                                                src={producto.foto}
+                                                alt={producto.nombre}
+                                                style={{
+                                                    width: "100%",
+                                                    height: 169,
+                                                    objectFit: "cover",
+                                                    borderRadius: 20
+                                                }}
+                                            />
+                                        </div>
+                                        <div style={{ padding: 15, flex: 1 }}>
+                                            <h4 style={{
+                                                textAlign: "center",
+                                                fontSize: 20,
+                                                fontFamily: "Fredoka One",
+                                                color: "black"
+                                            }}>{producto.nombre.toUpperCase()}</h4>
+                                            <p style={{
+                                                textAlign: "center",
+                                                color: "black",
+                                                fontSize: 17,
+                                                fontFamily: "Montserrat"
+                                            }}>{producto.descripcion}</p>
+                                            <div style={{ textAlign: "center", marginTop: 10 }}>
+                                                <button onClick={() => navigate(`/producto/${producto.id_producto}`)} style={{
+                                                    backgroundColor: "#4B614C",
+                                                    color: "white",
+                                                    fontSize: 17,
+                                                    fontFamily: "Montserrat",
+                                                    fontWeight: 700,
+                                                    borderRadius: 30,
+                                                    padding: "10px 30px",
+                                                    border: "none"
+                                                }}>Ver</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
         </div>

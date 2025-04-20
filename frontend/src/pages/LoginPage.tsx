@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "../css/login.css";
 import { loginUser } from "../api";
@@ -7,6 +7,19 @@ const LoginPage = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+    // redirige si ya esta loggeado
+    useEffect(() => {
+        const user = localStorage.getItem("user");
+        if (user) {
+            const parsed = JSON.parse(user);
+            if (parsed.esAdmin) {
+                window.location.href = `/admin/${parsed.id_servicio}`;
+            } else {
+                window.location.href = "/entidades";
+            }
+        }
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -22,7 +35,8 @@ const LoginPage = () => {
                 window.location.href = "/entidades";
             }
         } catch (error: any) {
-            setErrorMessage(error.message);
+            const msg = error.response?.data?.error || "Ocurrió un error al iniciar sesión.";
+            setErrorMessage(msg);
         }
     };
 

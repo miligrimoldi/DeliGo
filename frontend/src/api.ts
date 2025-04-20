@@ -89,17 +89,83 @@ export type Servicio = {
     descripcion: string;
 };
 
-export const fetchServiciosEntidad = async (id_entidad: number) => {
-    const response = await axios.get(`/api/entidades/${id_entidad}/servicios`, {
-        headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
-    });
-    return response.data; // { entidad, servicios }
+export const fetchServiciosEntidad = async (
+    id_entidad: number
+): Promise<{ entidad: Entidad; servicios: Servicio[] }> => {
+    const response = await api.get(`/api/entidades/${id_entidad}/servicios`);
+    return response.data;
 };
 
+export type ServicioInfor = {
+    nombre_servicio: string;
+    nombre_entidad: string;
+};
+
+export const fetchServicioAdmin = async (id_servicio: number ): Promise<ServicioInfor> => {
+    const response = await api.get(`/admin/servicio/${id_servicio}`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    });
+
+    return response.data;
+};
+
+export type Categoria = {
+    id_categoria: number;
+    nombre: string;
+};
+
+export const fetchCategoriasPorServicio = async (id_servicio: number): Promise<Categoria[]> => {
+    const response = await api.get(`/admin/servicio/${id_servicio}/categorias`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    });
+    return response.data;
+};
+
+export type Producto = {
+    id_producto: number;
+    nombre: string;
+    descripcion: string;
+    informacion_nutricional: string;
+    precio_actual: number;
+    foto: string;
+    ingredientes: string[];
+}
+
+export const fetchProductosPorCategoria = async (id_servicio: number, id_categoria: number): Promise<Producto[]> => {
+    const response = await api.get(`/admin/servicio/${id_servicio}/categoria/${id_categoria}/productos`, {
+        headers:{
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+
+    });
+    return response.data;
+};
+
+export const crearProducto = async (
+    id_servicio: number,
+    id_categoria: number,
+    producto: Omit<Producto, 'id_producto'>
+): Promise<Producto> => {
+    const response = await api.post(
+        `/admin/servicio/${id_servicio}/categoria/${id_categoria}/producto`,
+        producto
+    );
+    return response.data;
+};
 
 export const getDetalleServicio = async (id_servicio: number) => {
-    const res = await fetch(`http://localhost:5000/api/servicio/${id_servicio}`);
-    return res.json(); // { servicio, entidad, categorias }
+    const response = await api.get(`/api/servicio/${id_servicio}`);
+    return response.data; // { servicio, entidad, categorias }
 };
+
+export async function fetchProductoPorId(id: number) {
+    const response = await api.get(`/api/productos/${id}`);
+    return response.data;
+}
+
+
+
