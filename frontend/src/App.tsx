@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import EntidadesTabs from './pages/EntitiesTabs.tsx';
@@ -12,7 +12,6 @@ import ProductoDetalle from "./pages/ProductoDetalle.tsx";
 
 function App() {
     return (
-        <Router>
             <div style={{height: '100%', overflowY: 'auto', backgroundColor: '#F4F5F9'}}>
                 <Routes>
                     {/* Redirige la raíz a la página de login */}
@@ -42,7 +41,6 @@ function App() {
 
                 </Routes>
             </div>
-        </Router>
 );
 }
 

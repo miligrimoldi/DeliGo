@@ -2,6 +2,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
 import { fetchProductoPorId } from '../api.ts';
+import { useCarrito } from '../pages/CarritoContext';
 
 type Producto = {
     id_producto: number;
@@ -17,15 +18,14 @@ const ProductoDetalle = () => {
     const navigate = useNavigate();
     const [producto, setProducto] = useState<Producto | null>(null);
     const [cantidad, setCantidad] = useState(1);
+    const { agregarItem, items } = useCarrito();
+
+    const totalArticulos = items.reduce((sum, item) => sum + item.cantidad, 0);
 
     useEffect(() => {
         if (!id_producto) return;
-        console.log("Buscando producto con ID:", id_producto);
         fetchProductoPorId(Number(id_producto))
-            .then((data) => {
-                console.log("Producto recibido:", data);
-                setProducto(data);
-            })
+            .then((data) => setProducto(data))
             .catch((error) => {
                 console.error("Error al obtener el producto:", error);
             });
@@ -63,8 +63,49 @@ const ProductoDetalle = () => {
             {/* Flecha para volver */}
             <FaArrowLeft
                 onClick={() => navigate(-1)}
-                style={{position: 'absolute', top: 40, left: 30, fontSize: 22, cursor: 'pointer', zIndex: 2}}
+                style={{ position: 'absolute', top: 40, left: 30, fontSize: 22, cursor: 'pointer', zIndex: 2 }}
             />
+
+            {/* Ícono del carrito con contador */}
+            <div
+                style={{
+                    position: 'absolute',
+                    top: 36,
+                    right: 28,
+                    cursor: 'pointer',
+                    zIndex: 3
+                }}
+                onClick={() => navigate('/carrito')}
+            >
+                <img
+                    src="/img/carrito_compras.png"
+                    alt="Carrito"
+                    style={{ width: 32, height: 32 }}
+                />
+                {totalArticulos > 0 && (
+                    <div
+                        style={{
+                            position: 'absolute',
+                            top: -6,
+                            right: -6,
+                            backgroundColor: '#769B7B',
+                            color: 'white',
+                            borderRadius: '50%',
+                            width: 22,
+                            height: 22,
+                            fontSize: 13,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontFamily: 'Poppins',
+                            fontWeight: 600,
+                            boxShadow: '0 0 0 2px white'
+                        }}
+                    >
+                        {totalArticulos}
+                    </div>
+                )}
+            </div>
 
             {/* Contenido blanco inferior */}
             <div style={{
@@ -72,7 +113,7 @@ const ProductoDetalle = () => {
                 backgroundColor: '#F4F5F9', borderTopLeftRadius: 10, borderTopRightRadius: 10,
                 padding: '24px', zIndex: 3
             }}>
-                <div style={{color: '#769B7B', fontSize: 18, fontFamily: 'Poppins', fontWeight: 600}}>
+                <div style={{ color: '#769B7B', fontSize: 18, fontFamily: 'Poppins', fontWeight: 600 }}>
                     {typeof producto.precio_actual === 'number' ? `$${producto.precio_actual.toFixed(2)}` : '$0.00'}
                 </div>
 
@@ -90,54 +131,40 @@ const ProductoDetalle = () => {
                     {producto.descripcion}
                 </div>
 
-                {/* Ingredientes (DESCOMENTARRRR) */}
-                {/*
-                <div style={{ marginTop: 16 }}>
-                    <span style={{
-                        color: 'black', fontSize: 13,
-                        fontFamily: 'Poppins', fontWeight: 600
-                    }}>
-                        Ingredientes
-                    </span>
-                    <div style={{
-                        marginTop: 8,
-                        display: 'flex',
-                        gap: 8,
-                        padding: '8px',
-                        background: '#E2E6BE',
-                        borderRadius: 5,
-                        overflowX: 'auto'
-                    }}>
-                        {producto.ingredientes.map((imgSrc, idx) => (
-                            <img key={idx} src={imgSrc} alt={`Ingrediente ${idx}`} style={{ width: 47, height: 38, borderRadius: 4 }} />
-                        ))}
-                    </div>
-                </div>
-                */}
-
                 {/* Cantidad */}
                 <div style={{
                     backgroundColor: 'white', marginTop: 20, padding: 10,
                     borderRadius: 5, display: 'flex', justifyContent: 'space-between',
                     alignItems: 'center', height: 50
                 }}>
-                    <span style={{color: '#868889', fontSize: 12, fontFamily: 'Poppins', fontWeight: 500}}>
+                    <span style={{ color: '#868889', fontSize: 12, fontFamily: 'Poppins', fontWeight: 500 }}>
                         Cantidad
                     </span>
-                    <div style={{display: 'flex', alignItems: 'center', gap: 16}}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                         <button onClick={disminuirCantidad}
-                                style={{fontSize: 20, background: 'none', border: 'none'}}>−
+                                style={{ fontSize: 20, background: 'none', border: 'none' }}>−
                         </button>
-                        <span style={{fontSize: 18, fontFamily: 'Poppins', fontWeight: 500}}>{cantidad}</span>
+                        <span style={{ fontSize: 18, fontFamily: 'Poppins', fontWeight: 500 }}>{cantidad}</span>
                         <button onClick={aumentarCantidad}
-                                style={{fontSize: 20, background: 'none', border: 'none'}}>+
+                                style={{ fontSize: 20, background: 'none', border: 'none' }}>+
                         </button>
                     </div>
                 </div>
 
                 {/* Botón de añadir al carrito */}
                 <button
-                    onClick={() => console.log('Añadir al carrito', producto.id_producto, cantidad)}
+                    onClick={() => {
+                        if (producto) {
+                            agregarItem({
+                                id_producto: producto.id_producto,
+                                nombre: producto.nombre,
+                                precio_actual: producto.precio_actual,
+                                cantidad,
+                                foto: producto.foto
+                            });
+                            navigate('/carrito');
+                        }
+                    }}
                     style={{
                         marginTop: 20,
                         width: '100%',

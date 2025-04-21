@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { getDetalleServicio, fetchProductosPorCategoria } from "../api.ts";
 import { FaArrowLeft } from "react-icons/fa";
+import { useCarrito } from './CarritoContext.tsx';
 
 type Categoria = {
     id_categoria: number;
@@ -35,6 +36,8 @@ const HomeServicioUsuario = () => {
     const [productosPorCategoria, setProductosPorCategoria] = useState<Record<number, Producto[]>>({});
     const [filtro, setFiltro] = useState("");
     const refs = useRef<Record<number, HTMLDivElement | null>>({});
+    const { items } = useCarrito();
+    const totalArticulos = items.reduce((sum, item) => sum + item.cantidad, 0);
 
     useEffect(() => {
         if (!id_servicio) return;
@@ -67,7 +70,7 @@ const HomeServicioUsuario = () => {
 
     return (
         <div style={{ height: "100vh", overflow: "hidden", backgroundColor: "#F4F5F9" }}>
-            {/* Header fijo */}
+            {/* Header fijo (despues arreglar)!!!*/}
             <div style={{
                 background: "white",
                 padding: "20px",
@@ -101,24 +104,47 @@ const HomeServicioUsuario = () => {
                 >
                     {entidad.nombre} - {servicio.nombre}
                 </h2>
-                <img
-                    src="/img/carrito_compras.png"
-                    alt="Carrito"
+                <div
+                    onClick={() => navigate("/carrito")}
                     style={{
-                        width: 30,
-                        height: 30,
                         position: "absolute",
                         top: 20,
                         right: 20,
                         cursor: "pointer"
                     }}
-                    onClick={() => navigate("/carrito")}
-                />
+                >
+                    <img
+                        src="/img/carrito_compras.png"
+                        alt="Carrito"
+                        style={{width: 30, height: 30}}
+                    />
+                    {totalArticulos > 0 && (
+                        <div style={{
+                            position: "absolute",
+                            top: -6,
+                            right: -6,
+                            backgroundColor: "#769B7B",
+                            color: "white",
+                            borderRadius: "50%",
+                            width: 20,
+                            height: 20,
+                            fontSize: 12,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontFamily: "Poppins",
+                            fontWeight: 600,
+                            boxShadow: "0 0 0 2px white"
+                        }}>
+                            {totalArticulos}
+                        </div>
+                    )}
+                </div>
             </div>
 
-            <div style={{ paddingTop: "100px", height: "100%", overflowY: "auto" }}>
+            <div style={{paddingTop: "100px", height: "100%", overflowY: "auto"}}>
                 {/* Buscador */}
-                <div style={{ padding: "0 20px", marginTop: "10px" }}>
+                <div style={{padding: "0 20px", marginTop: "10px"}}>
                     <input
                         type="text"
                         placeholder="Buscar..."
