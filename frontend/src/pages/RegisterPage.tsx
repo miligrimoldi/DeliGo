@@ -1,4 +1,4 @@
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import { FaEnvelope, FaUser, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import "../css/registro.css";
 import { registerUser, RegisterData } from "../api";
@@ -6,7 +6,14 @@ import { useNavigate } from "react-router-dom";
 
 const RegisterPage = () => {
 
-    const navigate = useNavigate();
+    const navigate = useNavigate(); //
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            navigate('/entidades');
+        }
+    }, [navigate]);
 
     const [formData, setFormData] = useState<RegisterData>({
         nombre: "",

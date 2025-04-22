@@ -7,6 +7,7 @@ import { useCarrito } from './CarritoContext.tsx';
 type Categoria = {
     id_categoria: number;
     nombre: string;
+    imagen_url?: string;
 };
 
 type Producto = {
@@ -224,13 +225,18 @@ const HomeServicioUsuario = () => {
                                     cursor: "pointer"
                                 }}
                             >
-                                <div style={{
-                                    width: 59,
-                                    height: 66,
-                                    backgroundColor: "#B1C89A",
-                                    borderRadius: "50%",
-                                    margin: "0 auto 8px"
-                                }} />
+                                <img
+                                    src={cat.imagen_url?.startsWith('/') ? cat.imagen_url : `${window.location.origin}/${cat.imagen_url}`}
+                                    style={{
+                                        width: 59,
+                                        height: 66,
+                                        objectFit: "contain",
+                                        borderRadius: "50%",
+                                        backgroundColor: "#B1C89A",
+                                        margin: "0 auto 8px",
+                                        padding: 6
+                                    }}
+                                />
                                 {cat.nombre.toUpperCase()}
                             </div>
                         ))}
@@ -238,7 +244,7 @@ const HomeServicioUsuario = () => {
                 </div>
 
                 {/* Productos */}
-                <div style={{ padding: "20px" }}>
+                <div style={{padding: "20px"}}>
                     {categorias.map((cat) => {
                         const productosFiltrados = productosPorCategoria[cat.id_categoria]?.filter((p) =>
                             p.nombre.toLowerCase().includes(filtro)

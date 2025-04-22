@@ -14,7 +14,7 @@ const Carrito = () => {
                 <h2>¡El carrito está vacío!</h2>
                 <p>Podés volver atrás para seguir comprando.</p>
                 <button
-                    onClick={() => navigate('/')}
+                    onClick={() => navigate(-1)}
                     style={{
                         marginTop: 20,
                         background: '#AEDC81',
