@@ -1,7 +1,7 @@
 from app.extensions import db
 
 class DetallePedido(db.Model):
-    _tablename_ = 'detalle_pedido'
+    __tablename__ = 'detalle_pedido'
 
     id_detalle = db.Column(db.Integer, primary_key=True)
     id_pedido = db.Column(db.Integer, db.ForeignKey('pedido.id_pedido'), nullable=False)
