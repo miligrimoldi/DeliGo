@@ -71,3 +71,7 @@ def nuevo_producto(id_servicio, id_categoria):
     db.session.commit()
 
     return jsonify({"mensaje": "Producto creado con éxito"}), 201
+
+# Ruta para obtener pedidos de un servicio
+pedidos_servicio_bp = Blueprint('pedidos_servicio', __name__)
+@pedidos_servicio_bp.route('/admin/servicio/<int:id_servicio>/pedidos', methods=['GET'])

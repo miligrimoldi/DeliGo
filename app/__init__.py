@@ -36,6 +36,8 @@ def create_app():
         from app.models.servicio import Servicio
         from app.models.categoria import Categoria
         from app.models.producto_servicio import ProductoServicio
+        from app.models.pedido import Pedido
+        from app.models.detalle_pedido import DetallePedido
         db.create_all()
 
         # ENTIDADES
@@ -123,6 +125,8 @@ def create_app():
     app.register_blueprint(productos_servicio_bp)
     from app.routes.productos_servicio_usuario import producto_servicio_usuario_bp
     app.register_blueprint(producto_servicio_usuario_bp)
+    from app.routes.login import pedidos_servicio_bp
+    app.regiser_blueprint(pedidos_servicio_bp)
 
     # Rutas frontend
     @app.route('/')

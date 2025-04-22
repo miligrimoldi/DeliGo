@@ -6,7 +6,7 @@ class Pedido(db.Model):
 
     id_pedido = db.Column(db.Integer, primary_key=True)
     id_usuario_consumidor = db.Column(db.Integer, db.ForeignKey('usuario.id_usuario'), nullable=False)
-    id_entidad = db.Column(db.Integer, db.ForeignKey('entidade.id_entidade'), nullable=False)
+    id_entidad = db.Column(db.Integer, db.ForeignKey('entidad.id_entidad'), nullable=False)
     id_servicio = db.Column(db.Integer, db.ForeignKey('servicio.id_servicio'), nullable=False)
 
     fecha = db.Column(db.DateTime, default=datetime.utcnow)

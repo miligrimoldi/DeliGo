@@ -9,6 +9,7 @@ import HomeAdministrador from "./pages/admin/HomeAdministrador.tsx";
 import HomeServicioUsuario from './pages/HomeServicioUsuario';
 import Carrito from "./pages/Carrito.tsx";
 import ProductoDetalle from "./pages/ProductoDetalle.tsx";
+import PedidosAdmin from "./pages/admin/PedidosAdmin.tsx"
 
 function App() {
     return (
@@ -38,6 +39,8 @@ function App() {
                     <Route path="/carrito" element={<Carrito/>}/>
 
                     <Route path="/producto/:id_producto" element={<ProductoDetalle />} />
+
+                    <Route path="/admin/:id_servicio/pedidos" element={<PedidosAdmin />} />
 
                 </Routes>
             </div>
