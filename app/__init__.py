@@ -128,6 +128,8 @@ def create_app():
     app.register_blueprint(producto_servicio_usuario_bp)
     from app.routes.admin import pedidos_servicio_bp
     app.register_blueprint(pedidos_servicio_bp)
+    from app.routes.pedidos import pedidos_bp
+    app.register_blueprint(pedidos_bp)
 
     # Rutas frontend
     @app.route('/')

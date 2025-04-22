@@ -6,6 +6,8 @@ from app.models.producto_servicio import ProductoServicio
 from app.models.servicio import Servicio
 from app.extensions import db
 from app.models.producto_servicio import ProductoServicio
+from app.models.pedido import Pedido
+from app.models.detalle_pedido import DetallePedido
 
 
 # Obtener info del servivio especifico (nombre + entidad)
@@ -74,4 +76,32 @@ def nuevo_producto(id_servicio, id_categoria):
 
 # Ruta para obtener pedidos de un servicio
 pedidos_servicio_bp = Blueprint('pedidos_servicio', __name__)
-@pedidos_servicio_bp.route('/admin/servicio/<int:id_servicio>/pedidos', methods=['GET'])
+@pedidos_servicio_bp.route('/servicios/<int:id_servicio>/pedidos', methods=['GET'])
+@jwt_required()
+def pedidos_servicio(id_servicio):
+    pedidos = Pedido.query.filter_by(id_servicio = id_servicio).all()
+    return jsonify([
+        {
+            'id_pedido': p.id_pedido,
+            'estado': p.estado,
+            'detalles': [
+                {
+                    'id_detalle': d.id_detalle,
+                    'cantidad': d.cantidad,
+                    'producto': {
+                        'nombre': d.producto.nombre
+                    }
+                } for d in p.detalles
+            ]
+        } for p in pedidos
+    ])
+
+# Ruta para cambiar el estado
+@pedidos_servicio_bp.route('/pedidos/<int:id_pedido>/estado', methods=['PUT'])
+@jwt_required()
+def cambiar_estado_pedido(id_pedido):
+    data = request.json
+    pedido = Pedido.query.get_or_404(id_pedido)
+    pedido.estado = data['estado']
+    db.session.commit()
+    return jsonify({"mensaje": "Estado actualizado"}), 200

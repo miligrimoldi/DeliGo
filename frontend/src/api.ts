@@ -53,6 +53,14 @@ export type LoginResponse = {
     access_token: string;
 };
 
+export type ItemCarrito = {
+    id_producto: number;
+    nombre: string;
+    precio_actual: number;
+    cantidad: number;
+    foto: string;
+};
+
 export async function loginUser(email: string, password: string): Promise<LoginResponse> {
     const response = await api.post<LoginResponse>("/login", {
         email,
@@ -166,6 +174,11 @@ export async function fetchProductoPorId(id: number) {
     const response = await api.get(`/api/productos/${id}`);
     return response.data;
 }
+
+export const realizarPedido = async (items: ItemCarrito[]) => {
+    const response = await api.post('/api/pedidos', { items });
+    return response.data;
+};
 
 
 

@@ -1,10 +1,22 @@
 import { useNavigate } from 'react-router-dom';
 import { useCarrito } from '../pages/CarritoContext';
 import { FaArrowLeft, FaTrash } from 'react-icons/fa';
+import { realizarPedido } from '../api';
 
 const Carrito = () => {
-    const { items, total, modificarCantidad, eliminarItem } = useCarrito();
+    const { items, total, modificarCantidad, eliminarItem, vaciarCarrito } = useCarrito();
     const navigate = useNavigate();
+    const handleRealizarPedido = async () => {
+        try {
+            await realizarPedido(items); // ya lanza error si falla
+
+            vaciarCarrito();
+            navigate("/mis-pedidos");
+        } catch (error) {
+            console.error("Error al realizar el pedido:", error);
+        }
+    };
+
 
     if (items.length === 0) {
         return (
@@ -79,7 +91,9 @@ const Carrito = () => {
                 <span style={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: 18 }}>${total.toFixed(2)}</span>
             </div>
 
-            <button style={{
+            <button
+                onClick={handleRealizarPedido}
+                style={{
                 marginTop: 20,
                 width: '100%',
                 height: 60,
