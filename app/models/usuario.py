@@ -11,6 +11,7 @@ class User(db.Model):
 
     # Relacion con entidades
     entidades = db.relationship('Entidad', secondary='usuario_entidad', back_populates='usuarios')
+    pedidos = db.relationship('Pedido', back_populates='usuario', cascade="all, delete-orphan")
 
     __mapper_args__ = {
         'polymorphic_identity': 'usuario',
