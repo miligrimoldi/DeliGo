@@ -22,8 +22,8 @@ const AppLayout: React.FC = () => {
     const buttonStyle = (paths: string[]) => ({
         cursor: 'pointer',
         backgroundColor: isActive(paths) ? '#4B614C' : 'transparent',
-        borderRadius: '50%',
-        padding: '12px',
+        borderRadius: '45%',
+        padding: '9px',
         boxShadow: isActive(paths) ? '0 4px 4px rgba(108, 197, 29, 0.26)' : 'none',
         display: 'flex',
         alignItems: 'center',
@@ -41,7 +41,7 @@ const AppLayout: React.FC = () => {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                height: '80px',
+                height: '60px',
                 backgroundColor: 'white',
                 display: 'flex',
                 justifyContent: 'space-around',
@@ -56,19 +56,19 @@ const AppLayout: React.FC = () => {
                     }}
                     style={buttonStyle(homePrefixes)}
                 >
-                    <FaHome size={24} color={iconColor(homePrefixes)} />
+                    <FaHome size={20} color={iconColor(homePrefixes)} />
                 </div>
 
                 <div onClick={() => navigate('/perfil')} style={buttonStyle(['/perfil'])}>
-                    <FaUser size={24} color={iconColor(['/perfil'])} />
+                    <FaUser size={20} color={iconColor(['/perfil'])} />
                 </div>
 
                 <div onClick={() => navigate('/favoritos')} style={buttonStyle(['/favoritos'])}>
-                    <FaHeart size={24} color={iconColor(['/favoritos'])} />
+                    <FaHeart size={20} color={iconColor(['/favoritos'])} />
                 </div>
 
                 <div onClick={() => navigate('/mis-pedidos')} style={buttonStyle(['/mis-pedidos'])}>
-                    <FaBox size={24} color={iconColor(['/mis-pedidos'])} />
+                    <FaBox size={20} color={iconColor(['/mis-pedidos'])} />
                 </div>
             </div>
         </div>
