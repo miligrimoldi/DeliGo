@@ -20,7 +20,7 @@ const Carrito = () => {
 
     if (items.length === 0) {
         return (
-            <div style={{ padding: 20, background: 'white', height: '100vh', textAlign: 'center' }}>
+            <div style={{ padding: 20, background: 'white', height: '100vh', textAlign: 'center', paddingTop: 30}}>
                 <FaArrowLeft onClick={() => navigate(-1)} style={{ fontSize: 22, cursor: 'pointer' }} />
                 <img src="/img/carrito_compras.png" alt="Carrito vacío" style={{ width: 120, marginTop: 40 }} />
                 <h2>¡El carrito está vacío!</h2>
@@ -45,7 +45,7 @@ const Carrito = () => {
     }
 
     return (
-        <div style={{ background: '#F4F5F9', minHeight: '100vh', padding: 16 }}>
+        <div style={{ background: '#F4F5F9', minHeight: '100vh', padding: 16, paddingTop: 50 }}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
                 <FaArrowLeft onClick={() => navigate(-1)} style={{ fontSize: 22, cursor: 'pointer' }} />
                 <h2 style={{ marginLeft: 'auto', marginRight: 'auto', fontFamily: 'Poppins' }}>Carrito</h2>
