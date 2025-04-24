@@ -17,6 +17,7 @@ interface Pedido {
     servicio: string;
     entidad: string;
     detalles: DetallePedido[];
+    tiempo_estimado_minutos?: number; // Se agrega esta propiedad para el tiempo estimado
 }
 
 const MisPedidosUsuario = () => {
@@ -63,14 +64,15 @@ const MisPedidosUsuario = () => {
     const getEstadoStyle = (estado: string) => {
         switch (estado) {
             case "en_preparacion": return { color: "#F5A623" };
-            case "listo_para_retirar": return { color: "#4B614C" };
+            case "listo": return { color: "#4B614C" };
             case "entregado": return { color: "#4B614C" };
             case "cancelado": return { color: "#D0021B" };
+            case "esperando_confirmacion": return { color: "#B0B0B0" };
             default: return {};
         }
     };
 
-    const actuales = pedidos.filter(p => p.estado === "en_preparacion" || p.estado === "listo_para_retirar");
+    const actuales = pedidos.filter(p => p.estado === "en_preparacion" || p.estado === "listo"|| p.estado === "esperando_confirmacion");
     const antiguos = pedidos.filter(p => p.estado === "entregado" || p.estado === "cancelado");
 
     const renderPedido = (p: Pedido) => (
@@ -103,6 +105,13 @@ const MisPedidosUsuario = () => {
             <div style={{ textAlign: "right", fontWeight: 700, marginTop: 10 }}>
                 Total: ${p.total.toFixed(2)}
             </div>
+
+            {/* Mostrar el tiempo estimado solo si el estado es 'en_preparacion' */}
+            {p.estado === "en_preparacion" && p.tiempo_estimado_minutos && (
+                <div style={{ marginTop: 10, fontSize: 14 }}>
+                    <strong>Tiempo estimado de entrega:</strong> {p.tiempo_estimado_minutos} minutos
+                </div>
+            )}
         </div>
     );
 
@@ -128,7 +137,7 @@ const MisPedidosUsuario = () => {
                 <p>No tenés pedidos realizados.</p>
             )}
 
-            {/* No se si dejar este boton de volver o no */}
+            {/* Botón de volver */}
             <button
                 onClick={() => navigate(-1)}
                 style={{

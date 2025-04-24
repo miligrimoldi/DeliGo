@@ -11,6 +11,7 @@ class ProductoServicio(db.Model):
     informacion_nutricional = db.Column(db.Text)
     precio_actual = db.Column(db.Float, nullable=False)
     foto = db.Column(db.String(255))
+    activo = db.Column(db.Boolean, default=True)
 
     servicio = db.relationship('Servicio', backref='productos')
     categoria = db.relationship('Categoria', backref='productos')

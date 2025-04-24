@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchCategoriasPorServicio, fetchProductosPorCategoria, crearProducto, Producto, Categoria } from "../../api.ts";
+import { fetchCategoriasPorServicio, fetchProductosPorCategoria, crearProducto, Producto, Categoria, eliminarProducto, modificarProducto } from "../../api.ts";
 
 
 type Props = {
@@ -12,14 +12,14 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
     const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<Categoria | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [productoEditando, setProductoEditando] = useState<Producto | null>(null);
 
     const [formData, setFormData] = useState({
         nombre: "",
         precio_actual: 0,
         descripcion: "",
         informacion_nutricional: "",
-        foto: "",
-        ingredientes: [] as string[]
+        foto: ""
     })
 
     const [mostrarFormulario, setMostrarFormulario] = useState(false);
@@ -34,24 +34,30 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
         if (!categoriaSeleccionada) return;
 
         try {
-            await crearProducto(id_servicio, categoriaSeleccionada.id_categoria, formData);
+            if (productoEditando) {
+                await modificarProducto(productoEditando.id_producto, formData);
+                setProductoEditando(null);
+            } else {
+                await crearProducto(id_servicio, categoriaSeleccionada.id_categoria, formData);
+            }
+
             setFormData({
                 nombre: "",
                 precio_actual: 0,
                 descripcion: "",
                 informacion_nutricional: "",
-                foto: "",
-                ingredientes: [] as string[]
+                foto: ""
             });
+
             setMostrarFormulario(false);
             const nuevosProductos = await fetchProductosPorCategoria(id_servicio, categoriaSeleccionada.id_categoria);
             setProductos(nuevosProductos);
         } catch (error) {
-            console.error("Error al crear producto:", error);
-            alert("Error al crear producto");
+            console.error("Error al guardar producto:", error);
+            alert("Error al guardar producto");
         }
+    };
 
-    }
 
     useEffect(() => {
         const cargarCategorias = async () => {
@@ -84,6 +90,19 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
 
     }
 
+    const handleEliminarProducto = async (id_producto: number) => {
+        const confirmado = confirm("Estas seguro que quieres eliminar este producto?")
+        if (!confirmado || !categoriaSeleccionada) return;
+        try {
+            await eliminarProducto(id_producto);
+            const nuevosProductos = await fetchProductosPorCategoria(id_servicio, categoriaSeleccionada.id_categoria);
+            setProductos(nuevosProductos);
+        } catch (error) {
+            console.error("Error al eliminar producto:", error);
+            alert("Error al eliminar el producto.");
+        }
+    }
+
     if (loading) return <p>Cargando categorías...</p>;
     if (error) return <p>{error}</p>;
 
@@ -107,12 +126,25 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
                             {productos.map((producto) => (
                                 <li key={producto.id_producto}>
                                     <strong>{producto.nombre}</strong> - ${producto.precio_actual.toFixed(2)}
+                                    <button onClick={() => handleEliminarProducto(producto.id_producto)}>Eliminar</button>
+                                    <button onClick={() => {
+                                        setProductoEditando(producto);
+                                        setFormData({
+                                            nombre: producto.nombre,
+                                            precio_actual: producto.precio_actual,
+                                            descripcion: producto.descripcion,
+                                            informacion_nutricional: producto.informacion_nutricional || "",
+                                            foto: producto.foto || "",
+                                        });
+                                        setMostrarFormulario(true);
+                                    }}>Editar</button>
+
                                 </li>
                             ))}
                         </ul>
                     )}
                     <button className="cargar-producto" onClick={() => setMostrarFormulario((prev) => !prev)}>
-                        {mostrarFormulario ? "Cancelar" : "Cargar producto"}
+                        {mostrarFormulario ? "Cancelar" : "Cargar nuevo producto"}
                     </button>
 
                     {mostrarFormulario && (
@@ -153,7 +185,7 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
                             value={formData.foto}
                             onChange={handleChange}
                         />
-                        <button type="submit">Crear Producto</button>
+                        <button type="submit">{productoEditando ? "Modificar Producto" : "Crear Producto"}</button>
                     </form>
                     )}
                 </div>

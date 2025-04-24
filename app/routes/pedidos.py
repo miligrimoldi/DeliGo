@@ -28,7 +28,9 @@ def obtener_mis_pedidos():
             "total": float(pedido.total),
             "servicio": pedido.servicio.nombre,
             "entidad": pedido.entidad.nombre,
-            "detalles": detalles
+            "detalles": detalles,
+            **({"tiempo_estimado_minutos": pedido.tiempo_estimado_minutos}
+               if pedido.estado == "en_preparacion" else {})
         })
 
     return jsonify(resultado)

@@ -8,11 +8,20 @@ const PedidosAdmin = () => {
     const [pedidosActivos, setPedidosActivos] = useState<PedidoConDetalles[]>([]);
     const [pedidosAntiguos, setPedidosAntiguos] = useState<PedidoConDetalles[]>([]);
     const [solapa, setSolapa] = useState<"activos" | "antiguos">("activos");
+    const [tiemposEstimados, setTiemposEstimados] = useState<Record<number, number>>({});
 
     const cargarPedidos = async () => {
         const pedidos = await fetchPedidosPorServicio(servicioId);
         setPedidosActivos(pedidos.filter(p => p.estado !== "entregado" && p.estado !== "cancelado"));
         setPedidosAntiguos(pedidos.filter(p => p.estado === "entregado" || p.estado === "cancelado"));
+
+        const tiempos: Record<number, number> = {};
+        pedidos.forEach(p => {
+            if (p.estado === "en_preparacion" && p.tiempo_estimado_minutos !== undefined) {
+                tiempos[p.id_pedido] = p.tiempo_estimado_minutos;
+            }
+        });
+        setTiemposEstimados(tiempos);
     };
 
     useEffect(() => {
@@ -23,10 +32,30 @@ const PedidosAdmin = () => {
 
     const handleEstadoChange = async (id_pedido: number, nuevo_estado: string) => {
         try {
-            await cambiarEstadoPedido(id_pedido, nuevo_estado);
+            if (nuevo_estado === "en_preparacion") {
+                const tiempo = prompt("Ingresar tiempo estimado de entrega en minutos:");
+                const tiempoNum = parseInt(tiempo ?? "");
+                if (isNaN(tiempoNum)) {
+                    alert("Debe ingresar un número válido.");
+                    return;
+                }
+                await cambiarEstadoPedido(id_pedido, nuevo_estado, tiempoNum);
+            } else {
+                await cambiarEstadoPedido(id_pedido, nuevo_estado);
+            }
             await cargarPedidos();
         } catch (err) {
             console.error("Error al cambiar estado del pedido", err);
+        }
+    };
+
+    const handleTiempoChange = async (id_pedido: number, nuevoTiempo: number) => {
+        try {
+            setTiemposEstimados(prev => ({ ...prev, [id_pedido]: nuevoTiempo }));
+            await cambiarEstadoPedido(id_pedido, "en_preparacion", nuevoTiempo);
+            await cargarPedidos();
+        } catch (err) {
+            console.error("Error al actualizar tiempo estimado", err);
         }
     };
 
@@ -49,13 +78,40 @@ const PedidosAdmin = () => {
                             </li>
                         ))}
                     </ul>
+
                     {solapa === "activos" && (
-                        <select value={p.estado} onChange={(e) => handleEstadoChange(p.id_pedido, e.target.value)}>
-                            <option value="en_preparacion">En preparación</option>
-                            <option value="cancelado">Cancelado</option>
-                            <option value="listo">Listo</option>
-                            <option value="entregado">Entregado</option>
-                        </select>
+                        <>
+                            <select value={p.estado} onChange={(e) => handleEstadoChange(p.id_pedido, e.target.value)}>
+                                <option value="esperando_confirmacion">Esperando Confirmacion</option>
+                                <option value="en_preparacion">En preparación</option>
+                                <option value="cancelado">Cancelado</option>
+                                <option value="listo">Listo</option>
+                                <option value="entregado">Entregado</option>
+                            </select>
+
+                            {p.estado === "en_preparacion" && (
+                                <div>
+                                    <label>Tiempo estimado (min): </label>
+                                    <input
+                                        type="number"
+                                        min={1}
+                                        value={tiemposEstimados[p.id_pedido] ?? ""}
+                                        onChange={(e) => {
+                                            const nuevoTiempo = parseInt(e.target.value);
+                                            if (!isNaN(nuevoTiempo)) {
+                                                setTiemposEstimados(prev => ({ ...prev, [p.id_pedido]: nuevoTiempo }));
+                                            }
+                                        }}
+                                        onBlur={(e) => {
+                                            const nuevoTiempo = parseInt(e.target.value);
+                                            if (!isNaN(nuevoTiempo)) {
+                                                handleTiempoChange(p.id_pedido, nuevoTiempo);
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            )}
+                        </>
                     )}
                 </div>
             ))}

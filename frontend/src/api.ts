@@ -159,7 +159,6 @@ export type Producto = {
     informacion_nutricional: string;
     precio_actual: number;
     foto: string;
-    ingredientes: string[];
 }
 
 export const fetchProductosPorCategoria = async (id_servicio: number, id_categoria: number): Promise<Producto[]> => {
@@ -210,6 +209,7 @@ export type DetallePedido = {
 export type PedidoConDetalles = {
     id_pedido: number;
     estado: string;
+    tiempo_estimado_minutos?: number;
     detalles: DetallePedido[];
 };
 
@@ -220,11 +220,22 @@ export const fetchPedidosPorServicio = async (id_servicio: number): Promise<Pedi
     return response.data;
 };
 
-export const cambiarEstadoPedido = async (id_pedido: number, nuevoEstado: string): Promise<void> => {
-    await api.put(`/pedidos/${id_pedido}/estado`, {
-        estado: nuevoEstado,
-    });
+export const cambiarEstadoPedido = async (id_pedido: number, nuevoEstado: string, tiempo_estimado_minutos?: number): Promise<void> => {
+    const data: any = { estado: nuevoEstado };
+    if (nuevoEstado === "en_preparacion" && tiempo_estimado_minutos !== undefined) {
+        data.tiempo_estimado_minutos = tiempo_estimado_minutos;
+    }
+    await api.put(`/pedidos/${id_pedido}/estado`, data);
 };
+
+export const eliminarProducto = async (id_producto: number): Promise<void> => {
+    await api.delete(`/admin/producto/${id_producto}`);
+}
+
+export const modificarProducto = async (id_producto: number, data: Partial<Producto>)=> {
+    const res = await api.put(`/admin/producto/${id_producto}`, data);
+    return res.data
+}
 
 
 
