@@ -63,8 +63,8 @@ const MisPedidosUsuario = () => {
     const getEstadoStyle = (estado: string) => {
         switch (estado) {
             case "en_preparacion": return { color: "#F5A623" };
-            case "listo_para_retirar": return { color: "#7ED321" };
-            case "entregado": return { color: "#4A90E2" };
+            case "listo_para_retirar": return { color: "#4B614C" };
+            case "entregado": return { color: "#4B614C" };
             case "cancelado": return { color: "#D0021B" };
             default: return {};
         }
@@ -128,6 +128,7 @@ const MisPedidosUsuario = () => {
                 <p>No tenés pedidos realizados.</p>
             )}
 
+            {/* No se si dejar este boton de volver o no */}
             <button
                 onClick={() => navigate(-1)}
                 style={{
