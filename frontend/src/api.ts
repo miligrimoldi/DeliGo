@@ -25,16 +25,17 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     response => response,
     error => {
-        if (error.response?.status === 401) {
-            // Guarda la URL actual, para que el usuario vuelva a la pag donde estaba
-            localStorage.setItem("redirectAfterLogin", window.location.pathname);
+        const isLoginRequest = error.config?.url?.includes('/login');
 
-            // Limpiar token y redirigir
+        // Solo redireccionamos si no es un intento de login
+        if (error.response?.status === 401 && !isLoginRequest) {
+            localStorage.setItem("redirectAfterLogin", window.location.pathname);
             localStorage.removeItem("token");
             localStorage.removeItem("user");
             alert("Tu sesión ha expirado. Por favor, iniciá sesión nuevamente.");
             window.location.href = "/login";
         }
+
         return Promise.reject(error);
     }
 );
