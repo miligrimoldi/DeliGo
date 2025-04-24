@@ -121,16 +121,15 @@ def create_app():
 
         # CATEGORÍAS
         if not Categoria.query.first():
-            base_url = 'http://127.0.0.1:5000'
-            menu = Categoria(nombre='MENÚ', imagen_url=f'{base_url}/img/menu.png')
-            ensalada = Categoria(nombre='ENSALADA', imagen_url=f'{base_url}/img/ensalada.png')
-            extras = Categoria(nombre='EXTRAS', imagen_url=f'{base_url}/img/burga.png')
-            bebidas = Categoria(nombre='BEBIDAS', imagen_url=f'{base_url}/img/bebida.png')
-            dulce = Categoria(nombre='DULCE', imagen_url=f'{base_url}/img/torta.png')
-            salado = Categoria(nombre='SALADO', imagen_url=f'{base_url}/img/tostado.png')
-            kiosko = Categoria(nombre='KIOSKO', imagen_url=f'{base_url}/img/kiosko.png')
-            guarniciones = Categoria(nombre='GUARNICIONES', imagen_url=f'{base_url}/img/guarniciones.png')
-            principales = Categoria(nombre='PRINCIPALES', imagen_url=f'{base_url}/img/burga.png')
+            menu = Categoria(nombre='MENÚ')
+            ensalada = Categoria(nombre='ENSALADA')
+            extras = Categoria(nombre='EXTRAS')
+            bebidas = Categoria(nombre='BEBIDAS')
+            dulce = Categoria(nombre='DULCE')
+            salado = Categoria(nombre='SALADO')
+            kiosko = Categoria(nombre='KIOSKO')
+            guarniciones = Categoria(nombre='GUARNICIONES')
+            principales = Categoria(nombre='PRINCIPALES')
 
             db.session.add_all([menu, ensalada, extras, bebidas, dulce, salado, kiosko, guarniciones, principales])
             db.session.commit()

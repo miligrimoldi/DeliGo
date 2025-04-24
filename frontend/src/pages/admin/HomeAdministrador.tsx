@@ -27,7 +27,7 @@ const HomeAdministrador = () => {
         <div className="home-admin">
             <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '1rem' }}>
                 <button
-                    onClick={() => navigate("/perfil")}
+                    onClick={() => navigate("/admin-perfil")}
                     style={{ background: 'none', border: '1px solid #ccc', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer' }}
                 >
                     Mi perfil
