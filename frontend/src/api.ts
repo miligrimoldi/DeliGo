@@ -212,6 +212,8 @@ export type PedidoConDetalles = {
     detalles: DetallePedido[];
 };
 
+// Nuevo
+
 export const fetchPedidosPorServicio = async (id_servicio: number): Promise<PedidoConDetalles[]> => {
     const response = await api.get(`/servicios/${id_servicio}/pedidos`);
     return response.data;
