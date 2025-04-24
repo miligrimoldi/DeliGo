@@ -22,6 +22,24 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
+api.interceptors.response.use(
+    response => response,
+    error => {
+        if (error.response?.status === 401) {
+            // Guarda la URL actual, para que el usuario vuelva a la pag donde estaba
+            localStorage.setItem("redirectAfterLogin", window.location.pathname);
+
+            // Limpiar token y redirigir
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            alert("Tu sesión ha expirado. Por favor, iniciá sesión nuevamente.");
+            window.location.href = "/login";
+        }
+        return Promise.reject(error);
+    }
+);
+
+
 // Endpoints
 export const fetchEntidades = async (): Promise<Entidad[]> => {
     const response = await api.get('/api/entidades');

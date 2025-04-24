@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from flask import Flask, send_from_directory
+from flask import Flask, send_from_directory, jsonify
 from app.extensions import db
 from app.main import main
 import os
@@ -18,7 +18,23 @@ def create_app():
     app.config['JWT_HEADER_NAME'] = 'Authorization'
     app.config['JWT_HEADER_TYPE'] = 'Bearer'
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
-    JWTManager(app)
+    jwt = JWTManager(app)
+
+    @jwt.expired_token_loader
+    def expired_token_callback(jwt_header, jwt_payload):
+        return jsonify({"msg": "Token has expired"}), 401
+
+    @jwt.invalid_token_loader
+    def invalid_token_callback(error):
+        return jsonify({"msg": "Invalid token"}), 401
+
+    @jwt.unauthorized_loader
+    def missing_token_callback(error):
+        return jsonify({"msg": "Missing token"}), 401
+
+    @jwt.revoked_token_loader
+    def revoked_token_callback(jwt_header, jwt_payload):
+        return jsonify({"msg": "Token has been revoked"}), 401
 
     CORS(app,
          resources={r"/api/*": {"origins": "*"}},

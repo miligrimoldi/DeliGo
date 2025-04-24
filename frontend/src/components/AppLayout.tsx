@@ -1,21 +1,41 @@
-import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { FaHome, FaUser, FaHeart, FaShoppingBag } from 'react-icons/fa';
+import React, { useEffect } from 'react';
+import { useLocation, useNavigate, Outlet } from 'react-router-dom';
+import { FaHome, FaUser, FaHeart, FaBox } from 'react-icons/fa';
 
-const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const AppLayout: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const isActive = (path: string) => {
-        return location.pathname.startsWith(path);
+    const homePrefixes = ['/home', '/entidades', '/carrito', '/producto', '/entidad'];
+
+    // Guarda la ultima ruta (para los home)
+    useEffect(() => {
+        if (homePrefixes.some(prefix => location.pathname.startsWith(prefix))) {
+            localStorage.setItem('lastHomeRoute', location.pathname);
+        }
+    }, [location]);
+
+    const isActive = (paths: string[]) => {
+        return paths.some(path => location.pathname.startsWith(path));
     };
+
+    const buttonStyle = (paths: string[]) => ({
+        cursor: 'pointer',
+        backgroundColor: isActive(paths) ? '#4B614C' : 'transparent',
+        borderRadius: '50%',
+        padding: '12px',
+        boxShadow: isActive(paths) ? '0 4px 4px rgba(108, 197, 29, 0.26)' : 'none',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+    });
+
+    const iconColor = (paths: string[]) => (isActive(paths) ? 'white' : '#999');
 
     return (
         <div style={{ paddingBottom: '80px' }}>
-            {/* Contenido de la página envuelta */}
-            {children}
+            <Outlet />
 
-            {/* Barra de navegación flotante */}
             <div style={{
                 position: 'fixed',
                 bottom: 0,
@@ -29,30 +49,26 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 boxShadow: '0 -2px 6px rgba(0, 0, 0, 0.1)',
                 zIndex: 1000
             }}>
-                {/* Botón Home */}
-                <div onClick={() => navigate('/home/1')} style={{ cursor: 'pointer' }}>
-                    <FaHome size={24} color={isActive('/home') ? '#4B614C' : '#999'} />
+                <div
+                    onClick={() => {
+                        const lastHome = localStorage.getItem('lastHomeRoute') || '/home/1';
+                        navigate(lastHome);
+                    }}
+                    style={buttonStyle(homePrefixes)}
+                >
+                    <FaHome size={24} color={iconColor(homePrefixes)} />
                 </div>
 
-                {/* Botón Perfil */}
-                <div onClick={() => navigate('/perfil')} style={{ cursor: 'pointer' }}>
-                    <FaUser size={24} color={isActive('/perfil') ? '#4B614C' : '#999'} />
+                <div onClick={() => navigate('/perfil')} style={buttonStyle(['/perfil'])}>
+                    <FaUser size={24} color={iconColor(['/perfil'])} />
                 </div>
 
-                {/* Botón Favoritos */}
-                <div onClick={() => navigate('/favoritos')} style={{ cursor: 'pointer' }}>
-                    <FaHeart size={24} color={isActive('/favoritos') ? '#4B614C' : '#999'} />
+                <div onClick={() => navigate('/favoritos')} style={buttonStyle(['/favoritos'])}>
+                    <FaHeart size={24} color={iconColor(['/favoritos'])} />
                 </div>
 
-                {/* Botón Compras*/}
-                <div onClick={() => navigate('/compras')} style={{
-                    cursor: 'pointer',
-                    backgroundColor: isActive('/compras') ? '#B1C89A' : 'transparent',
-                    borderRadius: '50%',
-                    padding: '12px',
-                    boxShadow: isActive('/compras') ? '0 4px 4px rgba(108, 197, 29, 0.26)' : 'none'
-                }}>
-                    <FaShoppingBag size={24} color={isActive('/compras') ? 'white' : '#999'} />
+                <div onClick={() => navigate('/mis-pedidos')} style={buttonStyle(['/mis-pedidos'])}>
+                    <FaBox size={24} color={iconColor(['/mis-pedidos'])} />
                 </div>
             </div>
         </div>

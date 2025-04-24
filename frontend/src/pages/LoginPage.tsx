@@ -27,10 +27,18 @@ const LoginPage = () => {
 
         try {
             const data = await loginUser(email, password);
-            localStorage.setItem("user", JSON.stringify(data));
 
-            if (data.esAdmin) {
-                window.location.href = `/admin/${data.id_servicio}`;
+            const { access_token, ...user } = data;
+            localStorage.setItem("token", access_token);
+            localStorage.setItem("user", JSON.stringify(user));
+
+            const redirectTo = localStorage.getItem("redirectAfterLogin");
+            localStorage.removeItem("redirectAfterLogin");
+
+            if (redirectTo) {
+                window.location.href = redirectTo;
+            } else if (user.esAdmin) {
+                window.location.href = `/admin/${user.id_servicio}`;
             } else {
                 window.location.href = "/entidades";
             }

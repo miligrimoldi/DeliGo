@@ -9,10 +9,13 @@ import HomeAdministrador from "./pages/admin/HomeAdministrador.tsx";
 import HomeServicioUsuario from './pages/HomeServicioUsuario';
 import Carrito from "./pages/Carrito.tsx";
 import ProductoDetalle from "./pages/ProductoDetalle.tsx";
-import MisPedidosUsuario from "./pages/MisPedidosUsuario";
+import MisPedidosUsuario from "./pages/MisPedidosUsuario.tsx";
+import AppLayout from "./components/AppLayout.tsx";
+import { useAuthRedirect } from "./pages/useAuthRedirect";
 
 
 function App() {
+    useAuthRedirect();
     return (
             <div style={{height: '100%', overflowY: 'auto', backgroundColor: '#F4F5F9'}}>
                 <Routes>
@@ -25,23 +28,19 @@ function App() {
                     {/* Página de registro */}
                     <Route path="/register" element={<RegisterPage/>}/>
 
-                    {/* Página de entidades */}
-                    <Route path="/entidades" element={<EntidadesTabs/>}/>
-
-                    {/* Página del perfil */}
-                    <Route path="/perfil" element={<MyProfilePage/>}/>
-
-                    <Route path="/entidad/:id_entidad" element={<ServiciosEntidad/>}/>
 
                     <Route path="/admin/:id_servicio" element={<HomeAdministrador/>}/>
 
-                    <Route path="/home/:id_servicio" element={<HomeServicioUsuario/>}/>
 
-                    <Route path="/carrito" element={<Carrito/>}/>
-
-                    <Route path="/producto/:id_producto" element={<ProductoDetalle />} />
-
-                    <Route path="/mis-pedidos" element={<MisPedidosUsuario />} />
+                    <Route element={<AppLayout />}>
+                        <Route path="/entidades" element={<EntidadesTabs />} />
+                        <Route path="/home/:id_servicio" element={<HomeServicioUsuario />} />
+                        <Route path="/carrito" element={<Carrito />} />
+                        <Route path="/mis-pedidos" element={<MisPedidosUsuario />} />
+                        <Route path="/perfil" element={<MyProfilePage />} />
+                        <Route path="/producto/:id_producto" element={<ProductoDetalle />} />
+                        <Route path="/entidad/:id_entidad" element={<ServiciosEntidad/>}/>
+                    </Route>
 
                 </Routes>
             </div>
