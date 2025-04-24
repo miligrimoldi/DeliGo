@@ -22,6 +22,24 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
+api.interceptors.response.use(
+    response => response,
+    error => {
+        if (error.response?.status === 401) {
+            // Guarda la URL actual, para que el usuario vuelva a la pag donde estaba
+            localStorage.setItem("redirectAfterLogin", window.location.pathname);
+
+            // Limpiar token y redirigir
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            alert("Tu sesión ha expirado. Por favor, iniciá sesión nuevamente.");
+            window.location.href = "/login";
+        }
+        return Promise.reject(error);
+    }
+);
+
+
 // Endpoints
 export const fetchEntidades = async (): Promise<Entidad[]> => {
     const response = await api.get('/api/entidades');
@@ -51,6 +69,14 @@ export type LoginResponse = {
     esAdmin: boolean;
     id_servicio?: string;
     access_token: string;
+};
+
+export type ItemCarrito = {
+    id_producto: number;
+    nombre: string;
+    precio_actual: number;
+    cantidad: number;
+    foto: string;
 };
 
 export async function loginUser(email: string, password: string): Promise<LoginResponse> {
@@ -167,29 +193,10 @@ export async function fetchProductoPorId(id: number) {
     return response.data;
 }
 
-export type DetallePedido = {
-    id_detalle: number;
-    cantidad: number;
-    producto: {
-        nombre: string;
-    };
-};
-
-export type PedidoConDetalles = {
-    id_pedido: number;
-    estado: string;
-    detalles: DetallePedido[];
-};
-
-export const fetchPedidosPorServicio = async (id_servicio: number): Promise<PedidoConDetalles[]> => {
-    const response = await api.get(`/servicios/${id_servicio}/pedidos`);
+export const realizarPedido = async (items: ItemCarrito[]) => {
+    const response = await api.post('/api/pedidos', { items });
     return response.data;
 };
 
-export const cambiarEstadoPedido = async (id_pedido: number, nuevoEstado: string): Promise<void> => {
-    await api.put(`/pedidos/${id_pedido}/estado`, {
-        estado: nuevoEstado,
-    });
-};
 
 

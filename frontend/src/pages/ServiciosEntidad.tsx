@@ -41,10 +41,15 @@ const ServiciosEntidad: React.FC = () => {
     if (!entidad) return <p>Cargando...</p>;
 
     return (
-        <div style={{ backgroundColor: '#F4F5F9', minHeight: '100vh', padding: '1rem' }}>
-            {/* Flecha para volver */}
+        <div style={{
+            backgroundColor: '#F4F5F9',
+            minHeight: '100vh',
+            padding: '1rem',
+            paddingTop: '60px',
+            position: 'relative'
+        }}>
             <FaArrowLeft
-                onClick={() => navigate('/entidades', { state: { tab: lastTab } })}
+                onClick={() => navigate('/entidades', {state: {tab: lastTab}})}
                 style={{
                     cursor: 'pointer',
                     fontSize: '24px',
@@ -81,7 +86,7 @@ const ServiciosEntidad: React.FC = () => {
                     marginBottom: '1rem'
                 }}>Servicios</h3>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
                     {servicios.map((s) => (
                         <div
                             key={s.id_servicio}
@@ -103,7 +108,7 @@ const ServiciosEntidad: React.FC = () => {
                                 (e.currentTarget as HTMLDivElement).style.backgroundColor = '#EBEBEB';
                             }}
                         >
-                            <strong>{s.nombre.toUpperCase()}</strong><br />
+                            <strong>{s.nombre.toUpperCase()}</strong><br/>
                             <span style={{
                                 fontFamily: 'Montserrat',
                                 fontWeight: 400,

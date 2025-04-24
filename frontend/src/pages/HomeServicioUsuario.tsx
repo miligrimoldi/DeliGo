@@ -67,57 +67,71 @@ const HomeServicioUsuario = () => {
         setFiltro(e.target.value.toLowerCase());
     };
 
+    const obtenerImagenCategoria = (nombre: string): string => {
+        const nombreNormalizado = nombre.toLowerCase();
+        switch (nombreNormalizado) {
+            case 'menú':
+                return "/img/menu.png";
+            case 'ensalada':
+                return "/img/ensalada.png";
+            case 'extras':
+                return "/img/burga.png";
+            case 'bebidas':
+                return "/img/bebida.png";
+            case 'dulce':
+                return "/img/torta.png";
+            case 'salado':
+                return "/img/tostado.png";
+            case 'kiosko':
+                return "/img/kiosko.png";
+            case 'guarniciones':
+                return "/img/guarniciones.png";
+            case 'principales':
+                return "/img/burga.png";
+            default:
+                return "/img/default.png";
+        }
+    };
+
     if (!servicio || !entidad) return <p>Cargando...</p>;
 
     return (
-        <div style={{ height: "100vh", overflow: "hidden", backgroundColor: "#F4F5F9" }}>
-            {/* Header fijo (despues arreglar)!!!*/}
+        <div style={{ backgroundColor: "#F4F5F9", paddingBottom: 30, paddingTop: '230px' }}>
             <div style={{
-                background: "white",
-                padding: "20px",
-                position: "fixed",
-                top: 0,
-                left: 0,
-                right: 0,
-                zIndex: 10,
-                boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+                width: "100%",
+                height: 195,
+                backgroundColor: "#FFFFFF",
+                position: "relative",
+                paddingTop: '50px'
             }}>
+                {/* Flecha volver */}
                 <FaArrowLeft
-                    onClick={() => navigate(-1)}
+                    onClick={() => navigate(`/entidad/${entidad.id_entidad}`)}
                     style={{
+                        fontSize: 22,
                         cursor: "pointer",
-                        fontSize: "20px",
                         position: "absolute",
-                        top: 25,
-                        left: 20,
-                        color: "black"
+                        top: 130,
+                        left: 24,
+                        zIndex: 2
                     }}
                 />
-                <h2
-                    style={{
-                        fontSize: 18,
-                        fontFamily: "Poppins",
-                        fontWeight: 500,
-                        letterSpacing: "0.54px",
-                        textAlign: "center",
-                        margin: 0
-                    }}
-                >
-                    {entidad.nombre} - {servicio.nombre}
-                </h2>
+
+                {/* Carrito */}
                 <div
                     onClick={() => navigate("/carrito")}
                     style={{
                         position: "absolute",
-                        top: 20,
-                        right: 20,
-                        cursor: "pointer"
+                        top: 130,
+                        right: 24,
+                        cursor: "pointer",
+                        zIndex: 2
                     }}
                 >
                     <img
                         src="/img/carrito_compras.png"
                         alt="Carrito"
-                        style={{width: 30, height: 30}}
+                        style={{ width: 24, height: 24 }}
                     />
                     {totalArticulos > 0 && (
                         <div style={{
@@ -127,9 +141,9 @@ const HomeServicioUsuario = () => {
                             backgroundColor: "#769B7B",
                             color: "white",
                             borderRadius: "50%",
-                            width: 20,
-                            height: 20,
-                            fontSize: 12,
+                            width: 18,
+                            height: 18,
+                            fontSize: 11,
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
@@ -141,11 +155,23 @@ const HomeServicioUsuario = () => {
                         </div>
                     )}
                 </div>
+
+                {/* Título */}
+                <h2 style={{
+                    marginTop: 100,
+                    textAlign: "center",
+                    fontSize: 18,
+                    fontFamily: "Poppins",
+                    fontWeight: 500,
+                    letterSpacing: "0.54px",
+                }}>
+                    {entidad.nombre} - {servicio.nombre}
+                </h2>
             </div>
 
-            <div style={{paddingTop: "100px", height: "100%", overflowY: "auto"}}>
+            <div style={{ paddingTop: 0 }}>
                 {/* Buscador */}
-                <div style={{padding: "0 20px", marginTop: "10px"}}>
+                <div style={{ padding: "0 20px", paddingTop: 30}}>
                     <input
                         type="text"
                         placeholder="Buscar..."
@@ -156,11 +182,13 @@ const HomeServicioUsuario = () => {
                             padding: "10px",
                             borderRadius: "10px",
                             border: "1px solid #ccc",
-                            fontFamily: "Montserrat"
+                            fontFamily: "Montserrat",
+                            marginTop: -80
                         }}
                     />
                 </div>
 
+                {/* Promo */}
                 <div style={{
                     backgroundColor: "#9AAA88",
                     borderRadius: 20,
@@ -226,7 +254,7 @@ const HomeServicioUsuario = () => {
                                 }}
                             >
                                 <img
-                                    src={cat.imagen_url?.startsWith('/') ? cat.imagen_url : `${window.location.origin}/${cat.imagen_url}`}
+                                    src={obtenerImagenCategoria(cat.nombre)}
                                     style={{
                                         width: 59,
                                         height: 66,
@@ -243,8 +271,8 @@ const HomeServicioUsuario = () => {
                     </div>
                 </div>
 
-                {/* Productos */}
-                <div style={{padding: "20px"}}>
+                {/* Productos por categoría */}
+                <div style={{ padding: "20px" }}>
                     {categorias.map((cat) => {
                         const productosFiltrados = productosPorCategoria[cat.id_categoria]?.filter((p) =>
                             p.nombre.toLowerCase().includes(filtro)
