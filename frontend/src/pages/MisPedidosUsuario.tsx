@@ -112,7 +112,7 @@ const MisPedidosUsuario = () => {
 
             {actuales.length > 0 && (
                 <>
-                    <h3 style={{ fontFamily: "Poppins", marginBottom: 10 }}>Actuales</h3>
+                    <h3 style={{ fontFamily: "Poppins", marginBottom: 10 }}>Activos</h3>
                     {actuales.map(renderPedido)}
                 </>
             )}
