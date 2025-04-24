@@ -6,6 +6,10 @@ from app.main import main
 import os
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
+from app.models.pedido import Pedido
+from app.models.detalle_pedido import DetallePedido
+from app.models.usuario_consumidor import UsuarioConsumidor
+from app.models.producto_servicio import ProductoServicio
 
 
 def create_app():
@@ -55,6 +59,7 @@ def create_app():
         from app.models.pedido import Pedido
         from app.models.detalle_pedido import DetallePedido
         db.create_all()
+
 
         # ENTIDADES
         if not Entidad.query.first():
@@ -118,6 +123,8 @@ def create_app():
             kiosko_servicio.categorias.extend([dulce, salado, kiosko, bebidas])
             foodtruck.categorias.extend([guarniciones, principales, extras, bebidas])
             db.session.commit()
+
+
 
     # Blueprints
     app.register_blueprint(main)
