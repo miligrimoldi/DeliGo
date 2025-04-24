@@ -60,30 +60,6 @@ def create_app():
         from app.models.detalle_pedido import DetallePedido
         db.create_all()
 
-        if not Pedido.query.first():
-            consumidor = UsuarioConsumidor.query.first()
-            producto = ProductoServicio.query.get(1)
-
-            if consumidor and producto:
-                nuevo_pedido = Pedido(
-                    id_usuario_consumidor=consumidor.id_usuario,
-                    id_entidad=producto.servicio.entidad.id_entidad,
-                    id_servicio=producto.id_servicio,
-                    estado='en_preparacion',
-                    total=producto.precio_actual
-                )
-                db.session.add(nuevo_pedido)
-                db.session.commit()
-
-                detalle = DetallePedido(
-                    id_pedido=nuevo_pedido.id_pedido,
-                    id_producto=producto.id_producto,
-                    cantidad=1,
-                    precio_unitario=producto.precio_actual,
-                    subtotal=producto.precio_actual
-                )
-                db.session.add(detalle)
-                db.session.commit()
 
         # ENTIDADES
         if not Entidad.query.first():

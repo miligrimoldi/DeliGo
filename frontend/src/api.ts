@@ -198,5 +198,31 @@ export const realizarPedido = async (items: ItemCarrito[]) => {
     return response.data;
 };
 
+export type DetallePedido = {
+    id_detalle: number;
+    cantidad: number;
+    producto: {
+        nombre: string;
+    };
+};
+
+export type PedidoConDetalles = {
+    id_pedido: number;
+    estado: string;
+    detalles: DetallePedido[];
+};
+
+export const fetchPedidosPorServicio = async (id_servicio: number): Promise<PedidoConDetalles[]> => {
+    const response = await api.get(`/servicios/${id_servicio}/pedidos`);
+    return response.data;
+};
+
+export const cambiarEstadoPedido = async (id_pedido: number, nuevoEstado: string): Promise<void> => {
+    await api.put(`/pedidos/${id_pedido}/estado`, {
+        estado: nuevoEstado,
+    });
+};
+
+
 
 

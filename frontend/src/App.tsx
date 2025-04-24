@@ -15,6 +15,7 @@ import { useAuthRedirect } from "./pages/useAuthRedirect";
 import Favoritos from './pages/Favoritos.tsx';
 import MyProfileAdmin from './pages/admin/MyProfileAdmin.tsx';
 import ProtectedRoute from './components/ProtectedRoute.tsx';
+import PedidosAdmin from "./pages/admin/PedidosAdmin.tsx";
 
 
 function App() {
@@ -36,6 +37,14 @@ function App() {
                     element={
                         <ProtectedRoute onlyAdmin={true}>
                             <HomeAdministrador />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/:id_servicio/pedidos"
+                    element={
+                        <ProtectedRoute onlyAdmin={true}>
+                            <PedidosAdmin />
                         </ProtectedRoute>
                     }
                 />
