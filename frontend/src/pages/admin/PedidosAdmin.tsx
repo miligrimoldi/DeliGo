@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { PedidoConDetalles, fetchPedidosPorServicio, cambiarEstadoPedido } from "../../api.ts";
 
 const PedidosAdmin = () => {
@@ -60,6 +60,7 @@ const PedidosAdmin = () => {
     };
 
     const pedidos = solapa === "activos" ? pedidosActivos : pedidosAntiguos;
+    const navigate = useNavigate();
 
     return (
         <div className="pedidos-admin">
@@ -115,6 +116,7 @@ const PedidosAdmin = () => {
                     )}
                 </div>
             ))}
+            <button onClick={() => navigate(`/admin/${id_servicio}`)}>Inicio</button>
         </div>
     );
 };
