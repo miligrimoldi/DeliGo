@@ -12,41 +12,62 @@ import ProductoDetalle from "./pages/ProductoDetalle.tsx";
 import MisPedidosUsuario from "./pages/MisPedidosUsuario.tsx";
 import AppLayout from "./components/AppLayout.tsx";
 import { useAuthRedirect } from "./pages/useAuthRedirect";
-import Favoritos from './pages/Favoritos';
+import Favoritos from './pages/Favoritos.tsx';
+import MyProfileAdmin from './pages/admin/MyProfileAdmin.tsx';
+import ProtectedRoute from './components/ProtectedRoute.tsx';
 
 
 function App() {
     useAuthRedirect();
+
     return (
-            <div style={{height: '100%', overflowY: 'auto', backgroundColor: '#F4F5F9'}}>
-                <Routes>
-                    {/* Redirige la raíz a la página de login */}
-                    <Route path="/" element={<Navigate to="/login"/>}/>
+        <div style={{ height: '100%', overflowY: 'auto', backgroundColor: '#F4F5F9' }}>
+            <Routes>
+                {/* Redirección inicial */}
+                <Route path="/" element={<Navigate to="/login" />} />
 
-                    {/* Página de login */}
-                    <Route path="/login" element={<LoginPage/>}/>
+                {/* Rutas publicas */}
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
 
-                    {/* Página de registro */}
-                    <Route path="/register" element={<RegisterPage/>}/>
+                {/* Admin protegidas */}
+                <Route
+                    path="/admin/:id_servicio"
+                    element={
+                        <ProtectedRoute onlyAdmin={true}>
+                            <HomeAdministrador />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin-perfil"
+                    element={
+                        <ProtectedRoute onlyAdmin={true}>
+                            <MyProfileAdmin />
+                        </ProtectedRoute>
+                    }
+                />
 
-
-                    <Route path="/admin/:id_servicio" element={<HomeAdministrador/>}/>
-
-
-                    <Route element={<AppLayout />}>
-                        <Route path="/entidades" element={<EntidadesTabs />} />
-                        <Route path="/home/:id_servicio" element={<HomeServicioUsuario />} />
-                        <Route path="/carrito" element={<Carrito />} />
-                        <Route path="/mis-pedidos" element={<MisPedidosUsuario />} />
-                        <Route path="/perfil" element={<MyProfilePage />} />
-                        <Route path="/producto/:id_producto" element={<ProductoDetalle />} />
-                        <Route path="/entidad/:id_entidad" element={<ServiciosEntidad/>}/>
-                        <Route path="/favoritos" element={<Favoritos/>}/>
-                    </Route>
-
-                </Routes>
-            </div>
-);
+                {/* Clientes protegidas */}
+                <Route
+                    element={
+                        <ProtectedRoute onlyUser={true}>
+                            <AppLayout />
+                        </ProtectedRoute>
+                    }
+                >
+                    <Route path="/entidades" element={<EntidadesTabs />} />
+                    <Route path="/home/:id_servicio" element={<HomeServicioUsuario />} />
+                    <Route path="/carrito" element={<Carrito />} />
+                    <Route path="/mis-pedidos" element={<MisPedidosUsuario />} />
+                    <Route path="/perfil" element={<MyProfilePage />} />
+                    <Route path="/producto/:id_producto" element={<ProductoDetalle />} />
+                    <Route path="/entidad/:id_entidad" element={<ServiciosEntidad />} />
+                    <Route path="/favoritos" element={<Favoritos />} />
+                </Route>
+            </Routes>
+        </div>
+    );
 }
 
 export default App;

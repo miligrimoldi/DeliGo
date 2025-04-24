@@ -7,7 +7,6 @@ import { useCarrito } from './CarritoContext.tsx';
 type Categoria = {
     id_categoria: number;
     nombre: string;
-    imagen_url?: string;
 };
 
 type Producto = {
