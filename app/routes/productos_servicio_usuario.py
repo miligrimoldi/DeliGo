@@ -12,5 +12,6 @@ def obtener_producto(id_producto):
         "descripcion": producto.descripcion,
         "precio_actual": producto.precio_actual,
         "foto": producto.foto,
+        "id_servicio": producto.id_servicio,
         # "ingredientes": producto.ingredientes or []
     })

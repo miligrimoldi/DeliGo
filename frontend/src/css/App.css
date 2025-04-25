@@ -1,11 +1,7 @@
-
 html, body, #root {
-  height: 100%;
   margin: 0;
   padding: 0;
+  height: 100%;
+  background-color: #F4F5F9;
   overflow: auto;
-}
-
-* {
-  box-sizing: border-box;
 }

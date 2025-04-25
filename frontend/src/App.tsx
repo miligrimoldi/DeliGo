@@ -22,21 +22,21 @@ function App() {
     useAuthRedirect();
 
     return (
-        <div style={{ height: '100%', overflowY: 'auto', backgroundColor: '#F4F5F9' }}>
+        <div style={{minHeight: '100vh', backgroundColor: '#F4F5F9'}}>
             <Routes>
                 {/* Redirección inicial */}
-                <Route path="/" element={<Navigate to="/login" />} />
+                <Route path="/" element={<Navigate to="/login"/>}/>
 
                 {/* Rutas publicas */}
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/login" element={<LoginPage/>}/>
+                <Route path="/register" element={<RegisterPage/>}/>
 
                 {/* Admin protegidas */}
                 <Route
                     path="/admin/:id_servicio"
                     element={
                         <ProtectedRoute onlyAdmin={true}>
-                            <HomeAdministrador />
+                            <HomeAdministrador/>
                         </ProtectedRoute>
                     }
                 />
@@ -44,7 +44,7 @@ function App() {
                     path="/admin/:id_servicio/pedidos"
                     element={
                         <ProtectedRoute onlyAdmin={true}>
-                            <PedidosAdmin />
+                            <PedidosAdmin/>
                         </ProtectedRoute>
                     }
                 />
@@ -52,7 +52,7 @@ function App() {
                     path="/admin-perfil"
                     element={
                         <ProtectedRoute onlyAdmin={true}>
-                            <MyProfileAdmin />
+                            <MyProfileAdmin/>
                         </ProtectedRoute>
                     }
                 />
@@ -61,18 +61,18 @@ function App() {
                 <Route
                     element={
                         <ProtectedRoute onlyUser={true}>
-                            <AppLayout />
+                            <AppLayout/>
                         </ProtectedRoute>
                     }
                 >
-                    <Route path="/entidades" element={<EntidadesTabs />} />
-                    <Route path="/home/:id_servicio" element={<HomeServicioUsuario />} />
-                    <Route path="/carrito" element={<Carrito />} />
-                    <Route path="/mis-pedidos" element={<MisPedidosUsuario />} />
-                    <Route path="/perfil" element={<MyProfilePage />} />
-                    <Route path="/producto/:id_producto" element={<ProductoDetalle />} />
-                    <Route path="/entidad/:id_entidad" element={<ServiciosEntidad />} />
-                    <Route path="/favoritos" element={<Favoritos />} />
+                    <Route path="/entidades" element={<EntidadesTabs/>}/>
+                    <Route path="/home/:id_servicio" element={<HomeServicioUsuario/>}/>
+                    <Route path="/carrito" element={<Carrito/>}/>
+                    <Route path="/mis-pedidos" element={<MisPedidosUsuario/>}/>
+                    <Route path="/perfil" element={<MyProfilePage/>}/>
+                    <Route path="/producto/:id_producto" element={<ProductoDetalle/>}/>
+                    <Route path="/entidad/:id_entidad" element={<ServiciosEntidad/>}/>
+                    <Route path="/favoritos" element={<Favoritos/>}/>
                 </Route>
             </Routes>
         </div>

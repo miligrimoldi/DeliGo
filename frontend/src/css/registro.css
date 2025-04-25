@@ -11,8 +11,7 @@ html, body {
 
 .register-container {
     width: 70vw;
-    min-height: 100vh;
-    padding: 200px 30px 40px 30px; /* arrib, derech, abaj, izq */
+    padding: 20px 30px 40px 30px; /* arrib, derech, abaj, izq */
     margin: 0 auto;
     background: #f4f5f9;
     border-radius: 16px;

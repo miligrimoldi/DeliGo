@@ -91,12 +91,12 @@ const MisPedidosUsuario = () => {
 
             {p.detalles.map((d, index) => (
                 <div key={index} style={{ display: "flex", alignItems: "center", marginBottom: 10 }}>
-                    <img src={d.foto} alt={d.producto} style={{ width: 50, height: 50, borderRadius: 10, objectFit: "cover", marginRight: 10 }} />
+                    <img src={d.foto} alt={d.producto} style={{
+                        width: 50, height: 50, borderRadius: 10, objectFit: "cover", marginRight: 10
+                    }} />
                     <div style={{ flex: 1 }}>
                         <div style={{ fontWeight: 600 }}>{d.producto}</div>
-                        <div style={{ fontSize: 13 }}>
-                            {d.cantidad} x ${d.precio_unitario.toFixed(2)}
-                        </div>
+                        <div style={{ fontSize: 13 }}>{d.cantidad} x ${d.precio_unitario.toFixed(2)}</div>
                     </div>
                     <div style={{ fontWeight: 600 }}>${d.subtotal.toFixed(2)}</div>
                 </div>
@@ -106,7 +106,6 @@ const MisPedidosUsuario = () => {
                 Total: ${p.total.toFixed(2)}
             </div>
 
-            {/* Mostrar el tiempo estimado solo si el estado es 'en_preparacion' */}
             {p.estado === "en_preparacion" && p.tiempo_estimado_minutos && (
                 <div style={{ marginTop: 10, fontSize: 14 }}>
                     <strong>Tiempo estimado de entrega:</strong> {p.tiempo_estimado_minutos} minutos
@@ -116,7 +115,7 @@ const MisPedidosUsuario = () => {
     );
 
     return (
-        <div style={{ padding: 20 }}>
+        <div style={{ padding: 20, maxWidth: 768, margin: "0 auto" }}>
             <h2 style={{ fontFamily: "Poppins", marginBottom: 20 }}>Mis Pedidos</h2>
 
             {actuales.length > 0 && (
@@ -137,7 +136,6 @@ const MisPedidosUsuario = () => {
                 <p>No tenés pedidos realizados.</p>
             )}
 
-            {/* Botón de volver */}
             <button
                 onClick={() => navigate(-1)}
                 style={{
