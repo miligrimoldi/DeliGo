@@ -1,6 +1,14 @@
-import { useEffect, useState } from "react";
-import { fetchCategoriasPorServicio, fetchProductosPorCategoria, crearProducto, Producto, Categoria, eliminarProducto, modificarProducto } from "../../api.ts";
-
+import React, { useEffect, useState } from "react";
+import {
+    fetchCategoriasPorServicio,
+    fetchProductosPorCategoria,
+    crearProducto,
+    Producto,
+    Categoria,
+    eliminarProducto,
+    modificarProducto,
+} from "../../api.ts";
+import "../../css/CategoriasPanel.css";
 
 type Props = {
     id_servicio: number;
@@ -13,21 +21,20 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [productoEditando, setProductoEditando] = useState<Producto | null>(null);
+    const [mostrarFormulario, setMostrarFormulario] = useState(false);
 
     const [formData, setFormData] = useState({
         nombre: "",
         precio_actual: 0,
         descripcion: "",
         informacion_nutricional: "",
-        foto: ""
-    })
-
-    const [mostrarFormulario, setMostrarFormulario] = useState(false);
+        foto: "",
+    });
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const {name, value} = event.target;
-        setFormData(prev => ({ ...prev, [name]: name === "precio_actual" ? parseFloat(value) : value }));
-    }
+        const { name, value } = event.target;
+        setFormData((prev) => ({ ...prev, [name]: name === "precio_actual" ? parseFloat(value) : value }));
+    };
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -46,7 +53,7 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
                 precio_actual: 0,
                 descripcion: "",
                 informacion_nutricional: "",
-                foto: ""
+                foto: "",
             });
 
             setMostrarFormulario(false);
@@ -57,7 +64,31 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
             alert("Error al guardar producto");
         }
     };
-
+    const obtenerImagenCategoria = (nombre: string): string => {
+        const nombreNormalizado = nombre.toLowerCase();
+        switch (nombreNormalizado) {
+            case 'menú':
+                return "/img/menu.png";
+            case 'ensalada':
+                return "/img/ensalada.png";
+            case 'extras':
+                return "/img/burga.png";
+            case 'bebidas':
+                return "/img/bebida.png";
+            case 'dulce':
+                return "/img/torta.png";
+            case 'salado':
+                return "/img/tostado.png";
+            case 'kiosko':
+                return "/img/kiosko.png";
+            case 'guarniciones':
+                return "/img/guarniciones.png";
+            case 'principales':
+                return "/img/burga.png";
+            default:
+                return "/img/default.png";
+        }
+    };
 
     useEffect(() => {
         const cargarCategorias = async () => {
@@ -87,11 +118,10 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
         } finally {
             setLoading(false);
         }
-
-    }
+    };
 
     const handleEliminarProducto = async (id_producto: number) => {
-        const confirmado = confirm("Estas seguro que quieres eliminar este producto?")
+        const confirmado = confirm("¿Estás seguro que quieres eliminar este producto?");
         if (!confirmado || !categoriaSeleccionada) return;
         try {
             await eliminarProducto(id_producto);
@@ -101,98 +131,136 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
             console.error("Error al eliminar producto:", error);
             alert("Error al eliminar el producto.");
         }
-    }
+    };
 
-    if (loading) return <p>Cargando categorías...</p>;
-    if (error) return <p>{error}</p>;
+    if (loading) return <p className="admin-loading">Cargando categorías...</p>;
+    if (error) return <p className="admin-error">{error}</p>;
 
     return (
         <div className="categorias-panel">
-            <h2>Categorías</h2>
-            <div className="categorias-lista">
-                {categorias.map((cat) => (
-                    <button key={cat.id_categoria} className="btn-categoria" onClick={() => handleSeleccionCategoria(cat)}>
-                        {cat.nombre}
-                    </button>
-                ))}
+            <h2 className="panel-titulo">Categorias</h2>
+            <div style={{
+                backgroundColor: "white",
+                borderRadius: 10,
+                padding: "20px",
+                margin: "0 10px"
+            }}>
+                <div style={{
+                    display: "flex",
+                    overflowX: "auto",
+                    gap: 10,
+                    paddingTop: 10
+                }}>
+                    {categorias.map((cat) => (
+                        <div
+                            key={cat.id_categoria}
+                            onClick={() => handleSeleccionCategoria(cat)}
+                            style={{
+                                minWidth: 83,
+                                height: 132,
+                                backgroundColor: categoriaSeleccionada?.id_categoria === cat.id_categoria ? "#7A916C" : "#9AAA88",
+                                borderRadius: 10,
+                                textAlign: "center",
+                                color: categoriaSeleccionada?.id_categoria === cat.id_categoria ? "white" : "#4B614C",
+                                fontFamily: "Lato",
+                                fontWeight: 800,
+                                fontSize: 13,
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "center",
+                                cursor: "pointer"
+                            }}
+                        >
+                            <img
+                                src={obtenerImagenCategoria(cat.nombre)}
+                                style={{
+                                    width: 59,
+                                    height: 66,
+                                    objectFit: "contain",
+                                    borderRadius: "50%",
+                                    backgroundColor: "#B1C89A",
+                                    margin: "0 auto 8px",
+                                    padding: 6
+                                }}
+                            />
+                            {cat.nombre.toUpperCase()}
+                        </div>
+                    ))}
+                </div>
             </div>
+
             {categoriaSeleccionada && (
                 <div className="productos-panel">
-                    <h3>Productos seleccionados en "{categoriaSeleccionada.nombre}" </h3>
+                    <h3 className="titulo-productos">Productos en "{categoriaSeleccionada.nombre}"</h3>
                     {productos.length === 0 ? (
-                            <p>No hay productos aun</p>
+                        <p className="admin-loading">No hay productos aún en esta categoría.</p>
                     ) : (
                         <ul className="lista-productos">
                             {productos.map((producto) => (
-                                <li key={producto.id_producto}>
+                                <li key={producto.id_producto} className="item-producto">
                                     <strong>{producto.nombre}</strong> - ${producto.precio_actual.toFixed(2)}
-                                    <button onClick={() => handleEliminarProducto(producto.id_producto)}>Eliminar</button>
-                                    <button onClick={() => {
-                                        setProductoEditando(producto);
-                                        setFormData({
-                                            nombre: producto.nombre,
-                                            precio_actual: producto.precio_actual,
-                                            descripcion: producto.descripcion,
-                                            informacion_nutricional: producto.informacion_nutricional || "",
-                                            foto: producto.foto || "",
-                                        });
-                                        setMostrarFormulario(true);
-                                    }}>Editar</button>
-
+                                    <div className="botones-acciones">
+                                        <button className="btn-accion eliminar" onClick={() => handleEliminarProducto(producto.id_producto)}>Eliminar</button>
+                                        <button
+                                            className="btn-accion editar"
+                                            onClick={() => {
+                                                setProductoEditando(producto);
+                                                setFormData({
+                                                    nombre: producto.nombre,
+                                                    precio_actual: producto.precio_actual,
+                                                    descripcion: producto.descripcion,
+                                                    informacion_nutricional: producto.informacion_nutricional || "",
+                                                    foto: producto.foto || "",
+                                                });
+                                                setMostrarFormulario(true);
+                                            }}
+                                        >
+                                            Editar
+                                        </button>
+                                    </div>
                                 </li>
                             ))}
                         </ul>
                     )}
-                    <button className="cargar-producto" onClick={() => setMostrarFormulario((prev) => !prev)}>
+                    <button className="btn-agregar" onClick={() => setMostrarFormulario((prev) => !prev)}>
                         {mostrarFormulario ? "Cancelar" : "Cargar nuevo producto"}
                     </button>
 
                     {mostrarFormulario && (
-                    <form className="formulario-producto" onSubmit={handleSubmit}>
-                        <input
-                            type="text"
-                            name="nombre"
-                            placeholder="Nombre"
-                            value={formData.nombre}
-                            onChange={handleChange}
-                            required
-                        />
-                        <input
-                            type="number"
-                            name="precio_actual"
-                            placeholder="Precio"
-                            value={formData.precio_actual}
-                            onChange={handleChange}
-                            required
-                            step="0.01"
-                        />
-                        <textarea
-                            name="descripcion"
-                            placeholder="Descripción"
-                            value={formData.descripcion}
-                            onChange={handleChange}
-                        />
-                        <textarea
-                            name="informacion_nutricional"
-                            placeholder="Información Nutricional"
-                            value={formData.informacion_nutricional}
-                            onChange={handleChange}
-                        />
-                        <input
-                            type="text"
-                            name="foto"
-                            placeholder="URL de la foto"
-                            value={formData.foto}
-                            onChange={handleChange}
-                        />
-                        <button type="submit">{productoEditando ? "Modificar Producto" : "Crear Producto"}</button>
-                    </form>
+                        <form className="formulario-producto" onSubmit={handleSubmit} style={{ marginTop: 20, padding: 15, backgroundColor: "white", borderRadius: 10, boxShadow: "0 1px 5px rgba(0,0,0,0.1)" }}>
+                            <div style={{ marginBottom: 15 }}>
+                                <label htmlFor="nombre" style={{ display: "block", marginBottom: 5, fontFamily: "Montserrat", fontSize: 14, color: "#333" }}>Nombre:</label>
+                                <input type="text" id="nombre" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleChange} required style={{ width: "100%", padding: 8, borderRadius: 5, border: "1px solid #ccc", fontFamily: "Montserrat", fontSize: 14 }} />
+                            </div>
+
+                            <div style={{ marginBottom: 15 }}>
+                                <label htmlFor="precio_actual" style={{ display: "block", marginBottom: 5, fontFamily: "Montserrat", fontSize: 14, color: "#333" }}>Precio:</label>
+                                <input type="number" id="precio_actual" name="precio_actual" placeholder="Precio" value={formData.precio_actual} onChange={handleChange} required step="0.01" style={{ width: "100%", padding: 8, borderRadius: 5, border: "1px solid #ccc", fontFamily: "Montserrat", fontSize: 14 }} />
+                            </div>
+
+                            <div style={{ marginBottom: 15 }}>
+                                <label htmlFor="descripcion" style={{ display: "block", marginBottom: 5, fontFamily: "Montserrat", fontSize: 14, color: "#333" }}>Descripción:</label>
+                                <textarea id="descripcion" name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={handleChange} style={{ width: "100%", padding: 8, borderRadius: 5, border: "1px solid #ccc", fontFamily: "Montserrat", fontSize: 14, minHeight: 80 }} />
+                            </div>
+
+                            <div style={{ marginBottom: 15 }}>
+                                <label htmlFor="informacion_nutricional" style={{ display: "block", marginBottom: 5, fontFamily: "Montserrat", fontSize: 14, color: "#333" }}>Información Nutricional:</label>
+                                <textarea id="informacion_nutricional" name="informacion_nutricional" placeholder="Información Nutricional" value={formData.informacion_nutricional} onChange={handleChange} style={{ width: "100%", padding: 8, borderRadius: 5, border: "1px solid #ccc", fontFamily: "Montserrat", fontSize: 14, minHeight: 80 }} />
+                            </div>
+
+                            <div style={{ marginBottom: 15 }}>
+                                <label htmlFor="foto" style={{ display: "block", marginBottom: 5, fontFamily: "Montserrat", fontSize: 14, color: "#333" }}>URL de la foto:</label>
+                                <input type="text" id="foto" name="foto" placeholder="URL de la foto" value={formData.foto} onChange={handleChange} style={{ width: "100%", padding: 8, borderRadius: 5, border: "1px solid #ccc", fontFamily: "Montserrat", fontSize: 14 }} />
+                            </div>
+
+                            <button type="submit" className="btn-submit" style={{ backgroundColor: "#008cba", color: "white", border: "none", borderRadius: 8, padding: "10px 15px", cursor: "pointer", fontSize: 16, fontFamily: "Montserrat" }}>
+                                {productoEditando ? "Modificar Producto" : "Crear Producto"}
+                            </button>
+                        </form>
                     )}
                 </div>
             )}
         </div>
-
-
     );
 };
 

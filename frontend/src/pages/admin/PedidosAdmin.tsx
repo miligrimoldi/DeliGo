@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { PedidoConDetalles, fetchPedidosPorServicio, cambiarEstadoPedido } from "../../api.ts";
+import "../../css/PedidosAdmin.css";
 
 const PedidosAdmin = () => {
     const { id_servicio } = useParams<{ id_servicio: string }>();
@@ -62,27 +63,79 @@ const PedidosAdmin = () => {
     const pedidos = solapa === "activos" ? pedidosActivos : pedidosAntiguos;
     const navigate = useNavigate();
 
+    const verdeClaro = "#e6f7e6"; // Un verde claro minimalista
+    const sombraSutil = "0 2px 4px rgba(0,0,0,0.08)";
+
     return (
-        <div className="pedidos-admin">
-            <h2>Pedidos</h2>
-            <div>
-                <button onClick={() => setSolapa("activos")}>Pedidos activos</button>
-                <button onClick={() => setSolapa("antiguos")}>Pedidos antiguos</button>
+        <div className="pedidos-admin" style={{ padding: "20px", fontFamily: "Montserrat, sans-serif", backgroundColor: "#f8fdf8" }}>
+            <h2 style={{ color: "#2f6f3f", marginBottom: "20px", textShadow: "0.5px 0.5px #e0e0e0" }}>Pedidos</h2>
+            <div className="solapas" style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
+                <button
+                    onClick={() => setSolapa("activos")}
+                    style={{
+                        backgroundColor: solapa === "activos" ? "#7A916C" : "white",
+                        color: solapa === "activos" ? "white" : "#4B614C",
+                        border: "1px solid #ccc",
+                        borderRadius: "8px",
+                        padding: "8px 15px",
+                        cursor: "pointer",
+                        fontWeight: "500",
+                        boxShadow: sombraSutil,
+                        transition: "background-color 0.3s ease"
+                    }}
+                    onMouseOver={(e) => (e.currentTarget.style.backgroundColor = solapa !== "activos" ? verdeClaro : "#7A916C")}
+                    onMouseOut={(e) => (e.currentTarget.style.backgroundColor = solapa === "activos" ? "#7A916C" : "white")}
+                >
+                    Pedidos activos
+                </button>
+                <button
+                    onClick={() => setSolapa("antiguos")}
+                    style={{
+                        backgroundColor: solapa === "antiguos" ? "#7A916C" : "white",
+                        color: solapa === "antiguos" ? "white" : "#4B614C",
+                        border: "1px solid #ccc",
+                        borderRadius: "8px",
+                        padding: "8px 15px",
+                        cursor: "pointer",
+                        fontWeight: "500",
+                        boxShadow: sombraSutil,
+                        transition: "background-color 0.3s ease"
+                    }}
+                    onMouseOver={(e) => (e.currentTarget.style.backgroundColor = solapa !== "antiguos" ? verdeClaro : "#7A916C")}
+                    onMouseOut={(e) => (e.currentTarget.style.backgroundColor = solapa === "antiguos" ? "#7A916C" : "white")}
+                >
+                    Pedidos antiguos
+                </button>
             </div>
             {pedidos.map(p => (
-                <div key={p.id_pedido} className="pedido-card">
-                    <p><strong>Pedido #{p.id_pedido}</strong> - Estado: {p.estado}</p>
-                    <ul>
+                <div key={p.id_pedido} className="pedido-card" style={{ backgroundColor: "white", borderRadius: "10px", padding: "15px", marginBottom: "15px", boxShadow: "0 2px 6px rgba(0,0,0,0.1)", border: `1px solid ${verdeClaro}` }}>
+                    <p style={{ fontWeight: "bold", color: "#2f6f3f", marginBottom: "10px" }}>
+                        Pedido #<span style={{ color: "#2f6f3f" }}>{p.id_pedido}</span> - Estado: <span style={{ color: "#2f6f3f" }}>{p.estado}</span>
+                    </p>
+                    <ul style={{ listStyleType: "none", padding: 0, marginBottom: "10px" }}>
                         {p.detalles.map(d => (
-                            <li key={d.id_detalle}>
+                            <li key={d.id_detalle} style={{ color: "#555" }}>
                                 {d.producto.nombre} x{d.cantidad}
                             </li>
                         ))}
                     </ul>
 
                     {solapa === "activos" && (
-                        <>
-                            <select value={p.estado} onChange={(e) => handleEstadoChange(p.id_pedido, e.target.value)}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                            <select
+                                value={p.estado}
+                                onChange={(e) => handleEstadoChange(p.id_pedido, e.target.value)}
+                                style={{
+                                    padding: "8px",
+                                    borderRadius: "5px",
+                                    border: `1px solid ${verdeClaro}`,
+                                    fontFamily: "Montserrat, sans-serif",
+                                    fontSize: "14px",
+                                    color: "#333",
+                                    boxShadow: sombraSutil,
+                                    backgroundColor: "white"
+                                }}
+                            >
                                 <option value="esperando_confirmacion">Esperando Confirmacion</option>
                                 <option value="en_preparacion">En preparación</option>
                                 <option value="cancelado">Cancelado</option>
@@ -91,8 +144,8 @@ const PedidosAdmin = () => {
                             </select>
 
                             {p.estado === "en_preparacion" && (
-                                <div>
-                                    <label>Tiempo estimado (min): </label>
+                                <div className="tiempo-estimado" style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                                    <label style={{ fontSize: "14px", color: "#555" }}>Tiempo estimado (min):</label>
                                     <input
                                         type="number"
                                         min={1}
@@ -109,14 +162,45 @@ const PedidosAdmin = () => {
                                                 handleTiempoChange(p.id_pedido, nuevoTiempo);
                                             }
                                         }}
+                                        style={{
+                                            padding: "8px",
+                                            borderRadius: "5px",
+                                            border: `1px solid ${verdeClaro}`,
+                                            fontFamily: "Montserrat, sans-serif",
+                                            fontSize: "14px",
+                                            color: "#333",
+                                            width: "80px",
+                                            boxShadow: sombraSutil,
+                                            backgroundColor: "white"
+                                        }}
                                     />
                                 </div>
                             )}
-                        </>
+                        </div>
                     )}
                 </div>
             ))}
-            <button onClick={() => navigate(`/admin/${id_servicio}`)}>Inicio</button>
+            <button
+                className="btn-volver"
+                onClick={() => navigate(`/admin/${id_servicio}`)}
+                style={{
+                    backgroundColor: "white",
+                    color: "#2f6f3f",
+                    border: `1px solid #ccc`,
+                    borderRadius: "8px",
+                    padding: "10px 15px",
+                    cursor: "pointer",
+                    fontWeight: "500",
+                    fontSize: "16px",
+                    marginTop: "20px",
+                    boxShadow: sombraSutil,
+                    transition: "background-color 0.3s ease"
+                }}
+                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = verdeClaro)}
+                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "white")}
+            >
+                Inicio
+            </button>
         </div>
     );
 };

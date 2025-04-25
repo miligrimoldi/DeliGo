@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
-import {useNavigate, useParams} from 'react-router-dom';
-import CategoriasPanel from './CategoriasPanel.tsx';
-import {fetchServicioAdmin, ServicioInfor} from "../../api.ts";
+import { useNavigate, useParams } from "react-router-dom";
+import CategoriasPanel from "./CategoriasPanel.tsx";
+import { fetchServicioAdmin, ServicioInfor } from "../../api.ts";
+import "../../css/HomeAdministrador.css";
 
 const HomeAdministrador = () => {
-
     const { id_servicio } = useParams();
-    const [info, setInfo ] = useState<ServicioInfor | null>(null);
+    const [info, setInfo] = useState<ServicioInfor | null>(null);
     const navigate = useNavigate();
-
 
     useEffect(() => {
         const fetchData = async () => {
@@ -20,33 +19,28 @@ const HomeAdministrador = () => {
             }
         };
         fetchData();
-
     }, [id_servicio]);
 
     return (
         <div className="home-admin">
-            <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '1rem' }}>
-                <button
-                    onClick={() => navigate("/admin-perfil")}
-                    style={{ background: 'none', border: '1px solid #ccc', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer' }}
-                >
-                    Mi perfil
-                </button>
-                <button onClick={() => navigate(`/admin/${id_servicio}/pedidos`)}
-                        style={{ marginRight: '1rem', background: 'none', border: '1px solid #ccc', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer' }}>
+            <div className="admin-navbar">
+                <button className="admin-btn" onClick={() => navigate(`/admin/${id_servicio}/pedidos`)}>
                     Pedidos
+                </button>
+                <button className="admin-btn" onClick={() => navigate("/admin-perfil")}>
+                    Mi perfil
                 </button>
             </div>
             {info ? (
                 <>
-                    <h1>{info.nombre_servicio} - {info.nombre_entidad}</h1>
+                    <h1 className="admin-titulo">{info.nombre_servicio} - {info.nombre_entidad}</h1>
                     <CategoriasPanel id_servicio={Number(id_servicio)} />
                 </>
             ) : (
-                <p>Cargando información del servicio...</p>
+                <p className="admin-loading">Cargando información del servicio...</p>
             )}
         </div>
     );
-
 };
+
 export default HomeAdministrador;
