@@ -48,7 +48,7 @@ const ProductoDetalle = () => {
             <div style={{ width: '440px', margin: '0 auto'}}>
                 <div style={{
                     width: '100%', height: 330, backgroundColor: '#F2FFE6',
-                    borderBottomLeftRadius: 100, borderBottomRightRadius: 100,
+                    borderBottomLeftRadius: 110, borderBottomRightRadius: 110,
                     position: 'relative'
                 }}>
                     <FaArrowLeft
