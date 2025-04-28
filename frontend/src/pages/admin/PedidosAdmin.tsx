@@ -110,7 +110,7 @@ const PedidosAdmin = () => {
             {pedidos.map(p => (
                 <div key={p.id_pedido} className="pedido-card" style={{ backgroundColor: "white", borderRadius: "10px", padding: "15px", marginBottom: "15px", boxShadow: "0 2px 6px rgba(0,0,0,0.1)", border: `1px solid ${verdeClaro}` }}>
                     <p style={{ fontWeight: "bold", color: "#2f6f3f", marginBottom: "10px" }}>
-                        Pedido #<span style={{ color: "#2f6f3f" }}>{p.id_pedido}</span> - Estado: <span style={{ color: "#2f6f3f" }}>{p.estado}</span>
+                        Pedido #<span style={{ color: "#2f6f3f" }}>{p.id_pedido}</span> - Estado: <span style={{ color: "#2f6f3f" }}>{p.estado}</span> - Usuario <span style={{ color: "#2f6f3f" }}>{p.email_usuario}</span>
                     </p>
                     <ul style={{ listStyleType: "none", padding: 0, marginBottom: "10px" }}>
                         {p.detalles.map(d => (

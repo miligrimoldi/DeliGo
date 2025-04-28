@@ -210,6 +210,7 @@ export type PedidoConDetalles = {
     id_pedido: number;
     estado: string;
     tiempo_estimado_minutos?: number;
+    email_usuario: string,
     detalles: DetallePedido[];
 };
 

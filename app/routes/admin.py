@@ -1,10 +1,12 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
+from app.main import obtener_usuario
 from app.models.categoria import Categoria
 from app.models.producto_servicio import ProductoServicio
 from app.models.servicio import Servicio
 from app.extensions import db
+from app.models.usuario import User
 from app.models.producto_servicio import ProductoServicio
 from app.models.pedido import Pedido
 from app.models.detalle_pedido import DetallePedido
@@ -117,6 +119,8 @@ def pedidos_servicio(id_servicio):
             'id_pedido': p.id_pedido,
             'estado': p.estado,
             'tiempo_estimado_minutos': p.tiempo_estimado_minutos,
+            'id_usuario_consumidor': p.id_usuario_consumidor,
+            'email_usuario': User.query.get(p.id_usuario_consumidor).email,
             'detalles': [
                 {
                     'id_detalle': d.id_detalle,
