@@ -14,9 +14,9 @@ export const useAuthRedirect = () => {
             navigate('/login');
         }
 
-        // Si hay token, evitá que acceda a login o register
+        // Si hay token, evita que acceda a login o register
         if (token && (location.pathname === '/login' || location.pathname === '/register')) {
-            navigate('/entidades'); // o a donde quieras mandarlo por defecto
+            navigate('/entidades');
         }
     }, [location.pathname, navigate]);
 };

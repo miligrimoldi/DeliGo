@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 interface DetallePedido {
     producto: string;
@@ -22,7 +21,6 @@ interface Pedido {
 
 const MisPedidosUsuario = () => {
     const [pedidos, setPedidos] = useState<Pedido[]>([]);
-    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchPedidos = async () => {
@@ -135,22 +133,6 @@ const MisPedidosUsuario = () => {
             {pedidos.length === 0 && (
                 <p>No tenés pedidos realizados.</p>
             )}
-
-            <button
-                onClick={() => navigate(-1)}
-                style={{
-                    marginTop: 20,
-                    backgroundColor: "#769B7B",
-                    color: "white",
-                    padding: "10px 20px",
-                    borderRadius: 5,
-                    border: "none",
-                    fontFamily: "Poppins",
-                    cursor: "pointer"
-                }}
-            >
-                Volver
-            </button>
         </div>
     );
 };
