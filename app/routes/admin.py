@@ -133,7 +133,7 @@ def pedidos_servicio(id_servicio):
         } for p in pedidos
     ])
 
-
+# Editar pedido
 @pedidos_servicio_bp.route('/pedidos/<int:id_pedido>/estado', methods=['PUT'])
 @jwt_required()
 def cambiar_estado_pedido(id_pedido):
@@ -155,4 +155,5 @@ def cambiar_estado_pedido(id_pedido):
         pedido.tiempo_estimado_minutos = nuevo_tiempo
 
     db.session.commit()
-    return jsonify({"mensaje": "Pedido actualizado correctamente"}), 200
+    return jsonify({"mensaje": "Pedido actualizado correctamente"})
+
