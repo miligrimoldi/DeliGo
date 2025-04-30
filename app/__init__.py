@@ -58,6 +58,8 @@ def create_app():
         from app.models.producto_servicio import ProductoServicio
         from app.models.pedido import Pedido
         from app.models.detalle_pedido import DetallePedido
+        from app.models.favoritos_servicios import FavoritoServicio
+        from app.models.favoritos_productos import FavoritoProducto
         db.create_all()
 
 
@@ -152,6 +154,8 @@ def create_app():
     app.register_blueprint(pedidos_servicio_bp)
     from app.routes.pedidos import pedidos_bp
     app.register_blueprint(pedidos_bp)
+    from app.routes.favoritos import favoritos_bp
+    app.register_blueprint(favoritos_bp)
 
     # Rutas frontend
     @app.route('/')
