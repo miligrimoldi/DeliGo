@@ -237,6 +237,40 @@ export const modificarProducto = async (id_producto: number, data: Partial<Produ
     return res.data
 }
 
+export const fetchFavoritosServicios = async (): Promise<number[]> => {
+    const response = await api.get('/api/favoritos/servicios');
+    return response.data;
+};
+
+export const agregarFavoritoServicio = async (id_servicio: number): Promise<void> => {
+    await api.post('/api/favoritos/servicios', { id_servicio });
+};
+
+export const eliminarFavoritoServicio = async (id_servicio: number): Promise<void> => {
+    await api.delete('/api/favoritos/servicios', {
+        data: { id_servicio }
+    });
+};
+
+export const fetchFavoritosProductos = async (): Promise<number[]> => {
+    const response = await api.get('/api/favoritos/productos');
+    return response.data;
+};
+
+export const agregarFavoritoProducto = async (id_producto: number): Promise<void> => {
+    await api.post('/api/favoritos/productos', { id_producto });
+};
+
+export const eliminarFavoritoProducto = async (id_producto: number): Promise<void> => {
+    await api.delete('/api/favoritos/productos', {
+        data: { id_producto }
+    });
+};
+
+export const fetchServicio = async (id_servicio: number): Promise<Servicio> => {
+    const response = await api.get(`/api/servicio/${id_servicio}`);
+    return response.data.servicio;
+};
 
 
 

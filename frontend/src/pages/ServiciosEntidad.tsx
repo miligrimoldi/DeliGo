@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { fetchServiciosEntidad } from '../api.ts';
-import { FaArrowLeft } from 'react-icons/fa';
+import { fetchServiciosEntidad, fetchFavoritosServicios, agregarFavoritoServicio, eliminarFavoritoServicio } from '../api.ts';
+import { FaArrowLeft, FaHeart, FaRegHeart } from 'react-icons/fa';
 
 interface Servicio {
     id_servicio: number;
@@ -17,6 +17,7 @@ interface Entidad {
 const ServiciosEntidad: React.FC = () => {
     const { id_entidad } = useParams<{ id_entidad: string }>();
     const [servicios, setServicios] = useState<Servicio[]>([]);
+    const [favoritosIds, setFavoritosIds] = useState<number[]>([]);
     const [entidad, setEntidad] = useState<Entidad | null>(null);
     const [error, setError] = useState('');
     const navigate = useNavigate();
@@ -26,9 +27,13 @@ const ServiciosEntidad: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const data = await fetchServiciosEntidad(Number(id_entidad));
-                setServicios(data.servicios);
-                setEntidad(data.entidad);
+                const [serviciosData, favoritos] = await Promise.all([
+                    fetchServiciosEntidad(Number(id_entidad)),
+                    fetchFavoritosServicios()
+                ]);
+                setServicios(serviciosData.servicios);
+                setEntidad(serviciosData.entidad);
+                setFavoritosIds(favoritos);
             } catch (err: any) {
                 setError(err.response?.data?.error || 'Error al cargar servicios');
             }
@@ -36,6 +41,16 @@ const ServiciosEntidad: React.FC = () => {
 
         fetchData();
     }, [id_entidad]);
+
+    const toggleFavorito = async (id_servicio: number) => {
+        if (favoritosIds.includes(id_servicio)) {
+            await eliminarFavoritoServicio(id_servicio);
+            setFavoritosIds((prev) => prev.filter((id) => id !== id_servicio));
+        } else {
+            await agregarFavoritoServicio(id_servicio);
+            setFavoritosIds((prev) => [...prev, id_servicio]);
+        }
+    };
 
     if (error) return <p style={{ color: 'red' }}>{error}</p>;
     if (!entidad) return <p>Cargando...</p>;
@@ -102,16 +117,17 @@ const ServiciosEntidad: React.FC = () => {
                         {servicios.map((s) => (
                             <div
                                 key={s.id_servicio}
-                                onClick={() => navigate(`/home/${s.id_servicio}`)}
                                 style={{
                                     backgroundColor: '#EBEBEB',
                                     padding: '1rem',
                                     borderRadius: '20px',
-                                    cursor: 'pointer',
                                     transition: 'all 0.2s',
                                     fontFamily: 'Fredoka One',
                                     fontSize: '15px',
-                                    letterSpacing: '0.45px'
+                                    letterSpacing: '0.45px',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center'
                                 }}
                                 onMouseOver={(e) => {
                                     (e.currentTarget as HTMLDivElement).style.backgroundColor = '#dcdcdc';
@@ -120,17 +136,25 @@ const ServiciosEntidad: React.FC = () => {
                                     (e.currentTarget as HTMLDivElement).style.backgroundColor = '#EBEBEB';
                                 }}
                             >
-                                <strong>{s.nombre.toUpperCase()}</strong>
-                                <br />
-                                <span
-                                    style={{
-                                        fontFamily: 'Montserrat',
-                                        fontWeight: 400,
-                                        fontSize: '14px'
-                                    }}
+                                <div
+                                    onClick={() => navigate(`/home/${s.id_servicio}`)}
+                                    style={{ flex: 1, cursor: 'pointer' }}
                                 >
-                  {s.descripcion}
-                </span>
+                                    <strong>{s.nombre.toUpperCase()}</strong>
+                                    <br />
+                                    <span
+                                        style={{
+                                            fontFamily: 'Montserrat',
+                                            fontWeight: 400,
+                                            fontSize: '14px'
+                                        }}
+                                    >
+                                        {s.descripcion}
+                                    </span>
+                                </div>
+                                <div onClick={() => toggleFavorito(s.id_servicio)} style={{ marginLeft: 10, cursor: 'pointer' }}>
+                                    {favoritosIds.includes(s.id_servicio) ? <FaHeart color="4B614C" /> : <FaRegHeart color="gray" />}
+                                </div>
                             </div>
                         ))}
                     </div>

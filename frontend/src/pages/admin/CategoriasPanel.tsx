@@ -78,7 +78,7 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
             case 'dulce':
                 return "/img/torta.png";
             case 'salado':
-                return "/img/tostado.png";
+                return "/img/salado.png";
             case 'kiosko':
                 return "/img/kiosko.png";
             case 'guarniciones':

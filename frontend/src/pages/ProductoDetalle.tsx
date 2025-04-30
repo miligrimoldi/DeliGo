@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { FaArrowLeft } from 'react-icons/fa';
-import { fetchProductoPorId } from '../api.ts';
+import { FaArrowLeft, FaHeart, FaRegHeart } from 'react-icons/fa';
+import { fetchProductoPorId, fetchFavoritosProductos, agregarFavoritoProducto, eliminarFavoritoProducto } from '../api';
 import { useCarrito } from '../pages/CarritoContext';
 
 type Producto = {
@@ -19,20 +19,26 @@ const ProductoDetalle = () => {
     const [producto, setProducto] = useState<Producto | null>(null);
     const [cantidad, setCantidad] = useState(1);
     const { agregarItem, items } = useCarrito();
+    const [esFavorito, setEsFavorito] = useState(false);
 
     const totalArticulos = items.reduce((sum, item) => sum + item.cantidad, 0);
 
     useEffect(() => {
         if (!id_producto) return;
+
         fetchProductoPorId(Number(id_producto))
             .then((data) => setProducto(data))
             .catch((error) => console.error('Error al obtener el producto:', error));
+
+        fetchFavoritosProductos()
+            .then((favoritos) => {
+                setEsFavorito(favoritos.includes(Number(id_producto)));
+            });
     }, [id_producto]);
 
     useEffect(() => {
         localStorage.setItem('lastFromCarrito', window.location.pathname);
     }, []);
-
 
     const aumentarCantidad = () => setCantidad((prev) => prev + 1);
     const disminuirCantidad = () => setCantidad((prev) => (prev > 1 ? prev - 1 : 1));
@@ -41,11 +47,22 @@ const ProductoDetalle = () => {
         navigate('/carrito');
     };
 
+    const toggleFavorito = async () => {
+        if (!producto) return;
+        if (esFavorito) {
+            await eliminarFavoritoProducto(producto.id_producto);
+            setEsFavorito(false);
+        } else {
+            await agregarFavoritoProducto(producto.id_producto);
+            setEsFavorito(true);
+        }
+    };
+
     if (!producto) return <p>Cargando...</p>;
 
     return (
         <div style={{ backgroundColor: '#F4F5F9', minHeight: '100vh' }}>
-            <div style={{ width: '440px', margin: '0 auto'}}>
+            <div style={{ width: '440px', margin: '0 auto' }}>
                 <div style={{
                     width: '100%', height: 330, backgroundColor: '#F2FFE6',
                     borderBottomLeftRadius: 110, borderBottomRightRadius: 110,
@@ -84,12 +101,24 @@ const ProductoDetalle = () => {
                     backgroundColor: '#F4F5F9', marginTop: -32,
                     borderTopLeftRadius: 10, borderTopRightRadius: 10, padding: '1.5rem'
                 }}>
-                    <div style={{ color: '#769B7B', fontSize: 18, fontFamily: 'Poppins', fontWeight: 600 }}>
-                        ${producto.precio_actual.toFixed(2)}
+                    <div style={{
+                        display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8
+                    }}>
+                        <div>
+                            <div style={{ color: '#769B7B', fontSize: 18, fontFamily: 'Poppins', fontWeight: 600 }}>
+                                ${producto.precio_actual.toFixed(2)}
+                            </div>
+                            <div style={{ fontSize: 20, fontFamily: 'Poppins', fontWeight: 600 }}>
+                                {producto.nombre}
+                            </div>
+                        </div>
+                        <div onClick={toggleFavorito} style={{ cursor: 'pointer' }}>
+                            {esFavorito
+                                ? <FaHeart color="4B614C" size={20} />
+                                : <FaRegHeart color="grey" size={20} />}
+                        </div>
                     </div>
-                    <div style={{ fontSize: 20, fontFamily: 'Poppins', fontWeight: 600, marginTop: 4 }}>
-                        {producto.nombre}
-                    </div>
+
                     <div style={{
                         fontSize: 12, color: '#868889', fontFamily: 'Poppins',
                         fontWeight: 400, lineHeight: '19.56px', marginTop: 12
