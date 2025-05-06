@@ -16,7 +16,8 @@ import Favoritos from './pages/Favoritos.tsx';
 import MyProfileAdmin from './pages/admin/MyProfileAdmin.tsx';
 import ProtectedRoute from './components/ProtectedRoute.tsx';
 import PedidosAdmin from "./pages/admin/PedidosAdmin.tsx";
-
+import EditarPerfil from "./pages/EditarPerfil.tsx";
+import Opinar from "./pages/Opinar.tsx";
 
 function App() {
     useAuthRedirect();
@@ -27,9 +28,19 @@ function App() {
                 {/* Redirección inicial */}
                 <Route path="/" element={<Navigate to="/login"/>}/>
 
-                {/* Rutas publicas */}
+                {/* Rutas públicas */}
                 <Route path="/login" element={<LoginPage/>}/>
                 <Route path="/register" element={<RegisterPage/>}/>
+
+                {/* Rutas para Admin y Clientes */}
+                <Route
+                    path="/editar-perfil"
+                    element={
+                        <ProtectedRoute>
+                            <EditarPerfil />
+                        </ProtectedRoute>
+                    }
+                />
 
                 {/* Admin protegidas */}
                 <Route
@@ -67,12 +78,13 @@ function App() {
                 >
                     <Route path="/entidades" element={<EntidadesTabs/>}/>
                     <Route path="/home/:id_servicio" element={<HomeServicioUsuario/>}/>
-                    <Route path="/carrito" element={<Carrito/>}/>
+                    <Route path="/carrito/:id_servicio" element={<Carrito />} />
                     <Route path="/mis-pedidos" element={<MisPedidosUsuario/>}/>
                     <Route path="/perfil" element={<MyProfilePage/>}/>
                     <Route path="/producto/:id_producto" element={<ProductoDetalle/>}/>
                     <Route path="/entidad/:id_entidad" element={<ServiciosEntidad/>}/>
                     <Route path="/favoritos" element={<Favoritos/>}/>
+                    <Route path="/opinar/:id" element={<Opinar />} />
                 </Route>
             </Routes>
         </div>

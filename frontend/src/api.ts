@@ -114,6 +114,9 @@ export type Servicio = {
     id_servicio: number;
     nombre: string;
     descripcion: string;
+
+    puntaje_promedio?: number;
+    cantidad_opiniones?: number;
 };
 
 export const fetchServiciosEntidad = async (
@@ -159,6 +162,9 @@ export type Producto = {
     informacion_nutricional: string;
     precio_actual: number;
     foto: string;
+    nombre_servicio?: string;
+    puntaje_promedio?: number;
+    cantidad_opiniones?: number;
 }
 
 export const fetchProductosPorCategoria = async (id_servicio: number, id_categoria: number): Promise<Producto[]> => {
@@ -185,7 +191,7 @@ export const crearProducto = async (
 
 export const getDetalleServicio = async (id_servicio: number) => {
     const response = await api.get(`/api/servicio/${id_servicio}`);
-    return response.data; // { servicio, entidad, categorias }
+    return response.data;
 };
 
 export async function fetchProductoPorId(id: number) {
@@ -210,6 +216,7 @@ export type PedidoConDetalles = {
     id_pedido: number;
     estado: string;
     tiempo_estimado_minutos?: number;
+    email_usuario: string,
     detalles: DetallePedido[];
 };
 
@@ -271,6 +278,18 @@ export const fetchServicio = async (id_servicio: number): Promise<Servicio> => {
     const response = await api.get(`/api/servicio/${id_servicio}`);
     return response.data.servicio;
 };
+
+export const cambiarContrasena = async (data: { actual: string, nueva: string, confirmar: string }) => {
+    const response = await api.put('/api/usuario/contrasena', data);
+    return response.data;
+};
+
+export const eliminarCuenta = async () => {
+    const response = await api.delete('/api/usuario');
+    return response.data;
+};
+
+
 
 
 

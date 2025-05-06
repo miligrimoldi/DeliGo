@@ -36,7 +36,7 @@ const HomeServicioUsuario = () => {
     const [productosPorCategoria, setProductosPorCategoria] = useState<Record<number, Producto[]>>({});
     const [filtro, setFiltro] = useState("");
     const refs = useRef<Record<number, HTMLDivElement | null>>({});
-    const { items } = useCarrito();
+    const { items, setServicioActivo } = useCarrito();
     const totalArticulos = items.reduce((sum, item) => sum + item.cantidad, 0);
 
     useEffect(() => {
@@ -46,7 +46,7 @@ const HomeServicioUsuario = () => {
             setServicio(data.servicio);
             setEntidad(data.entidad);
             setCategorias(data.categorias);
-
+            setServicioActivo(data.servicio.id_servicio);
             const productosMap: Record<number, Producto[]> = {};
             await Promise.all(
                 data.categorias.map(async (cat: Categoria) => {
@@ -68,7 +68,7 @@ const HomeServicioUsuario = () => {
 
     const handleIrAlCarrito = () => {
         localStorage.setItem('lastFromCarrito', window.location.pathname);
-        navigate('/carrito');
+        navigate(`/carrito/${id_servicio}`);
     };
 
     const obtenerImagenCategoria = (nombre: string): string => {
@@ -160,16 +160,16 @@ const HomeServicioUsuario = () => {
                     {/* Promo */}
                     <div style={{
                         backgroundColor: "#9AAA88", borderRadius: 20,
-                        margin: "20px 0", padding: "20px",
+                        margin: "20px 0", padding: "20px 20px 60px 20px",
                         color: "white", fontFamily: "Fredoka One", position: "relative"
                     }}>
-                        <div style={{ fontSize: 25 }}>DESPERDICIO CERO</div>
-                        <div style={{ color: "#4B614C", fontSize: 25 }}>70% OFF</div>
+                        <div style={{ fontSize: 35 }}>DESPERDICIO CERO</div>
+                        <div style={{ color: "#4B614C", fontSize: 25, paddingBottom: 10 }}>--% OFF</div>
                         <button style={{
                             position: "absolute", bottom: 20, left: 20,
                             backgroundColor: "#4B614C", color: "white",
                             padding: "10px 20px", borderRadius: "30px", border: "none",
-                            fontFamily: "Montserrat", fontWeight: 700, fontSize: 17
+                            fontFamily: "Montserrat", fontWeight: 700, fontSize: 17,
                         }}>Comprar</button>
                     </div>
 

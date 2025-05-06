@@ -2,11 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { fetchServiciosEntidad, fetchFavoritosServicios, agregarFavoritoServicio, eliminarFavoritoServicio } from '../api.ts';
 import { FaArrowLeft, FaHeart, FaRegHeart } from 'react-icons/fa';
+import EstrellasPuntaje from '../components/EstrellasPuntaje';
 
 interface Servicio {
     id_servicio: number;
     nombre: string;
     descripcion: string;
+    puntaje_promedio?: number;
+    cantidad_opiniones?: number;
 }
 
 interface Entidad {
@@ -138,10 +141,10 @@ const ServiciosEntidad: React.FC = () => {
                             >
                                 <div
                                     onClick={() => navigate(`/home/${s.id_servicio}`)}
-                                    style={{ flex: 1, cursor: 'pointer' }}
+                                    style={{flex: 1, cursor: 'pointer'}}
                                 >
                                     <strong>{s.nombre.toUpperCase()}</strong>
-                                    <br />
+                                    <br/>
                                     <span
                                         style={{
                                             fontFamily: 'Montserrat',
@@ -149,11 +152,36 @@ const ServiciosEntidad: React.FC = () => {
                                             fontSize: '14px'
                                         }}
                                     >
-                                        {s.descripcion}
-                                    </span>
+    {s.descripcion}
+  </span>
+
+                                    {s.puntaje_promedio !== undefined && (
+                                        <div style={{display: 'flex', alignItems: 'center', marginTop: 8}}>
+      <span style={{
+          fontSize: 14,
+          fontWeight: 600,
+          color: '#4B614C',
+          fontFamily: 'Poppins',
+          marginRight: 6
+      }}>
+        {s.puntaje_promedio.toFixed(1)}
+      </span>
+                                            <EstrellasPuntaje rating={s.puntaje_promedio}/>
+                                            <span style={{
+                                                fontSize: 12,
+                                                color: '#868889',
+                                                fontFamily: 'Poppins',
+                                                marginLeft: 6
+                                            }}>
+        ({s.cantidad_opiniones} reseñas)
+      </span>
+                                        </div>
+                                    )}
                                 </div>
-                                <div onClick={() => toggleFavorito(s.id_servicio)} style={{ marginLeft: 10, cursor: 'pointer' }}>
-                                    {favoritosIds.includes(s.id_servicio) ? <FaHeart color="4B614C" /> : <FaRegHeart color="gray" />}
+                                <div onClick={() => toggleFavorito(s.id_servicio)}
+                                     style={{marginLeft: 10, cursor: 'pointer'}}>
+                                    {favoritosIds.includes(s.id_servicio) ? <FaHeart color="4B614C"/> :
+                                        <FaRegHeart color="gray"/>}
                                 </div>
                             </div>
                         ))}

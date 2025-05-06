@@ -13,5 +13,8 @@ def obtener_producto(id_producto):
         "precio_actual": producto.precio_actual,
         "foto": producto.foto,
         "id_servicio": producto.id_servicio,
+        "nombre_servicio": producto.servicio.nombre,
+        "puntaje_promedio": producto.puntaje_promedio,
+        "cantidad_opiniones": producto.cantidad_opiniones
         # "ingredientes": producto.ingredientes or []
     })

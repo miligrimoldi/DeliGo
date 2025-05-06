@@ -28,7 +28,9 @@ def obtener_servicios_entidad(id_entidad):
         {
             'id_servicio': s.id_servicio,
             'nombre': s.nombre,
-            'descripcion': s.descripcion
+            'descripcion': s.descripcion,
+            'puntaje_promedio': s.puntaje_promedio,
+            'cantidad_opiniones': s.cantidad_opiniones
         } for s in servicios
     ]
 
@@ -52,7 +54,9 @@ def detalle_servicio(id_servicio):
     return jsonify({
         'servicio': {
             'id_servicio': servicio.id_servicio,
-            'nombre': servicio.nombre
+            'nombre': servicio.nombre,
+            'puntaje_promedio': servicio.puntaje_promedio,
+            'cantidad_opiniones': servicio.cantidad_opiniones
         },
         'entidad': {
             'id_entidad': entidad.id_entidad,

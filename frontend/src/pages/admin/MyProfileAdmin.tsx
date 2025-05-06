@@ -1,13 +1,14 @@
 import React from 'react';
-import { FaSignOutAlt, FaCamera } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { FaSignOutAlt, FaUserEdit } from 'react-icons/fa';
+import { eliminarCuenta } from '../../api';
 import '../../css/perfil.css';
 
 const MyProfileAdmin: React.FC = () => {
-
+    const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const fullName = `${user.nombre || 'Nombre'} ${user.apellido || 'Apellido'}`;
     const email = user.email || 'email@ejemplo.com';
-    const profilePhoto = "/img/PERFIL-VACIO.png";
 
     const handleLogout = () => {
         localStorage.removeItem('user');
@@ -15,21 +16,36 @@ const MyProfileAdmin: React.FC = () => {
         window.location.href = '/login';
     };
 
+    const handleEliminarCuenta = async () => {
+        const confirmar = window.confirm("¿Estás seguro de que querés eliminar tu cuenta?");
+        if (!confirmar) return;
+
+        try {
+            await eliminarCuenta();
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            window.location.href = "/login";
+        } catch (err: any) {
+            alert("Error al eliminar cuenta");
+        }
+    };
+
     return (
         <div className="perfil-container">
-            <div className="profile-picture-wrapper">
-                <img src={profilePhoto} alt="Foto de perfil" className="profile-picture" />
-                <div className="camera-icon">
-                    <FaCamera />
-                </div>
-            </div>
-
             <h3 className="user-name">{fullName}</h3>
             <p className="user-email">{email}</p>
 
+            <div className="perfil-opciones">
+                <div className="perfil-item" onClick={() => navigate('/editar-perfil')}>
+                    <FaUserEdit className="perfil-icon"/> Editar perfil
+                </div>
+                <div className="cerrar-sesion-item" onClick={handleLogout}>
+                    <FaSignOutAlt className="cerrar-sesion-icon"/> Cerrar sesión
+                </div>
+            </div>
 
-            <button className="cerrar-sesion-btn" onClick={handleLogout}>
-                <FaSignOutAlt className="perfil-icon" /> Cerrar sesión
+            <button className="eliminar-cuenta-btn" onClick={handleEliminarCuenta}>
+                Eliminar cuenta
             </button>
         </div>
     );

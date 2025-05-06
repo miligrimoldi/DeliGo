@@ -84,7 +84,7 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
             case 'guarniciones':
                 return "/img/guarniciones.png";
             case 'principales':
-                return "/img/burga.png";
+                return "/img/menu.png";
             default:
                 return "/img/default.png";
         }

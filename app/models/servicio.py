@@ -8,6 +8,9 @@ class Servicio(db.Model):
     nombre = db.Column(db.String(100), nullable=False)
     descripcion = db.Column(db.String(255))
     id_entidad = db.Column(db.Integer, db.ForeignKey('entidad.id_entidad'), nullable=False)
+    puntaje_promedio = db.Column(db.Float, default=0)
+    cantidad_opiniones = db.Column(db.Integer, default=0)
+
     entidad = db.relationship('Entidad', back_populates='servicios') #back_populates es para relacion bidireccional
     categorias = db.relationship(
         'Categoria',
