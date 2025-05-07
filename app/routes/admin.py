@@ -178,5 +178,18 @@ def alta_empleados(id_servicio):
     db.session.commit()
     return jsonify({'mensaje': 'Empleado creado exitosamente'}), 201
 
+@empleados_bp.route('/servicios/<int:id_servicio>/empleados/<int:id_empleado>', methods=['DELETE'])
+@jwt_required()
+def baja_empleado(id_servicio, id_empleado):
+    empleado = UsuarioEmpleado.query.get_or_404(id_empleado)
+
+    if empleado.id_servicio != id_servicio:
+        return jsonify({'error': 'Empleado no pertenece a este servicio'}), 403
+
+    db.session.delete(empleado)
+    db.session.commit()
+    return jsonify({'mensaje': 'Empleado eliminado correctamente'}), 200
+
+
     
 
