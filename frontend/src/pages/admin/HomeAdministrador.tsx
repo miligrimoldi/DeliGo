@@ -30,6 +30,9 @@ const HomeAdministrador = () => {
                 <button className="admin-btn" onClick={() => navigate("/admin-perfil")}>
                     Mi perfil
                 </button>
+                <button className="admin-btn" onClick={() => navigate("/admin-empleados")}>
+                    Empleados
+                </button>
             </div>
             {info ? (
                 <>

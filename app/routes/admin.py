@@ -10,7 +10,7 @@ from app.models.usuario import User
 from app.models.producto_servicio import ProductoServicio
 from app.models.pedido import Pedido
 from app.models.detalle_pedido import DetallePedido
-
+from app.models.usuario_empleado import UsuarioEmpleado
 
 # Obtener info del servivio especifico (nombre + entidad)
 
@@ -156,4 +156,27 @@ def cambiar_estado_pedido(id_pedido):
 
     db.session.commit()
     return jsonify({"mensaje": "Pedido actualizado correctamente"})
+
+# Ruta para dar de alta empleados
+empleados_bp = Blueprint('empleados', __name__)
+@empleados_bp.route('/servicios/<int:id_servicio>/empleados', methods=['POST'])
+@jwt_required()
+def alta_empleados(id_servicio):
+    data = request.get_json()
+
+    nuevo_empleado = UsuarioEmpleado(
+        id_servicio=id_servicio,
+        nombre=data['nombre'],
+        apellido=data['apellido'],
+        email=data['email'],
+        contrasena=data['contrasena'],
+        dni=data['dni'],
+        esAdmin=False,
+    )
+
+    db.session.add(nuevo_empleado)
+    db.session.commit()
+    return jsonify({'mensaje': 'Empleado creado exitosamente'}), 201
+
+    
 

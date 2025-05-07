@@ -67,6 +67,14 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
+                <Route
+                    path="/admin-empleados"
+                    element={
+                        <ProtectedRoute onlyAdmin={true}>
+                            <EmpleadosServicio/>
+                        </ProtectedRoute>
+                    }
+                />
 
                 {/* Clientes protegidas */}
                 <Route
