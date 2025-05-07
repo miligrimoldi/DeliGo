@@ -190,6 +190,38 @@ def baja_empleado(id_servicio, id_empleado):
     db.session.commit()
     return jsonify({'mensaje': 'Empleado eliminado correctamente'}), 200
 
+@empleados_bp.route('/servicios/<int:id_servicio>/empleados/<int:id_empleado>', methods=['PUT'])
+@jwt_required()
+def modificar_empleado(id_servicio, id_empleado):
+    empleado = UsuarioEmpleado.query.get_or_404(id_empleado)
+    data = request.get_json()
+
+    if empleado.id_servicio != id_servicio:
+        return jsonify({'error': 'Empleado no pertenece a este servicio'}), 403
+
+    empleado.nombre = data.get('nombre', empleado.nombre)
+    empleado.apellido = data.get('apellido', empleado.apellido)
+    empleado.email = data.get('email', empleado.email)
+    empleado.dni = data.get('dni', empleado.dni)
+    empleado.esAdmin = data.get('esAdmin', empleado.esAdmin)
+
+    db.session.commit()
+    return jsonify({'mensaje': 'Empleado modificado correctamente'}), 200
+
+@empleados_bp.route('/servicios/<int:id_servicio>/empleados', methods=['GET'])
+@jwt_required()
+def listar_empleados(id_servicio):
+    empleados = UsuarioEmpleado.query.filter_by(id_servicio=id_servicio).all()
+    return jsonify([
+        {
+            'id': e.id,
+            'nombre': e.nombre,
+            'apellido': e.apellido,
+            'email': e.email,
+            'dni': e.dni,
+            'esAdmin': e.esAdmin
+        } for e in empleados
+    ])
 
     
 
