@@ -5,8 +5,10 @@ import { FaHome, FaUser, FaHeart, FaBox } from 'react-icons/fa';
 const AppLayout: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const ocultarBarra = ['/carrito', '/opinar'].some(path => location.pathname.startsWith(path));
 
-    const homePrefixes = ['/home', '/entidades', '/carrito', '/producto', '/entidad'];
+
+    const homePrefixes = ['/home', '/entidades', '/producto', '/entidad'];
 
     // Guarda la ultima ruta (para los home)
     useEffect(() => {
@@ -36,19 +38,20 @@ const AppLayout: React.FC = () => {
         <div style={{ paddingBottom: '80px' }}>
             <Outlet />
 
-            <div style={{
-                position: 'fixed',
-                bottom: 0,
-                left: 0,
-                right: 0,
-                height: '60px',
-                backgroundColor: 'white',
-                display: 'flex',
-                justifyContent: 'space-around',
-                alignItems: 'center',
-                boxShadow: '0 -2px 6px rgba(0, 0, 0, 0.1)',
-                zIndex: 1000
-            }}>
+            {!ocultarBarra && (
+                <div style={{
+                    position: 'fixed',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: '60px',
+                    backgroundColor: 'white',
+                    display: 'flex',
+                    justifyContent: 'space-around',
+                    alignItems: 'center',
+                    boxShadow: '0 -2px 6px rgba(0, 0, 0, 0.1)',
+                    zIndex: 1000
+                }}>
                 <div
                     onClick={() => {
                         const lastHome = localStorage.getItem('lastHomeRoute') || '/home/1';
@@ -70,7 +73,8 @@ const AppLayout: React.FC = () => {
                 <div onClick={() => navigate('/mis-pedidos')} style={buttonStyle(['/mis-pedidos'])}>
                     <FaBox size={20} color={iconColor(['/mis-pedidos'])} />
                 </div>
-            </div>
+                </div>
+            )}
         </div>
     );
 };

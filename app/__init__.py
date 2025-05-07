@@ -58,6 +58,10 @@ def create_app():
         from app.models.producto_servicio import ProductoServicio
         from app.models.pedido import Pedido
         from app.models.detalle_pedido import DetallePedido
+        from app.models.favoritos_servicios import FavoritoServicio
+        from app.models.favoritos_productos import FavoritoProducto
+        from app.models.opinion_servicio import OpinionServicio
+        from app.models.opinion_producto import OpinionProducto
         db.create_all()
 
 
@@ -152,6 +156,14 @@ def create_app():
     app.register_blueprint(pedidos_servicio_bp)
     from app.routes.pedidos import pedidos_bp
     app.register_blueprint(pedidos_bp)
+    from app.routes.favoritos import favoritos_bp
+    app.register_blueprint(favoritos_bp)
+    from app.routes.cambiar_contrasena import cambiar_contrasena_bp
+    app.register_blueprint(cambiar_contrasena_bp)
+    from app.routes.eliminar_usuario import eliminar_usuario_bp
+    app.register_blueprint(eliminar_usuario_bp)
+    from app.routes.opinion import opinion_bp
+    app.register_blueprint(opinion_bp)
 
     # Rutas frontend
     @app.route('/')

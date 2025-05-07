@@ -114,6 +114,9 @@ export type Servicio = {
     id_servicio: number;
     nombre: string;
     descripcion: string;
+
+    puntaje_promedio?: number;
+    cantidad_opiniones?: number;
 };
 
 export const fetchServiciosEntidad = async (
@@ -159,6 +162,9 @@ export type Producto = {
     informacion_nutricional: string;
     precio_actual: number;
     foto: string;
+    nombre_servicio?: string;
+    puntaje_promedio?: number;
+    cantidad_opiniones?: number;
 }
 
 export const fetchProductosPorCategoria = async (id_servicio: number, id_categoria: number): Promise<Producto[]> => {
@@ -185,7 +191,7 @@ export const crearProducto = async (
 
 export const getDetalleServicio = async (id_servicio: number) => {
     const response = await api.get(`/api/servicio/${id_servicio}`);
-    return response.data; // { servicio, entidad, categorias }
+    return response.data;
 };
 
 export async function fetchProductoPorId(id: number) {
@@ -237,6 +243,52 @@ export const modificarProducto = async (id_producto: number, data: Partial<Produ
     const res = await api.put(`/admin/producto/${id_producto}`, data);
     return res.data
 }
+
+export const fetchFavoritosServicios = async (): Promise<number[]> => {
+    const response = await api.get('/api/favoritos/servicios');
+    return response.data;
+};
+
+export const agregarFavoritoServicio = async (id_servicio: number): Promise<void> => {
+    await api.post('/api/favoritos/servicios', { id_servicio });
+};
+
+export const eliminarFavoritoServicio = async (id_servicio: number): Promise<void> => {
+    await api.delete('/api/favoritos/servicios', {
+        data: { id_servicio }
+    });
+};
+
+export const fetchFavoritosProductos = async (): Promise<number[]> => {
+    const response = await api.get('/api/favoritos/productos');
+    return response.data;
+};
+
+export const agregarFavoritoProducto = async (id_producto: number): Promise<void> => {
+    await api.post('/api/favoritos/productos', { id_producto });
+};
+
+export const eliminarFavoritoProducto = async (id_producto: number): Promise<void> => {
+    await api.delete('/api/favoritos/productos', {
+        data: { id_producto }
+    });
+};
+
+export const fetchServicio = async (id_servicio: number): Promise<Servicio> => {
+    const response = await api.get(`/api/servicio/${id_servicio}`);
+    return response.data.servicio;
+};
+
+export const cambiarContrasena = async (data: { actual: string, nueva: string, confirmar: string }) => {
+    const response = await api.put('/api/usuario/contrasena', data);
+    return response.data;
+};
+
+export const eliminarCuenta = async () => {
+    const response = await api.delete('/api/usuario');
+    return response.data;
+};
+
 
 
 

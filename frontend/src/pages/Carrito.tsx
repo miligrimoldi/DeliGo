@@ -1,25 +1,38 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useCarrito } from '../pages/CarritoContext';
 import { FaArrowLeft, FaTrash } from 'react-icons/fa';
 import { realizarPedido } from '../api';
 
 const Carrito = () => {
-    const { items, total, modificarCantidad, eliminarItem, vaciarCarrito } = useCarrito();
+    const { id_servicio } = useParams<{ id_servicio: string }>();
+    const {
+        items,
+        total,
+        modificarCantidad,
+        eliminarItem,
+        vaciarCarrito,
+        setServicioActivo
+    } = useCarrito();
     const navigate = useNavigate();
-    const from = localStorage.getItem('lastFromCarrito') || '/entidades'; // Fallback
+    const from = localStorage.getItem('lastFromCarrito') || '/entidades';
+
+    useEffect(() => {
+        if (id_servicio) {
+            setServicioActivo(Number(id_servicio));
+        }
+    }, [id_servicio]);
+
     const handleRealizarPedido = async () => {
         try {
-            await realizarPedido(items); // ya lanza error si falla
-
-            vaciarCarrito();
+            await realizarPedido(items);
+            if (id_servicio) vaciarCarrito(Number(id_servicio));
             navigate("/mis-pedidos");
         } catch (error) {
             console.error("Error al realizar el pedido:", error);
         }
     };
 
-
-    // Si el carrito esta vacío
     if (items.length === 0) {
         return (
             <div style={{ background: 'white', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -54,10 +67,8 @@ const Carrito = () => {
         );
     }
 
-    // Si hay items en el carrito
     return (
         <div style={{ background: '#F4F5F9', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-            {/* Header solo si hay items */}
             <div style={{
                 backgroundColor: 'white',
                 paddingTop: '50px',
@@ -79,16 +90,31 @@ const Carrito = () => {
                         fontSize: 18,
                         margin: 0
                     }}>Carrito</h2>
+                    {items.length > 0 && (
+                        <div style={{
+                            textAlign: 'center',
+                            fontSize: 14,
+                            fontFamily: 'Poppins',
+                            color: '#868889',
+                            marginTop: 4
+                        }}>
+                            Servicio: {items[0].nombre_servicio}
+                        </div>
+                    )}
                 </div>
             </div>
 
-            {/* Contenido del carrito */}
             <div style={{ flexGrow: 1, overflowY: 'auto' }}>
                 <div style={{ width: "450px", margin: '0 auto', padding: '20px' }}>
                     {items.map(item => (
                         <div key={item.id_producto} style={{
-                            background: 'white', borderRadius: 5, padding: 12,
-                            display: 'flex', alignItems: 'center', marginBottom: 12, gap: 12
+                            background: 'white',
+                            borderRadius: 5,
+                            padding: 12,
+                            display: 'flex',
+                            alignItems: 'center',
+                            marginBottom: 12,
+                            gap: 12
                         }}>
                             <img src={item.foto || "https://placehold.co/68x68"} alt="Producto"
                                  style={{ width: 68, height: 68, borderRadius: '50%' }} />
@@ -99,18 +125,18 @@ const Carrito = () => {
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
                                     <button
-                                        onClick={() => modificarCantidad(item.id_producto, item.cantidad - 1)}
+                                        onClick={() => modificarCantidad(item.id_servicio, item.id_producto, item.cantidad - 1)}
                                         style={{ fontSize: 20, background: 'none', border: 'none', cursor: 'pointer' }}
                                     >−</button>
                                     <span style={{ fontSize: 16 }}>{item.cantidad}</span>
                                     <button
-                                        onClick={() => modificarCantidad(item.id_producto, item.cantidad + 1)}
+                                        onClick={() => modificarCantidad(item.id_servicio, item.id_producto, item.cantidad + 1)}
                                         style={{ fontSize: 20, background: 'none', border: 'none', cursor: 'pointer' }}
                                     >+</button>
                                 </div>
                             </div>
                             <button
-                                onClick={() => eliminarItem(item.id_producto)}
+                                onClick={() => eliminarItem(item.id_servicio, item.id_producto)}
                                 style={{ background: 'none', border: 'none', color: '#EF574B', cursor: 'pointer' }}
                             >
                                 <FaTrash />
@@ -119,8 +145,13 @@ const Carrito = () => {
                     ))}
 
                     <div style={{
-                        marginTop: 20, background: 'white', padding: 16, borderRadius: 5,
-                        display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+                        marginTop: 20,
+                        background: 'white',
+                        padding: 16,
+                        borderRadius: 5,
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
                     }}>
                         <span style={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: 18 }}>Total</span>
                         <span style={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: 18 }}>${total.toFixed(2)}</span>

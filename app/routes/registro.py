@@ -44,6 +44,7 @@ def register():
         if not servicio_existente:
             return jsonify({"error": "El servicio especificado no existe"}), 400
 
+
         if len(dni) != 8:
             return jsonify({"error": "Numero incorrecto de digitos para el dni"}), 400
 

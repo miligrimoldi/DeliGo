@@ -82,3 +82,45 @@ def crear_pedido():
 
     db.session.commit()
     return jsonify({"mensaje": "Pedido creado correctamente"}), 201
+
+@pedidos_bp.route('/<int:id_pedido>', methods=['GET'])
+@jwt_required()
+def obtener_pedido_por_id(id_pedido):
+    id_usuario = int(get_jwt_identity())
+    pedido = Pedido.query.get_or_404(id_pedido)
+
+    if pedido.id_usuario_consumidor != id_usuario:
+        return jsonify({"error": "No tenés permiso para ver este pedido"}), 403
+
+    detalles = []
+    for d in pedido.detalles:
+        producto = d.producto
+        detalles.append({
+            "id_producto": producto.id_producto,
+            "producto": {
+                "id_producto": producto.id_producto,
+                "nombre": producto.nombre,
+                "foto": producto.foto
+            },
+            "cantidad": d.cantidad,
+            "precio_unitario": float(d.precio_unitario),
+            "subtotal": float(d.subtotal)
+        })
+
+    servicio = pedido.servicio
+
+    return jsonify({
+        "id": pedido.id_pedido,
+        "fecha": pedido.fecha.isoformat(),
+        "estado": pedido.estado,
+        "total": float(pedido.total),
+        "servicio": {
+            "id_servicio": servicio.id_servicio,
+            "nombre": servicio.nombre
+        },
+        "entidad": pedido.entidad.nombre,
+        "detalles": detalles,
+        **({"tiempo_estimado_minutos": pedido.tiempo_estimado_minutos}
+           if pedido.estado == "en_preparacion" else {})
+    })
+
