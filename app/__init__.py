@@ -164,6 +164,8 @@ def create_app():
     app.register_blueprint(eliminar_usuario_bp)
     from app.routes.opinion import opinion_bp
     app.register_blueprint(opinion_bp)
+    from app.routes.admin import empleados_bp
+    app.register_blueprint(empleados_bp)
 
     # Rutas frontend
     @app.route('/')

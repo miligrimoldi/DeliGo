@@ -157,7 +157,7 @@ def cambiar_estado_pedido(id_pedido):
     db.session.commit()
     return jsonify({"mensaje": "Pedido actualizado correctamente"})
 
-# Ruta para dar de alta empleados
+# Rutas empleados del servicio
 empleados_bp = Blueprint('empleados', __name__)
 @empleados_bp.route('/servicios/<int:id_servicio>/empleados', methods=['POST'])
 @jwt_required()

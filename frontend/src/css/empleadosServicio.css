@@ -1,0 +1,43 @@
+.empleados-servicio {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    margin: 10px 0;
+    background: #f3fef4;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 1px 1px 5px #cfc;
+}
+
+.form-empleado {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.form-empleado input {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.form-empleado button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.form-empleado button:hover {
+    background-color: #45a049;
+}

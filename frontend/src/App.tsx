@@ -14,6 +14,7 @@ import AppLayout from "./components/AppLayout.tsx";
 import { useAuthRedirect } from "./pages/useAuthRedirect";
 import Favoritos from './pages/Favoritos.tsx';
 import MyProfileAdmin from './pages/admin/MyProfileAdmin.tsx';
+import EmpleadosServicio from './pages/admin/EmpleadosServicio.tsx';
 import ProtectedRoute from './components/ProtectedRoute.tsx';
 import PedidosAdmin from "./pages/admin/PedidosAdmin.tsx";
 import EditarPerfil from "./pages/EditarPerfil.tsx";

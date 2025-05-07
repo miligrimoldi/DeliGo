@@ -289,6 +289,36 @@ export const eliminarCuenta = async () => {
     return response.data;
 };
 
+export type Empleado = {
+    id: number;
+    nombre: string;
+    apellido: string;
+    email: string;
+    dni: string;
+    esAdmin: boolean;
+};
+
+export const fetchEmpleados = async (id_servicio: number): Promise<Empleado[]> => {
+    const response = await api.get(`/servicios/${id_servicio}/empleados`);
+    return response.data;
+};
+
+export const crearEmpleado = async (id_servicio: number, data: Omit<Empleado, 'id'> & { contrasena: string }) => {
+    const response = await api.post(`/servicios/${id_servicio}/empleados`, data);
+    return response.data;
+};
+
+export const modificarEmpleado = async (id_servicio: number, id_empleado: number, data: Partial<Empleado>) => {
+    const response = await api.put(`/servicios/${id_servicio}/empleados/${id_empleado}`, data);
+    return response.data;
+};
+
+export const eliminarEmpleado = async (id_servicio: number, id_empleado: number) => {
+    const response = await api.delete(`/servicios/${id_servicio}/empleados/${id_empleado}`);
+    return response.data;
+};
+
+
 
 
 
