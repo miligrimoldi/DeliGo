@@ -69,6 +69,7 @@ export type LoginResponse = {
     apellido: string;
     esAdmin: boolean;
     id_servicio?: string;
+    tipo: "empleado" | "consumidor";
     access_token: string;
 };
 
@@ -307,6 +308,7 @@ export const crearEmpleado = async (id_servicio: number, data: Omit<Empleado, 'i
     const response = await api.post(`/servicios/${id_servicio}/empleados`, data);
     return response.data;
 };
+
 
 export const modificarEmpleado = async (id_servicio: number, id_empleado: number, data: Partial<Empleado>) => {
     const response = await api.put(`/servicios/${id_servicio}/empleados/${id_empleado}`, data);

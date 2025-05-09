@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
     fetchEmpleados,
     crearEmpleado,
@@ -9,7 +9,7 @@ import {
 import "../../css/EmpleadosServicio.css";
 
 const EmpleadosServicio = () => {
-    const { id_servicio } = useParams();
+    const { id_servicio } = useParams<{ id_servicio: string }>();
     const [empleados, setEmpleados] = useState<Empleado[]>([]);
     const [form, setForm] = useState({
         nombre: "",
@@ -52,6 +52,8 @@ const EmpleadosServicio = () => {
         }
     };
 
+    const navigate = useNavigate();
+
     return (
         <div className="empleados-servicio">
             <h2>Empleados del Servicio</h2>
@@ -73,6 +75,7 @@ const EmpleadosServicio = () => {
                 <input name="contrasena" placeholder="Contraseña" type="password" value={form.contrasena} onChange={handleInputChange} />
                 <button onClick={handleCrear}>Crear empleado</button>
             </div>
+            <button className="inicio" onClick={() => navigate(`/admin/${id_servicio}`)}>Home</button>
         </div>
     );
 };

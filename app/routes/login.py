@@ -27,7 +27,8 @@ def login():
             "nombre": empleado.nombre,
             "apellido": empleado.apellido,
             "esAdmin": empleado.esAdmin,
-            "id_servicio": empleado.id_servicio
+            "id_servicio": empleado.id_servicio,
+            "tipo": "empleado"
         }), 200
 
     # Intentar encontrar un UsuarioConsumidor.
@@ -40,7 +41,8 @@ def login():
             "email": consumidor.email,
             "nombre": consumidor.nombre,
             "apellido": consumidor.apellido,
-            "esAdmin": False
+            "esAdmin": False,
+            "tipo": "consumidor"
         }), 200
 
     return jsonify({"error": "Email o contraseña incorrectos"}), 401

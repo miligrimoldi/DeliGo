@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from werkzeug.security import generate_password_hash
 
 from app.main import obtener_usuario
 from app.models.categoria import Categoria
@@ -164,12 +165,24 @@ empleados_bp = Blueprint('empleados', __name__)
 def alta_empleados(id_servicio):
     data = request.get_json()
 
+    contrasena = data.get('contrasena')
+    email = data.get('email')
+    hashed_password = generate_password_hash(contrasena)
+    dni = data.get('dni')
+
+    usuario_existente = User.query.filter_by(email=email).first()
+    if usuario_existente:
+        return jsonify({"error": "Ya existe un usuario con ese email"}), 409
+
+    if len(dni) != 8:
+        return jsonify({"error": "Numero incorrecto de digitos para el dni"}), 400
+
     nuevo_empleado = UsuarioEmpleado(
         id_servicio=id_servicio,
         nombre=data['nombre'],
         apellido=data['apellido'],
         email=data['email'],
-        contrasena=data['contrasena'],
+        contrasena=hashed_password,
         dni=data['dni'],
         esAdmin=False,
     )

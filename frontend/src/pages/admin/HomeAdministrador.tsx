@@ -8,6 +8,8 @@ const HomeAdministrador = () => {
     const { id_servicio } = useParams();
     const [info, setInfo] = useState<ServicioInfor | null>(null);
     const navigate = useNavigate();
+    const userData = localStorage.getItem('user');
+    const user = userData ? JSON.parse(userData) : null;
 
     useEffect(() => {
         const fetchData = async () => {
@@ -30,9 +32,9 @@ const HomeAdministrador = () => {
                 <button className="admin-btn" onClick={() => navigate("/admin-perfil")}>
                     Mi perfil
                 </button>
-                <button className="admin-btn" onClick={() => navigate("/admin-empleados")}>
+                {user.esAdmin && ( <button className="admin-btn" onClick={() => navigate(`/admin/${id_servicio}/empleados`)}>
                     Empleados
-                </button>
+                </button>)}
             </div>
             {info ? (
                 <>

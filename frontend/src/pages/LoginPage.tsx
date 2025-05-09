@@ -13,7 +13,7 @@ const LoginPage = () => {
         const user = localStorage.getItem("user");
         if (user) {
             const parsed = JSON.parse(user);
-            if (parsed.esAdmin) {
+            if (parsed.tipo === "empleado") {
                 window.location.href = `/admin/${parsed.id_servicio}`;
             } else {
                 window.location.href = "/entidades";
@@ -37,7 +37,7 @@ const LoginPage = () => {
 
             if (redirectTo) {
                 window.location.href = redirectTo;
-            } else if (user.esAdmin) {
+            } else if (user.tipo === "empleado") {
                 window.location.href = `/admin/${user.id_servicio}`;
             } else {
                 window.location.href = "/entidades";

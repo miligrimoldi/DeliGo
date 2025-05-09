@@ -47,7 +47,7 @@ function App() {
                 <Route
                     path="/admin/:id_servicio"
                     element={
-                        <ProtectedRoute onlyAdmin={true}>
+                        <ProtectedRoute onlyEmployee={true}>
                             <HomeAdministrador/>
                         </ProtectedRoute>
                     }
@@ -55,7 +55,7 @@ function App() {
                 <Route
                     path="/admin/:id_servicio/pedidos"
                     element={
-                        <ProtectedRoute onlyAdmin={true}>
+                        <ProtectedRoute onlyEmployee={true}>
                             <PedidosAdmin/>
                         </ProtectedRoute>
                     }
@@ -63,13 +63,13 @@ function App() {
                 <Route
                     path="/admin-perfil"
                     element={
-                        <ProtectedRoute onlyAdmin={true}>
+                        <ProtectedRoute onlyEmployee={true}>
                             <MyProfileAdmin/>
                         </ProtectedRoute>
                     }
                 />
                 <Route
-                    path="/admin-empleados"
+                    path="/admin/:id_servicio/empleados"
                     element={
                         <ProtectedRoute onlyAdmin={true}>
                             <EmpleadosServicio/>
