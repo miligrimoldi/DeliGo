@@ -45,7 +45,7 @@ function App() {
 
                 {/* Admin protegidas */}
                 <Route
-                    path="/admin/:id_servicio"
+                    path="/empleado/:id_servicio"
                     element={
                         <ProtectedRoute onlyEmployee={true}>
                             <HomeAdministrador/>
@@ -53,7 +53,7 @@ function App() {
                     }
                 />
                 <Route
-                    path="/admin/:id_servicio/pedidos"
+                    path="/empleado/:id_servicio/pedidos"
                     element={
                         <ProtectedRoute onlyEmployee={true}>
                             <PedidosAdmin/>
@@ -61,7 +61,7 @@ function App() {
                     }
                 />
                 <Route
-                    path="/admin-perfil"
+                    path="/empleado-perfil"
                     element={
                         <ProtectedRoute onlyEmployee={true}>
                             <MyProfileAdmin/>

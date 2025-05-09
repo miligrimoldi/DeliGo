@@ -133,7 +133,7 @@ export type ServicioInfor = {
 };
 
 export const fetchServicioAdmin = async (id_servicio: number ): Promise<ServicioInfor> => {
-    const response = await api.get(`/admin/servicio/${id_servicio}`, {
+    const response = await api.get(`/empleado/servicio/${id_servicio}`, {
         headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -148,7 +148,7 @@ export type Categoria = {
 };
 
 export const fetchCategoriasPorServicio = async (id_servicio: number): Promise<Categoria[]> => {
-    const response = await api.get(`/admin/servicio/${id_servicio}/categorias`, {
+    const response = await api.get(`/empleado/servicio/${id_servicio}/categorias`, {
         headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -169,7 +169,7 @@ export type Producto = {
 }
 
 export const fetchProductosPorCategoria = async (id_servicio: number, id_categoria: number): Promise<Producto[]> => {
-    const response = await api.get(`/admin/servicio/${id_servicio}/categoria/${id_categoria}/productos`, {
+    const response = await api.get(`/empleado/servicio/${id_servicio}/categoria/${id_categoria}/productos`, {
         headers:{
             Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -184,7 +184,7 @@ export const crearProducto = async (
     producto: Omit<Producto, 'id_producto'>
 ): Promise<Producto> => {
     const response = await api.post(
-        `/admin/servicio/${id_servicio}/categoria/${id_categoria}/producto`,
+        `/empleado/servicio/${id_servicio}/categoria/${id_categoria}/producto`,
         producto
     );
     return response.data;
@@ -237,11 +237,11 @@ export const cambiarEstadoPedido = async (id_pedido: number, nuevoEstado: string
 };
 
 export const eliminarProducto = async (id_producto: number): Promise<void> => {
-    await api.delete(`/admin/producto/${id_producto}`);
+    await api.delete(`/empleado/producto/${id_producto}`);
 }
 
 export const modificarProducto = async (id_producto: number, data: Partial<Producto>)=> {
-    const res = await api.put(`/admin/producto/${id_producto}`, data);
+    const res = await api.put(`/empleado/producto/${id_producto}`, data);
     return res.data
 }
 

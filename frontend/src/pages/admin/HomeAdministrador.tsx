@@ -29,7 +29,7 @@ const HomeAdministrador = () => {
                 <button className="admin-btn" onClick={() => navigate(`/admin/${id_servicio}/pedidos`)}>
                     Pedidos
                 </button>
-                <button className="admin-btn" onClick={() => navigate("/admin-perfil")}>
+                <button className="admin-btn" onClick={() => navigate("/empleado-perfil")}>
                     Mi perfil
                 </button>
                 {user.esAdmin && ( <button className="admin-btn" onClick={() => navigate(`/admin/${id_servicio}/empleados`)}>

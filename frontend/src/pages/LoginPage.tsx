@@ -14,7 +14,7 @@ const LoginPage = () => {
         if (user) {
             const parsed = JSON.parse(user);
             if (parsed.tipo === "empleado") {
-                window.location.href = `/admin/${parsed.id_servicio}`;
+                window.location.href = `/empleado/${parsed.id_servicio}`;
             } else {
                 window.location.href = "/entidades";
             }
@@ -38,7 +38,7 @@ const LoginPage = () => {
             if (redirectTo) {
                 window.location.href = redirectTo;
             } else if (user.tipo === "empleado") {
-                window.location.href = `/admin/${user.id_servicio}`;
+                window.location.href = `/empleado/${user.id_servicio}`;
             } else {
                 window.location.href = "/entidades";
             }

@@ -75,7 +75,7 @@ const EmpleadosServicio = () => {
                 <input name="contrasena" placeholder="Contraseña" type="password" value={form.contrasena} onChange={handleInputChange} />
                 <button onClick={handleCrear}>Crear empleado</button>
             </div>
-            <button className="inicio" onClick={() => navigate(`/admin/${id_servicio}`)}>Home</button>
+            <button className="inicio" onClick={() => navigate(`/empleado/${id_servicio}`)}>Home</button>
         </div>
     );
 };
