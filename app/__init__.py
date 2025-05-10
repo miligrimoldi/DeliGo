@@ -6,6 +6,8 @@ from app.main import main
 import os
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
+
+from app.models.ingrediente import Ingrediente
 from app.models.pedido import Pedido
 from app.models.detalle_pedido import DetallePedido
 from app.models.usuario_consumidor import UsuarioConsumidor
@@ -128,6 +130,28 @@ def create_app():
             foodtruck.categorias.extend([guarniciones, principales, extras, bebidas])
             db.session.commit()
 
+        # Cargamos ingredientes basicos
+        if not Ingrediente.query.first():
+            ingredientes_basicos = [
+                Ingrediente(nombre="Pan"),
+                Ingrediente(nombre="Lechuga"),
+                Ingrediente(nombre="Tomate"),
+                Ingrediente(nombre="Queso"),
+                Ingrediente(nombre="Jamón"),
+                Ingrediente(nombre="Carne"),
+                Ingrediente(nombre="Pollo"),
+                Ingrediente(nombre="Huevos"),
+                Ingrediente(nombre="Papas"),
+                Ingrediente(nombre="Arroz"),
+                Ingrediente(nombre="Harina"),
+                Ingrediente(nombre="Leche"),
+                Ingrediente(nombre="Café"),
+                Ingrediente(nombre="Azúcar"),
+                Ingrediente(nombre="Sal"),
+                Ingrediente(nombre="Aceite")
+            ]
+            db.session.add_all(ingredientes_basicos)
+            db.session.commit()
 
 
     # Blueprints
