@@ -17,3 +17,5 @@ class ProductoServicio(db.Model):
 
     servicio = db.relationship('Servicio', backref='productos')
     categoria = db.relationship('Categoria', backref='productos')
+    ingredientes = db.relationship('IngredienteProducto', back_populates='producto', cascade='all, delete-orphan')
+

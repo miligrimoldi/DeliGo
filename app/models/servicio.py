@@ -17,3 +17,4 @@ class Servicio(db.Model):
         secondary='servicio_categoria',
         back_populates='servicios'
     )
+    stock = db.relationship('Stock', back_populates='servicio', cascade='all, delete-orphan')
