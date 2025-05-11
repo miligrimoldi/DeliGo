@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+from flask_jwt_extended import jwt_required
 
 from app import ProductoServicio, db, Ingrediente
 from app.models.ingrediente_producto import IngredienteProducto
@@ -7,6 +8,7 @@ from app.models.stock import Stock
 ingredientes_bp = Blueprint('ingredientes', __name__)
 
 @ingredientes_bp.route('/ingredientes/por-servicio/<int:id_servicio>', methods=['GET'])
+@jwt_required()
 def get_ingredientes_por_servicio(id_servicio):
     subquery_products = db.session.query(ProductoServicio.id_producto).filter_by(id_servicio=id_servicio).subquery()
 
@@ -23,6 +25,7 @@ def get_ingredientes_por_servicio(id_servicio):
     return jsonify(resultado)
 
 @ingredientes_bp.route('/productos/<int:id_producto>/ingredientes', methods=['POST'])
+@jwt_required()
 def asociar_ingredientes_a_producto(id_producto):
     data = request.get_json()
     ingredientes = data.get('ingredientes', [])
