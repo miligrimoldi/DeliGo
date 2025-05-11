@@ -8,5 +8,4 @@ class Stock(db.Model):
     id_servicio = db.Column(db.Integer, db.ForeignKey('servicio.id_servicio'), primary_key=True)
     disponibilidad = db.Column(db.Float, nullable=False, default=0.0)
 
-    ingrediente = db.relationship('Ingrediente', back_populates='stock')
-    servicio = db.relationship('Servicio', back_populates='stock')
+

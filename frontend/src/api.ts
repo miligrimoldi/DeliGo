@@ -187,7 +187,7 @@ export const crearProducto = async (
         `/empleado/servicio/${id_servicio}/categoria/${id_categoria}/producto`,
         producto
     );
-    return response.data;
+    return { ...producto, id_producto: response.data.id_producto };
 };
 
 export const getDetalleServicio = async (id_servicio: number) => {

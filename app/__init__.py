@@ -64,7 +64,26 @@ def create_app():
         from app.models.favoritos_productos import FavoritoProducto
         from app.models.opinion_servicio import OpinionServicio
         from app.models.opinion_producto import OpinionProducto
+        from app.models.ingrediente import Ingrediente
+        from app.models.ingrediente_producto import IngredienteProducto
+        from app.models.stock import Stock
         db.create_all()
+
+        Ingrediente.productos = db.relationship(
+            'IngredienteProducto', back_populates='ingrediente', cascade='all, delete-orphan'
+        )
+
+        IngredienteProducto.ingrediente = db.relationship(
+            'Ingrediente', back_populates='productos'
+        )
+
+        IngredienteProducto.producto = db.relationship(
+            'ProductoServicio', back_populates='ingredientes'
+        )
+
+        ProductoServicio.ingredientes = db.relationship(
+            'IngredienteProducto', back_populates='producto', cascade='all, delete-orphan'
+        )
 
 
         # ENTIDADES

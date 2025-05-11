@@ -81,7 +81,10 @@ def nuevo_producto(id_servicio, id_categoria):
     db.session.add(nuevo_producto)
     db.session.commit()
 
-    return jsonify({"mensaje": "Producto creado con éxito"}), 201
+    return jsonify({
+        "mensaje": "Producto creado con éxito",
+        "id_producto": nuevo_producto.id_producto
+    }), 201
 
 # Ruta para modificar producto
 @productos_servicio_bp.route('/empleado/producto/<int:id_producto>', methods=['PUT'])
