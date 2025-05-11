@@ -190,6 +190,8 @@ def create_app():
     app.register_blueprint(opinion_bp)
     from app.routes.admin import empleados_bp
     app.register_blueprint(empleados_bp)
+    from app.routes.ingredientes import ingredientes_bp
+    app.register_blueprint(ingredientes_bp)
 
     # Rutas frontend
     @app.route('/')

@@ -320,6 +320,23 @@ export const eliminarEmpleado = async (id_servicio: number, id_empleado: number)
     return response.data;
 };
 
+// Logica de ingredientes
+export const asociarIngredientesAProducto = async (
+    id_producto: number,
+    ingredientes: string[]
+) => {
+    try {
+        const response = await api.post(`/productos/${id_producto}/ingredientes`, {
+            ingredientes,
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error al asociar ingredientes al producto:", error);
+        throw error;
+    }
+};
+
+
 
 
 

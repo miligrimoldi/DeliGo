@@ -6,7 +6,7 @@ import {
     Producto,
     Categoria,
     eliminarProducto,
-    modificarProducto,
+    modificarProducto, asociarIngredientesAProducto,
 } from "../../api.ts";
 import "../../css/CategoriasPanel.css";
 
@@ -22,6 +22,9 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
     const [error, setError] = useState<string | null>(null);
     const [productoEditando, setProductoEditando] = useState<Producto | null>(null);
     const [mostrarFormulario, setMostrarFormulario] = useState(false);
+    const [ingredientesDisponibles, setIngredientesDisponibles] = useState<string[]>([]);
+    const [ingredientesSeleccionados, setIngredientesSeleccionados] = useState<string[]>([]);
+    const [nuevoIngrediente, setNuevoIngrediente] = useState("");
 
     const [formData, setFormData] = useState({
         nombre: "",
@@ -45,7 +48,8 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
                 await modificarProducto(productoEditando.id_producto, formData);
                 setProductoEditando(null);
             } else {
-                await crearProducto(id_servicio, categoriaSeleccionada.id_categoria, formData);
+                const nuevoProducto = await crearProducto(id_servicio, categoriaSeleccionada.id_categoria, formData);
+                await asociarIngredientesAProducto(nuevoProducto.id_producto, ingredientesSeleccionados);
             }
 
             setFormData({
@@ -104,6 +108,19 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
         };
 
         cargarCategorias();
+    }, [id_servicio]);
+
+    useEffect(() => {
+        const fetchIngredientes = async () => {
+            try {
+                const res = await fetch(`/ingredientes/por-servicio/${id_servicio}`);
+                const data = await res.json();
+                setIngredientesDisponibles(data.map((ing:any)=> ing.nombre));
+            } catch (e){
+                console.error("error cargando ingredientes", e)
+            }
+        }
+        fetchIngredientes();
     }, [id_servicio]);
 
     const handleSeleccionCategoria = async (categoria: Categoria) => {
@@ -251,6 +268,62 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
                             <div style={{ marginBottom: 15 }}>
                                 <label htmlFor="foto" style={{ display: "block", marginBottom: 5, fontFamily: "Montserrat", fontSize: 14, color: "#333" }}>URL de la foto:</label>
                                 <input type="text" id="foto" name="foto" placeholder="URL de la foto" value={formData.foto} onChange={handleChange} style={{ width: "100%", padding: 8, borderRadius: 5, border: "1px solid #ccc", fontFamily: "Montserrat", fontSize: 14 }} />
+                            </div>
+
+                            <div style={{ marginBottom: 15 }}>
+                                <label style={{ display: "block", fontFamily: "Montserrat", marginBottom: 5 }}>
+                                    Ingredientes del producto:
+                                </label>
+
+                                <select
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (value && !ingredientesSeleccionados.includes(value)) {
+                                            setIngredientesSeleccionados([...ingredientesSeleccionados, value]);
+                                        }
+                                    }}
+                                    defaultValue=""
+                                    style={{ width: "100%", padding: 8 }}
+                                >
+                                    <option value="" disabled>Seleccionar ingrediente...</option>
+                                    {ingredientesDisponibles.map((ing) => (
+                                        <option key={ing} value={ing}>{ing}</option>
+                                    ))}
+                                </select>
+
+                                <ul style={{ marginTop: 10 }}>
+                                    {ingredientesSeleccionados.map((ing) => (
+                                        <li key={ing}>
+                                            {ing}
+                                            <button type="button" onClick={() => setIngredientesSeleccionados(prev => prev.filter(i => i !== ing))}>
+                                                ❌
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
+
+                                <input
+                                    type="text"
+                                    placeholder="Agregar ingrediente nuevo"
+                                    value={nuevoIngrediente}
+                                    onChange={(e) => setNuevoIngrediente(e.target.value)}
+                                    style={{ width: "80%", marginTop: 10 }}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const ing = nuevoIngrediente.trim();
+                                        if (ing && !ingredientesDisponibles.includes(ing)) {
+                                            setIngredientesDisponibles([...ingredientesDisponibles, ing]);
+                                        }
+                                        if (ing && !ingredientesSeleccionados.includes(ing)) {
+                                            setIngredientesSeleccionados([...ingredientesSeleccionados, ing]);
+                                        }
+                                        setNuevoIngrediente("");
+                                    }}
+                                >
+                                    Agregar
+                                </button>
                             </div>
 
                             <button type="submit" className="btn-submit" style={{ backgroundColor: "#008cba", color: "white", border: "none", borderRadius: 8, padding: "10px 15px", cursor: "pointer", fontSize: 16, fontFamily: "Montserrat" }}>
