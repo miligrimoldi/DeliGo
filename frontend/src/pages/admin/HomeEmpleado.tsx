@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import CategoriasPanel from "./CategoriasPanel.tsx";
 import { fetchServicioAdmin, ServicioInfor } from "../../api.ts";
-import "../../css/HomeAdministrador.css";
+import "../../css/HomeEmpleado.css";
 
-const HomeAdministrador = () => {
+const HomeEmpleado = () => {
     const { id_servicio } = useParams();
     const [info, setInfo] = useState<ServicioInfor | null>(null);
     const navigate = useNavigate();
@@ -35,6 +35,9 @@ const HomeAdministrador = () => {
                 {user.esAdmin && ( <button className="admin-btn" onClick={() => navigate(`/admin/${id_servicio}/empleados`)}>
                     Empleados
                 </button>)}
+                <button className="admin-btn" onClick={() => navigate(`/empleado/${id_servicio}/stock`)}>
+                    Stock
+                </button>
             </div>
             {info ? (
                 <>
@@ -48,4 +51,4 @@ const HomeAdministrador = () => {
     );
 };
 
-export default HomeAdministrador;
+export default HomeEmpleado;

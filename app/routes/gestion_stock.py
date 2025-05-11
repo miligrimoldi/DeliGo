@@ -6,7 +6,7 @@ from app.models.stock import Stock
 
 stock_bp = Blueprint('stock', __name__)
 
-@stock_bp.route('stock/<int:id_servicio>', methods=['GET'])
+@stock_bp.route('/stock/<int:id_servicio>', methods=['GET'])
 @jwt_required()
 def get_stock(id_servicio):
     stock_items = (

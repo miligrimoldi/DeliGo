@@ -5,7 +5,7 @@ import EntidadesTabs from './pages/EntitiesTabs.tsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import MyProfilePage from "./pages/MyProfilePage.tsx";
 import ServiciosEntidad from "./pages/ServiciosEntidad.tsx";
-import HomeAdministrador from "./pages/admin/HomeAdministrador.tsx";
+import HomeEmpleado from "./pages/admin/HomeEmpleado.tsx";
 import HomeServicioUsuario from './pages/HomeServicioUsuario';
 import Carrito from "./pages/Carrito.tsx";
 import ProductoDetalle from "./pages/ProductoDetalle.tsx";
@@ -19,6 +19,7 @@ import ProtectedRoute from './components/ProtectedRoute.tsx';
 import PedidosAdmin from "./pages/admin/PedidosAdmin.tsx";
 import EditarPerfil from "./pages/EditarPerfil.tsx";
 import Opinar from "./pages/Opinar.tsx";
+import StockPage from "./pages/admin/StockPage.tsx";
 
 function App() {
     useAuthRedirect();
@@ -48,7 +49,7 @@ function App() {
                     path="/empleado/:id_servicio"
                     element={
                         <ProtectedRoute onlyEmployee={true}>
-                            <HomeAdministrador/>
+                            <HomeEmpleado/>
                         </ProtectedRoute>
                     }
                 />
@@ -65,6 +66,14 @@ function App() {
                     element={
                         <ProtectedRoute onlyEmployee={true}>
                             <MyProfileAdmin/>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/empleado/:id_servicio/stock"
+                    element={
+                        <ProtectedRoute onlyEmployee={true}>
+                            <StockPage/>
                         </ProtectedRoute>
                     }
                 />
