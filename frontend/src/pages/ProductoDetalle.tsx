@@ -20,7 +20,14 @@ type Producto = {
     puntaje_promedio?: number;
     cantidad_opiniones?: number;
     nombre_servicio?: string;
+    ingredientes?: Ingrediente[];
 };
+
+type Ingrediente = {
+    id_ingrediente: number;
+    nombre: string;
+};
+
 
 const ProductoDetalle = () => {
     const { id_producto } = useParams<{ id_producto: string }>();
@@ -189,6 +196,19 @@ const ProductoDetalle = () => {
                     }}>
                         {producto.descripcion}
                     </div>
+
+                    {producto.ingredientes && producto.ingredientes.length > 0 && (
+                        <div style={{ marginTop: 20 }}>
+                            <h4 style={{ fontSize: 14, fontFamily: 'Poppins', color: '#4B614C', marginBottom: 6 }}>
+                                Ingredientes
+                            </h4>
+                            <ul style={{ paddingLeft: 16, color: '#555', fontSize: 13, fontFamily: 'Poppins' }}>
+                                {producto.ingredientes.map((ing) => (
+                                    <li key={ing.id_ingrediente}>{ing.nombre}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
 
                     <div style={{
                         backgroundColor: 'white',
