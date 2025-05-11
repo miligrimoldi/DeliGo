@@ -26,7 +26,7 @@ const HomeAdministrador = () => {
     return (
         <div className="home-admin">
             <div className="admin-navbar">
-                <button className="admin-btn" onClick={() => navigate(`/admin/${id_servicio}/pedidos`)}>
+                <button className="admin-btn" onClick={() => navigate(`/empleado/${id_servicio}/pedidos`)}>
                     Pedidos
                 </button>
                 <button className="admin-btn" onClick={() => navigate("/empleado-perfil")}>

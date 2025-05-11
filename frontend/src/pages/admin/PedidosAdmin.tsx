@@ -182,7 +182,7 @@ const PedidosAdmin = () => {
             ))}
             <button
                 className="btn-volver"
-                onClick={() => navigate(`/admin/${id_servicio}`)}
+                onClick={() => navigate(`/empleado/${id_servicio}`)}
                 style={{
                     backgroundColor: "white",
                     color: "#2f6f3f",
