@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 
 from app import ProductoServicio, db, Ingrediente
 from app.models.ingrediente_producto import IngredienteProducto
+from app.models.stock import Stock
 
 ingredientes_bp = Blueprint('ingredientes', __name__)
 
@@ -29,6 +30,14 @@ def asociar_ingredientes_a_producto(id_producto):
     if not isinstance(ingredientes, list):
         return jsonify({'error': 'Formato inválido para ingredientes'}), 400
 
+    producto = ProductoServicio.query.get(id_producto)
+    if not producto:
+        return jsonify({'error': 'Producto no encontrado'}), 404
+
+    id_servicio = producto.id_servicio
+
+
+
     for nombre in ingredientes:
         ingrediente = Ingrediente.query.filter_by(nombre=nombre).first()
         if not ingrediente:
@@ -47,6 +56,17 @@ def asociar_ingredientes_a_producto(id_producto):
                 id_ingrediente=ingrediente.id_ingrediente
             )
             db.session.add(nueva_asociacion)
+
+        # Agregar ingrediente al stock del servicio
+
+        stock_entry = Stock.query.filter_by(id_servicio=id_servicio, id_ingrediente=ingrediente.id_ingrediente).first()
+        if not stock_entry:
+            nuevo_stock = Stock(
+                id_servicio=id_servicio,
+                id_ingrediente=ingrediente.id_ingrediente,
+                disponibilidad=True
+            )
+            db.session.add(nuevo_stock)
 
     db.session.commit()
     return jsonify({'mensaje': 'Ingredientes asociados correctamente'}), 200
