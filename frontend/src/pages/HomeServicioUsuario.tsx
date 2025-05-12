@@ -15,6 +15,7 @@ type Producto = {
     descripcion: string;
     precio_actual: number;
     foto: string;
+    disponible?: boolean;
 };
 
 type Servicio = {
@@ -42,11 +43,14 @@ const HomeServicioUsuario = () => {
     useEffect(() => {
         if (!id_servicio) return;
 
-        getDetalleServicio(Number(id_servicio)).then(async (data) => {
+        // Función que obtiene los detalles del servicio y productos
+        const fetchData = async () => {
+            const data = await getDetalleServicio(Number(id_servicio));
             setServicio(data.servicio);
             setEntidad(data.entidad);
             setCategorias(data.categorias);
             setServicioActivo(data.servicio.id_servicio);
+
             const productosMap: Record<number, Producto[]> = {};
             await Promise.all(
                 data.categorias.map(async (cat: Categoria) => {
@@ -55,8 +59,20 @@ const HomeServicioUsuario = () => {
                 })
             );
             setProductosPorCategoria(productosMap);
-        });
+        };
+
+        // Llamada inicial para obtener los datos
+        fetchData();
+
+        // Configurar el intervalo de 20 segundos
+        const intervalId = setInterval(fetchData, 20000);
+
+        // Limpiar el intervalo cuando el componente se desmonte o id_servicio cambie
+        return () => {
+            clearInterval(intervalId);
+        };
     }, [id_servicio]);
+
 
     const handleClickCategoria = (id_categoria: number) => {
         refs.current[id_categoria]?.scrollIntoView({ behavior: "smooth" });
@@ -226,45 +242,63 @@ const HomeServicioUsuario = () => {
                                     fontWeight: 800, marginBottom: 10
                                 }}>{cat.nombre}</h3>
 
-                                {productosFiltrados.map((producto) => (
-                                    <div key={producto.id_producto} style={{
-                                        backgroundColor: "white", borderRadius: 20,
-                                        display: "flex", overflow: "hidden",
-                                        marginBottom: 20, boxShadow: "0 1px 5px rgba(0,0,0,0.1)"
-                                    }}>
-                                        <div style={{ width: 176, backgroundColor: "#4B614C" }}>
-                                            <img
-                                                src={producto.foto}
-                                                alt={producto.nombre}
-                                                style={{
-                                                    width: "100%", height: 169,
-                                                    objectFit: "cover", borderRadius: 20
-                                                }}
-                                            />
-                                        </div>
-                                        <div style={{ padding: 15, flex: 1 }}>
-                                            <h4 style={{
-                                                textAlign: "center", fontSize: 20,
-                                                fontFamily: "Fredoka One", color: "black"
-                                            }}>{producto.nombre.toUpperCase()}</h4>
-                                            <p style={{
-                                                textAlign: "center", color: "black",
-                                                fontSize: 17, fontFamily: "Montserrat"
-                                            }}>{producto.descripcion}</p>
-                                            <div style={{ textAlign: "center", marginTop: 10 }}>
-                                                <button onClick={() => navigate(`/producto/${producto.id_producto}`)} style={{
-                                                    backgroundColor: "#4B614C", color: "white",
-                                                    fontSize: 17, fontFamily: "Montserrat",
-                                                    fontWeight: 700, borderRadius: 30,
-                                                    padding: "10px 30px", border: "none"
-                                                }}>Ver</button>
+                                {productosFiltrados.map((producto) => {
+                                    const isAvailable = Boolean(producto.disponible);
+
+                                    return (
+                                        <div key={producto.id_producto} style={{
+                                            backgroundColor: isAvailable ? "white" : "#e0e0e0",
+                                            borderRadius: 20,
+                                            display: "flex",
+                                            overflow: "hidden",
+                                            marginBottom: 20,
+                                            boxShadow: "0 1px 5px rgba(0,0,0,0.1)",
+                                            opacity: isAvailable ? 1 : 0.6
+                                        }}>
+                                            <div style={{ width: 176, backgroundColor: "#4B614C" }}>
+                                                <img
+                                                    src={producto.foto}
+                                                    alt={producto.nombre}
+                                                    style={{
+                                                        width: "100%", height: 169,
+                                                        objectFit: "cover", borderRadius: 20
+                                                    }}
+                                                />
+                                            </div>
+                                            <div style={{ padding: 15, flex: 1 }}>
+                                                <h4 style={{
+                                                    textAlign: "center", fontSize: 20,
+                                                    fontFamily: "Fredoka One", color: "black"
+                                                }}>{producto.nombre.toUpperCase()}</h4>
+                                                <p style={{
+                                                    textAlign: "center", color: "black",
+                                                    fontSize: 17, fontFamily: "Montserrat"
+                                                }}>{producto.descripcion}</p>
+                                                <div style={{ textAlign: "center", marginTop: 10 }}>
+                                                    {isAvailable ? (
+                                                        <button onClick={() => navigate(`/producto/${producto.id_producto}`)} style={{
+                                                            backgroundColor: "#4B614C", color: "white",
+                                                            fontSize: 17, fontFamily: "Montserrat",
+                                                            fontWeight: 700, borderRadius: 30,
+                                                            padding: "10px 30px", border: "none"
+                                                        }}>Ver</button>
+                                                    ) : (
+                                                        <span style={{
+                                                            backgroundColor: "#888", color: "white",
+                                                            fontSize: 15, fontFamily: "Montserrat",
+                                                            fontWeight: 600, borderRadius: 30,
+                                                            padding: "8px 20px", display: "inline-block"
+                                                        }}>No disponible</span>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         );
                     })}
+
                 </div>
             </div>
         </div>

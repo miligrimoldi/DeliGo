@@ -166,6 +166,7 @@ export type Producto = {
     nombre_servicio?: string;
     puntaje_promedio?: number;
     cantidad_opiniones?: number;
+    disponible?: boolean;
 }
 
 export const fetchProductosPorCategoria = async (id_servicio: number, id_categoria: number): Promise<Producto[]> => {

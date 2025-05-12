@@ -59,6 +59,6 @@ const StockPage = () => {
             </ul>
         </div>
     );
-    
+
 }
 export default StockPage;

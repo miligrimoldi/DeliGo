@@ -15,7 +15,6 @@ class ProductoServicio(db.Model):
     disponible = db.Column(db.Boolean, default=True)
     puntaje_promedio = db.Column(db.Float, default=0)
     cantidad_opiniones = db.Column(db.Integer, default=0)
-
     servicio = db.relationship('Servicio', backref='productos')
     categoria = db.relationship('Categoria', backref='productos')
 
