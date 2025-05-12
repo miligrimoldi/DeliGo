@@ -6,13 +6,17 @@ import {
     Producto,
     Categoria,
     eliminarProducto,
-    modificarProducto, asociarIngredientesAProducto,
+    modificarProducto, asociarIngredientesAProducto, desasociarIngredientesDeProducto, obtenerIngredientesDeProducto,
 } from "../../api.ts";
 import "../../css/CategoriasPanel.css";
 
 type Props = {
     id_servicio: number;
 };
+interface Ingrediente {
+    id_ingrediente: number;
+    nombre: string;
+}
 
 const CategoriasPanel = ({ id_servicio }: Props) => {
     const [categorias, setCategorias] = useState<Categoria[]>([]);
@@ -25,6 +29,8 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
     const [ingredientesDisponibles, setIngredientesDisponibles] = useState<string[]>([]);
     const [ingredientesSeleccionados, setIngredientesSeleccionados] = useState<string[]>([]);
     const [nuevoIngrediente, setNuevoIngrediente] = useState("");
+    const [ingredientesOriginales, setIngredientesOriginales] = useState<Ingrediente[]>([]);
+
 
     const [formData, setFormData] = useState({
         nombre: "",
@@ -44,14 +50,41 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
         if (!categoriaSeleccionada) return;
 
         try {
+            let id_producto: number;
+
             if (productoEditando) {
+                // Modificamos el producto
                 await modificarProducto(productoEditando.id_producto, formData);
+                id_producto = productoEditando.id_producto;
+
+                // Asociar ingredientes nuevos
+                await asociarIngredientesAProducto(id_producto, ingredientesSeleccionados);
+
+                // Desasociar los eliminados
+                const ingredientesEliminados = ingredientesOriginales
+                    .filter(orig => !ingredientesSeleccionados.includes(orig.nombre))
+                    .map(ing => ing.id_ingrediente);
+
+                if (ingredientesEliminados.length > 0) {
+                    await desasociarIngredientesDeProducto(id_producto, ingredientesEliminados);
+                }
+
                 setProductoEditando(null);
+
             } else {
-                const nuevoProducto = await crearProducto(id_servicio, categoriaSeleccionada.id_categoria, formData);
-                await asociarIngredientesAProducto(nuevoProducto.id_producto, ingredientesSeleccionados);
+                // Creamos el producto
+                const nuevoProducto = await crearProducto(
+                    id_servicio,
+                    categoriaSeleccionada.id_categoria,
+                    formData
+                );
+                id_producto = nuevoProducto.id_producto;
+
+                // Asociamos los ingredientes seleccionados
+                await asociarIngredientesAProducto(id_producto, ingredientesSeleccionados);
             }
 
+            // Reset del formulario
             setFormData({
                 nombre: "",
                 precio_actual: 0,
@@ -60,14 +93,23 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
                 foto: "",
             });
 
+            setIngredientesSeleccionados([]);
+            setIngredientesOriginales([]);
             setMostrarFormulario(false);
-            const nuevosProductos = await fetchProductosPorCategoria(id_servicio, categoriaSeleccionada.id_categoria);
+
+            // Recargar productos
+            const nuevosProductos = await fetchProductosPorCategoria(
+                id_servicio,
+                categoriaSeleccionada.id_categoria
+            );
             setProductos(nuevosProductos);
+
         } catch (error) {
             console.error("Error al guardar producto:", error);
             alert("Error al guardar producto");
         }
     };
+
     const obtenerImagenCategoria = (nombre: string): string => {
         const nombreNormalizado = nombre.toLowerCase();
         switch (nombreNormalizado) {
@@ -224,7 +266,7 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
                                         <button className="btn-accion eliminar" onClick={() => handleEliminarProducto(producto.id_producto)}>Eliminar</button>
                                         <button
                                             className="btn-accion editar"
-                                            onClick={() => {
+                                            onClick={async () => {
                                                 setProductoEditando(producto);
                                                 setFormData({
                                                     nombre: producto.nombre,
@@ -233,6 +275,17 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
                                                     informacion_nutricional: producto.informacion_nutricional || "",
                                                     foto: producto.foto || "",
                                                 });
+                                                try {
+                                                    const data = await obtenerIngredientesDeProducto(producto.id_producto);
+
+                                                    const nombres = data.ingredientes.map((ing: any) => ing.nombre);
+
+                                                    setIngredientesSeleccionados(nombres);
+                                                    setIngredientesOriginales(data.ingredientes);
+                                                } catch (error) {
+                                                    console.error("Error al cargar ingredientes del producto:", error);
+                                                }
+
                                                 setMostrarFormulario(true);
                                             }}
                                         >

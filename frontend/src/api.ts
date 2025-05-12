@@ -337,6 +337,22 @@ export const asociarIngredientesAProducto = async (
     }
 };
 
+export const desasociarIngredientesDeProducto = async (
+    id_producto: number,
+    id_ingredientes: number[]
+) => {
+    try {
+        const response = await api.delete(`/productos/${id_producto}/ingredientes`, {
+            data: { ingredientes: id_ingredientes },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error al desasociar ingredientes del producto:", error);
+        throw error;
+    }
+};
+
+
 // Logica de manejo de stock
 export const getStock = async (id_servicio: number) => {
     try {
@@ -364,7 +380,10 @@ export const updateStockDisponibilidad = async (
     return response.data;
 };
 
-
+export const obtenerIngredientesDeProducto = async (id_producto: number) => {
+    const response = await api.get(`/productos/${id_producto}/ingredientes`);
+    return response.data;
+};
 
 
 

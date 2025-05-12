@@ -74,6 +74,7 @@ def asociar_ingredientes_a_producto(id_producto):
     return jsonify({'mensaje': 'Ingredientes asociados correctamente'}), 200
 
 # Buscar ingredientes de un producto
+
 @ingredientes_bp.route('/productos/<int:id_producto>/ingredientes', methods=['GET'])
 @jwt_required()
 def obtener_ingredientes_de_producto(id_producto):
@@ -82,12 +83,37 @@ def obtener_ingredientes_de_producto(id_producto):
         return jsonify({'error': 'Producto no encontrado'}), 404
 
     ingredientes = (
-        db.session.query(Ingrediente.nombre)
+        db.session.query(Ingrediente)
         .join(IngredienteProducto, IngredienteProducto.id_ingrediente == Ingrediente.id_ingrediente)
         .filter(IngredienteProducto.id_producto == id_producto)
         .all()
     )
 
-    lista_ingredientes = [ingrediente[0] for ingrediente in ingredientes]
+    lista_ingredientes = [
+        {'id_ingrediente': ingr.id_ingrediente, 'nombre': ingr.nombre}
+        for ingr in ingredientes
+    ]
+
     return jsonify({'ingredientes': lista_ingredientes}), 200
 
+
+@ingredientes_bp.route('/productos/<int:id_producto>/ingredientes', methods=['DELETE'])
+@jwt_required()
+def desasociar_ingredientes_de_producto(id_producto):
+    data = request.get_json()
+    ids_ingredientes = data.get('ingredientes', [])
+
+    if not isinstance(ids_ingredientes, list):
+        return jsonify({'error': 'Formato inválido para ingredientes'}), 400
+
+    for id_ingrediente in ids_ingredientes:
+        asociacion = IngredienteProducto.query.filter_by(
+            id_producto=id_producto,
+            id_ingrediente=id_ingrediente
+        ).first()
+
+        if asociacion:
+            db.session.delete(asociacion)
+
+    db.session.commit()
+    return jsonify({'mensaje': 'Ingredientes desasociados correctamente'}), 200
