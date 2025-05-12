@@ -113,13 +113,17 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
     useEffect(() => {
         const fetchIngredientes = async () => {
             try {
-                const res = await fetch(`/ingredientes/por-servicio/${id_servicio}`);
+                const res = await fetch(`/ingredientes/por-servicio/${id_servicio}`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    },
+                });
                 const data = await res.json();
-                setIngredientesDisponibles(data.map((ing:any)=> ing.nombre));
-            } catch (e){
-                console.error("error cargando ingredientes", e)
+                setIngredientesDisponibles(data.map((ing:any) => ing.nombre));
+            } catch (e) {
+                console.error("error cargando ingredientes", e);
             }
-        }
+        };
         fetchIngredientes();
     }, [id_servicio]);
 

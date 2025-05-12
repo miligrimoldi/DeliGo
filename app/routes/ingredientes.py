@@ -40,7 +40,6 @@ def asociar_ingredientes_a_producto(id_producto):
     id_servicio = producto.id_servicio
 
 
-
     for nombre in ingredientes:
         ingrediente = Ingrediente.query.filter_by(nombre=nombre).first()
         if not ingrediente:
@@ -73,3 +72,22 @@ def asociar_ingredientes_a_producto(id_producto):
 
     db.session.commit()
     return jsonify({'mensaje': 'Ingredientes asociados correctamente'}), 200
+
+# Buscar ingredientes de un producto
+@ingredientes_bp.route('/productos/<int:id_producto>/ingredientes', methods=['GET'])
+@jwt_required()
+def obtener_ingredientes_de_producto(id_producto):
+    producto = ProductoServicio.query.get(id_producto)
+    if not producto:
+        return jsonify({'error': 'Producto no encontrado'}), 404
+
+    ingredientes = (
+        db.session.query(Ingrediente.nombre)
+        .join(IngredienteProducto, IngredienteProducto.id_ingrediente == Ingrediente.id_ingrediente)
+        .filter(IngredienteProducto.id_producto == id_producto)
+        .all()
+    )
+
+    lista_ingredientes = [ingrediente[0] for ingrediente in ingredientes]
+    return jsonify({'ingredientes': lista_ingredientes}), 200
+
