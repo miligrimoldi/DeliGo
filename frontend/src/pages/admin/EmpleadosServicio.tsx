@@ -18,6 +18,7 @@ const EmpleadosServicio = () => {
         dni: "",
         contrasena: "",
     });
+    const [error, setError] = useState<string | null> (null);
 
     useEffect(() => {
         if (id_servicio) {
@@ -33,12 +34,18 @@ const EmpleadosServicio = () => {
     const handleCrear = async () => {
         if (!id_servicio) return;
         try {
+            setError(null);
             await crearEmpleado(Number(id_servicio), { ...form, esAdmin: false });
             const nuevos = await fetchEmpleados(Number(id_servicio));
             setEmpleados(nuevos);
             setForm({ nombre: "", apellido: "", email: "", dni: "", contrasena: "" });
-        } catch (err) {
+        } catch (err: any) {
             console.error("Error al crear empleado:", err);
+            if (err.response && err.response.data && err.response.data.error) {
+                setError(err.response.data.error);
+            } else {
+                setError("Ocurrió un error al crear el empleado.");
+            }
         }
     };
 
@@ -67,6 +74,7 @@ const EmpleadosServicio = () => {
             </ul>
 
             <h3>Agregar nuevo empleado</h3>
+            {error && <p style={{ color: "red", marginBottom: "10px" }}>{error}</p>}
             <div className="form-empleado">
                 <input name="nombre" placeholder="Nombre" value={form.nombre} onChange={handleInputChange} />
                 <input name="apellido" placeholder="Apellido" value={form.apellido} onChange={handleInputChange} />
