@@ -13,9 +13,16 @@ import "../../css/CategoriasPanel.css";
 type Props = {
     id_servicio: number;
 };
-interface Ingrediente {
+
+type IngredienteSeleccionado = {
+    nombre: string;
+    cantidad: number;
+}
+
+type IngredienteOriginal = {
     id_ingrediente: number;
     nombre: string;
+    cantidad: number;
 }
 
 const CategoriasPanel = ({ id_servicio }: Props) => {
@@ -27,9 +34,9 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
     const [productoEditando, setProductoEditando] = useState<Producto | null>(null);
     const [mostrarFormulario, setMostrarFormulario] = useState(false);
     const [ingredientesDisponibles, setIngredientesDisponibles] = useState<string[]>([]);
-    const [ingredientesSeleccionados, setIngredientesSeleccionados] = useState<string[]>([]);
+    const [ingredientesSeleccionados, setIngredientesSeleccionados] = useState<IngredienteSeleccionado[]>([]);
     const [nuevoIngrediente, setNuevoIngrediente] = useState("");
-    const [ingredientesOriginales, setIngredientesOriginales] = useState<Ingrediente[]>([]);
+    const [ingredientesOriginales, setIngredientesOriginales] = useState<IngredienteOriginal[]>([]);
 
 
     const [formData, setFormData] = useState({
@@ -60,9 +67,8 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
                 // Asociar ingredientes nuevos
                 await asociarIngredientesAProducto(id_producto, ingredientesSeleccionados);
 
-                // Desasociar los eliminados
                 const ingredientesEliminados = ingredientesOriginales
-                    .filter(orig => !ingredientesSeleccionados.includes(orig.nombre))
+                    .filter(orig => !ingredientesSeleccionados.some(sel => sel.nombre === orig.nombre))
                     .map(ing => ing.id_ingrediente);
 
                 if (ingredientesEliminados.length > 0) {
@@ -278,10 +284,11 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
                                                 try {
                                                     const data = await obtenerIngredientesDeProducto(producto.id_producto);
 
-                                                    const nombres = data.ingredientes.map((ing: any) => ing.nombre);
-
-                                                    setIngredientesSeleccionados(nombres);
-                                                    setIngredientesOriginales(data.ingredientes);
+                                                    setIngredientesOriginales(data.ingredientes_necesarios);
+                                                    setIngredientesSeleccionados(data.ingredientes_necesarios.map((ing: any) => ({
+                                                        nombre: ing.nombre,
+                                                        cantidad: ing.cantidad
+                                                    })));
                                                 } catch (error) {
                                                     console.error("Error al cargar ingredientes del producto:", error);
                                                 }
@@ -335,8 +342,14 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
                                 <select
                                     onChange={(e) => {
                                         const value = e.target.value;
-                                        if (value && !ingredientesSeleccionados.includes(value)) {
-                                            setIngredientesSeleccionados([...ingredientesSeleccionados, value]);
+                                        if (
+                                            value &&
+                                            !ingredientesSeleccionados.some(i => i.nombre === value)
+                                        ) {
+                                            setIngredientesSeleccionados([
+                                                ...ingredientesSeleccionados,
+                                                { nombre: value, cantidad: 1 },
+                                            ]);
                                         }
                                     }}
                                     defaultValue=""
@@ -349,10 +362,24 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
                                 </select>
 
                                 <ul style={{ marginTop: 10 }}>
-                                    {ingredientesSeleccionados.map((ing) => (
-                                        <li key={ing}>
-                                            {ing}
-                                            <button type="button" onClick={() => setIngredientesSeleccionados(prev => prev.filter(i => i !== ing))}>
+                                    {ingredientesSeleccionados.map((ing,idx) => (
+                                        <li key={ing.nombre} style={{ marginBottom: 8 }}>
+                                            {ing.nombre}
+                                            <input
+                                                type="number"
+                                                value={ing.cantidad}
+                                                min={1}
+                                                onChange={(e) => {
+                                                    const nuevaCantidad = parseInt(e.target.value);
+                                                    setIngredientesSeleccionados(prev =>
+                                                        prev.map((i, iIdx) => iIdx === idx ? { ...i, cantidad: nuevaCantidad } : i)
+                                                    );
+                                                }}
+                                                style={{ width: 60, marginLeft: 10 }}
+                                            />
+                                            <button type="button" onClick={() =>
+                                                setIngredientesSeleccionados(prev => prev.filter(i => i.nombre !== ing.nombre))
+                                            }>
                                                 ❌
                                             </button>
                                         </li>
@@ -372,9 +399,6 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
                                         const ing = nuevoIngrediente.trim();
                                         if (ing && !ingredientesDisponibles.includes(ing)) {
                                             setIngredientesDisponibles([...ingredientesDisponibles, ing]);
-                                        }
-                                        if (ing && !ingredientesSeleccionados.includes(ing)) {
-                                            setIngredientesSeleccionados([...ingredientesSeleccionados, ing]);
                                         }
                                         setNuevoIngrediente("");
                                     }}

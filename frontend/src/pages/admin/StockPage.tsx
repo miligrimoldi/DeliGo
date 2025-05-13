@@ -1,4 +1,4 @@
-import {useParams} from "react-router-dom";
+import {useParams, useNavigate } from "react-router-dom";
 import {useEffect, useState} from "react";
 import {getStock, updateStockDisponibilidad} from "../../api.ts";
 
@@ -14,6 +14,7 @@ const StockPage = () => {
     const { id_servicio } = useParams();
     const [ingredientes, setIngredientes] = useState<IngredienteStock[]>([]);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchStock = async () => {
@@ -57,6 +58,7 @@ const StockPage = () => {
                     </li>
                 ))}
             </ul>
+            <button className="inicio" onClick={() => navigate(`/empleado/${id_servicio}`)}>Home</button>
         </div>
     );
 

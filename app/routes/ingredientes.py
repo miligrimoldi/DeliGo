@@ -39,23 +39,27 @@ def asociar_ingredientes_a_producto(id_producto):
 
     id_servicio = producto.id_servicio
 
-
-    for nombre in ingredientes:
+    for item in ingredientes:
+        nombre = item.get("nombre")
+        cantidad = item.get("cantidad", 1)
         ingrediente = Ingrediente.query.filter_by(nombre=nombre).first()
         if not ingrediente:
             ingrediente = Ingrediente(nombre=nombre)
             db.session.add(ingrediente)
-            db.session.flush()  # Para obtener el id_ingrediente antes de commit
+            db.session.flush()
 
         existe_asociacion = IngredienteProducto.query.filter_by(
             id_producto=id_producto,
             id_ingrediente=ingrediente.id_ingrediente
         ).first()
 
-        if not existe_asociacion:
+        if existe_asociacion:
+            existe_asociacion.cantidad_necesaria = cantidad
+        else:
             nueva_asociacion = IngredienteProducto(
                 id_producto=id_producto,
-                id_ingrediente=ingrediente.id_ingrediente
+                id_ingrediente=ingrediente.id_ingrediente,
+                cantidad_necesaria=cantidad
             )
             db.session.add(nueva_asociacion)
 
@@ -82,19 +86,23 @@ def obtener_ingredientes_de_producto(id_producto):
     if not producto:
         return jsonify({'error': 'Producto no encontrado'}), 404
 
-    ingredientes = (
-        db.session.query(Ingrediente)
+    asociaciones = (
+        db.session.query(Ingrediente, IngredienteProducto.cantidad_necesaria)
         .join(IngredienteProducto, IngredienteProducto.id_ingrediente == Ingrediente.id_ingrediente)
         .filter(IngredienteProducto.id_producto == id_producto)
         .all()
     )
 
-    lista_ingredientes = [
-        {'id_ingrediente': ingr.id_ingrediente, 'nombre': ingr.nombre}
-        for ingr in ingredientes
+    lista_ingredientes_necesarios = [
+        {
+            'id_ingrediente': ingr.id_ingrediente,
+            'nombre': ingr.nombre,
+            'cantidad': cantidad_necesaria
+        }
+        for ingr, cantidad_necesaria in asociaciones
     ]
 
-    return jsonify({'ingredientes': lista_ingredientes}), 200
+    return jsonify({'ingredientes_necesarios': lista_ingredientes_necesarios}), 200
 
 
 @ingredientes_bp.route('/productos/<int:id_producto>/ingredientes', methods=['DELETE'])
