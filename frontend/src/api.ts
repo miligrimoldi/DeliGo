@@ -167,6 +167,11 @@ export type Producto = {
     puntaje_promedio?: number;
     cantidad_opiniones?: number;
     disponible?: boolean;
+    es_desperdicio_cero?: boolean;
+    precio_oferta?: number;
+    cantidad_restante?: number;
+    tiempo_limite?: string | null;
+
 }
 
 export const fetchProductosPorCategoria = async (id_servicio: number, id_categoria: number): Promise<Producto[]> => {
@@ -384,6 +389,12 @@ export const obtenerIngredientesDeProducto = async (id_producto: number) => {
     const response = await api.get(`/productos/${id_producto}/ingredientes`);
     return response.data;
 };
+
+export const fetchProductosPorCategoriaPublica = async (id_servicio: number, id_categoria: number): Promise<Producto[]> => {
+    const response = await api.get(`/api/servicio/${id_servicio}/categoria/${id_categoria}/productos`);
+    return response.data;
+};
+
 
 
 
