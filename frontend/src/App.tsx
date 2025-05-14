@@ -21,6 +21,7 @@ import EditarPerfil from "./pages/EditarPerfil.tsx";
 import Opinar from "./pages/Opinar.tsx";
 import StockPage from "./pages/admin/StockPage.tsx";
 import Opiniones from "./pages/admin/Opiniones.tsx";
+import DesperdicioCero from "./pages/DesperdicioCero.tsx";
 
 function App() {
     useAuthRedirect();
@@ -121,6 +122,7 @@ function App() {
                     <Route path="/entidad/:id_entidad" element={<ServiciosEntidad/>}/>
                     <Route path="/favoritos" element={<Favoritos/>}/>
                     <Route path="/opinar/:id" element={<Opinar />} />
+                    <Route path="/desperdicio/:id_servicio" element={<DesperdicioCero />} />
                 </Route>
             </Routes>
         </div>
