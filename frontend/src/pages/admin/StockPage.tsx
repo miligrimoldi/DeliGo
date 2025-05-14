@@ -1,11 +1,11 @@
-import {useParams} from "react-router-dom";
+import {useParams, useNavigate } from "react-router-dom";
 import {useEffect, useState} from "react";
 import {getStock, updateStockDisponibilidad} from "../../api.ts";
 
 interface IngredienteStock {
     idIngrediente: number;
     nombre: string;
-    disponible: boolean;
+    disponible: number;
 }
 
 
@@ -14,6 +14,7 @@ const StockPage = () => {
     const { id_servicio } = useParams();
     const [ingredientes, setIngredientes] = useState<IngredienteStock[]>([]);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchStock = async () => {
@@ -29,12 +30,12 @@ const StockPage = () => {
         fetchStock();
     }, [id_servicio]);
 
-    const cambiarDisponibilidad = async (id_ingrediente: number, disponible: boolean) => {
+    const cambiarCantidad = async (id_ingrediente: number, nuevaCantidad: number) => {
         try {
-            await updateStockDisponibilidad(Number(id_servicio), id_ingrediente, !disponible);
+            await updateStockDisponibilidad(Number(id_servicio), id_ingrediente, nuevaCantidad);
             setIngredientes(prev =>
                 prev.map(ing =>
-                    ing.idIngrediente === id_ingrediente ? { ...ing, disponible: !disponible } : ing
+                    ing.idIngrediente === id_ingrediente ? { ...ing, disponible: nuevaCantidad } : ing
                 )
             );
         } catch (error) {
@@ -49,14 +50,29 @@ const StockPage = () => {
             <h2>Gestión de Stock</h2>
             <ul className="stock-list">
                 {ingredientes.map(ing => (
-                    <li key={ing.idIngrediente} className={`stock-item ${ing.disponible ? "disponible" : "no-disponible"}`}>
-                        {ing.nombre}
-                        <button onClick={() => cambiarDisponibilidad(ing.idIngrediente, ing.disponible)}>
-                            {ing.disponible ? "Marcar como NO disponible" : "Marcar como disponible"}
-                        </button>
+                    <li key={ing.idIngrediente} className="stock-item">
+                        <span className="nombre">{ing.nombre}</span>
+                        <div className="cantidad-control">
+                            <button
+                                onClick={() =>
+                                    cambiarCantidad(ing.idIngrediente, Math.max(0, ing.disponible - 1))
+                                }
+                            >
+                                -
+                            </button>
+                            <span className="cantidad">{ing.disponible}</span>
+                            <button
+                                onClick={() =>
+                                    cambiarCantidad(ing.idIngrediente, ing.disponible + 1)
+                                }
+                            >
+                                +
+                            </button>
+                        </div>
                     </li>
                 ))}
             </ul>
+            <button className="inicio" onClick={() => navigate(`/empleado/${id_servicio}`)}>Home</button>
         </div>
     );
 

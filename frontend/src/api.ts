@@ -329,7 +329,7 @@ export const eliminarEmpleado = async (id_servicio: number, id_empleado: number)
 // Logica de ingredientes
 export const asociarIngredientesAProducto = async (
     id_producto: number,
-    ingredientes: string[]
+    ingredientes: { nombre:string, cantidad:number }[]
 ) => {
     try {
         const response = await api.post(`/productos/${id_producto}/ingredientes`, {
@@ -377,7 +377,7 @@ export const getStock = async (id_servicio: number) => {
 export const updateStockDisponibilidad = async (
     id_servicio: number,
     id_ingrediente: number,
-    disponible: boolean
+    disponible: number
 ) => {
     const response = await api.put(`stock/${id_servicio}/${id_ingrediente}`, {
         disponible
