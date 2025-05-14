@@ -12,7 +12,6 @@ class ProductoServicio(db.Model):
     precio_actual = db.Column(db.Float, nullable=False)
     foto = db.Column(db.String(255))
     activo = db.Column(db.Boolean, default=True)
-    disponible = db.Column(db.Boolean, default=True)
     puntaje_promedio = db.Column(db.Float, default=0)
     cantidad_opiniones = db.Column(db.Integer, default=0)
     servicio = db.relationship('Servicio', backref='productos')

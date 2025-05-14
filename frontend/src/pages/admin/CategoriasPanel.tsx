@@ -173,6 +173,7 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
             }
         };
         fetchIngredientes();
+        setProductoEditando(null);
     }, [id_servicio]);
 
     const handleSeleccionCategoria = async (categoria: Categoria) => {

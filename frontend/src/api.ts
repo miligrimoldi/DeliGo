@@ -372,7 +372,7 @@ export const getStock = async (id_servicio: number) => {
 export const updateStockDisponibilidad = async (
     id_servicio: number,
     id_ingrediente: number,
-    disponible: boolean
+    disponible: number
 ) => {
     const response = await api.put(`stock/${id_servicio}/${id_ingrediente}`, {
         disponible
