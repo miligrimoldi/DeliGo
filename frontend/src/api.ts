@@ -395,6 +395,18 @@ export const fetchProductosPorCategoriaPublica = async (id_servicio: number, id_
     return response.data;
 };
 
+export const marcarComoDesperdicioCero = async (
+    id_producto: number,
+    data: { precio_oferta: number; cantidad_restante: number; tiempo_limite?: string | null }
+) => {
+    const res = await api.post(`/producto/${id_producto}/desperdicio`, data);
+    return res.data;
+};
+
+export const desmarcarComoDesperdicioCero = async (id_producto: number): Promise<void> => {
+    await api.delete(`/admin/producto/${id_producto}/desperdicio`);
+};
+
 
 
 
