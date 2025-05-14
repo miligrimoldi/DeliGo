@@ -20,6 +20,7 @@ import PedidosAdmin from "./pages/admin/PedidosAdmin.tsx";
 import EditarPerfil from "./pages/EditarPerfil.tsx";
 import Opinar from "./pages/Opinar.tsx";
 import StockPage from "./pages/admin/StockPage.tsx";
+import Opiniones from "./pages/admin/Opiniones.tsx";
 
 function App() {
     useAuthRedirect();
@@ -82,6 +83,23 @@ function App() {
                     element={
                         <ProtectedRoute onlyAdmin={true}>
                             <EmpleadosServicio/>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/:id_servicio/opiniones"
+                    element={
+                        <ProtectedRoute onlyAdmin={true}>
+                            <Opiniones />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/empleado/:id_servicio/opiniones"
+                    element={
+                        <ProtectedRoute onlyEmployee={true}>
+                            <Opiniones />
                         </ProtectedRoute>
                     }
                 />
