@@ -3,15 +3,20 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash
 
 from app.main import obtener_usuario
-from app.models.categoria import Categoria
 from app.models.producto_servicio import ProductoServicio
 from app.models.servicio import Servicio
-from app.extensions import db
+from app.models.opinion_servicio import OpinionServicio
+from app.models.opinion_producto import OpinionProducto
 from app.models.usuario import User
-from app.models.producto_servicio import ProductoServicio
 from app.models.pedido import Pedido
 from app.models.detalle_pedido import DetallePedido
 from app.models.usuario_empleado import UsuarioEmpleado
+from app.models.categoria import Categoria
+
+from app.extensions import db
+from sqlalchemy import func
+from statistics import mean
+
 
 # Obtener info del servivio especifico (nombre + entidad)
 
@@ -163,6 +168,67 @@ def cambiar_estado_pedido(id_pedido):
     db.session.commit()
     return jsonify({"mensaje": "Pedido actualizado correctamente"})
 
+opiniones_bp = Blueprint('opiniones_bp', __name__)
+
+
+@opiniones_bp.route('/admin/servicio/<int:id_servicio>/opiniones', methods=['GET'])
+@jwt_required()
+def opiniones_generales_servicio(id_servicio):
+    servicio = Servicio.query.get_or_404(id_servicio)
+    opiniones = OpinionServicio.query.filter_by(id_servicio=id_servicio).all()
+
+    data = [{
+        "usuario": op.usuario.nombre,
+        "comentario": op.comentario,
+        "puntaje": op.puntaje,
+        "fecha": op.fecha.strftime("%Y-%m-%d") if op.fecha else ""
+    } for op in opiniones]
+
+    promedio = round(mean([op.puntaje for op in opiniones]), 1) if opiniones else 0.0
+
+    return jsonify({"promedio": promedio, "opiniones": data})
+
+
+@opiniones_bp.route('/admin/servicio/<int:id_servicio>/productos-opinados', methods=['GET'])
+@jwt_required()
+def productos_opinados(id_servicio):
+    resultados = db.session.query(
+        OpinionProducto.id_producto,
+        func.avg(OpinionProducto.puntaje).label("puntaje_promedio"),
+        func.count(OpinionProducto.id_opinion_producto).label("cantidad_opiniones")
+    ).join(ProductoServicio, OpinionProducto.id_producto == ProductoServicio.id_producto)\
+     .filter(ProductoServicio.id_servicio == id_servicio)\
+     .group_by(OpinionProducto.id_producto).all()
+
+    productos = []
+    for r in resultados:
+        producto = ProductoServicio.query.get(r.id_producto)
+        productos.append({
+            "id_producto": producto.id_producto,
+            "nombre": producto.nombre,
+            "foto": producto.foto,
+            "puntaje_promedio": round(r.puntaje_promedio, 1) if r.puntaje_promedio else 0.0,
+            "cantidad_opiniones": r.cantidad_opiniones
+        })
+
+    return jsonify({"productos": productos})
+
+
+@opiniones_bp.route('/admin/producto/<int:id_producto>/opiniones', methods=['GET'])
+@jwt_required()
+def opiniones_por_producto(id_producto):
+    opiniones = OpinionProducto.query.filter_by(id_producto=id_producto).all()
+
+    data = [{
+        "usuario": op.usuario.nombre,
+        "comentario": op.comentario,
+        "puntaje": op.puntaje,
+        "fecha": op.fecha.strftime("%Y-%m-%d") if op.fecha else ""
+    } for op in opiniones]
+
+    promedio = round(mean([op.puntaje for op in opiniones]), 1) if opiniones else 0.0
+
+    return jsonify({"promedio": promedio, "opiniones": data})
 
 
     
