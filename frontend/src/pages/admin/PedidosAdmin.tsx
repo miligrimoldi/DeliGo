@@ -1,7 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { PedidoConDetalles, fetchPedidosPorServicio, cambiarEstadoPedido } from "../../api.ts";
 import "../../css/PedidosAdmin.css";
+import { api } from "../../api";
+
+interface Opinion {
+    usuario: string;
+    comentario: string;
+    puntaje: number;
+    fecha: string;
+    producto?: string;
+    foto?: string;
+}
+
+interface OpinionPedido {
+    nombre_servicio: string;
+    servicio: Opinion | null;
+    productos: Opinion[];
+}
+
 
 const PedidosAdmin = () => {
     const { id_servicio } = useParams<{ id_servicio: string }>();
@@ -10,8 +27,23 @@ const PedidosAdmin = () => {
     const [pedidosAntiguos, setPedidosAntiguos] = useState<PedidoConDetalles[]>([]);
     const [solapa, setSolapa] = useState<"activos" | "antiguos">("activos");
     const [tiemposEstimados, setTiemposEstimados] = useState<Record<number, number>>({});
+    const [opinionesPorPedido, setOpinionesPorPedido] = useState<Record<number, OpinionPedido>>({});
+    const [visibles, setVisibles] = useState<Record<number, boolean>>({});
 
-    const cargarPedidos = async () => {
+    const toggleOpiniones = async (id_pedido: number) => {
+        setVisibles(prev => ({ ...prev, [id_pedido]: !prev[id_pedido] }));
+
+        if (!opinionesPorPedido[id_pedido]) {
+            try {
+                const res = await api.get(`/admin/pedido/${id_pedido}/opiniones`);
+                setOpinionesPorPedido(prev => ({ ...prev, [id_pedido]: res.data }));
+            } catch (err) {
+                console.error("Error al cargar opiniones del pedido", err);
+            }
+        }
+    };
+
+    const cargarPedidos = useCallback(async () => {
         const pedidos = await fetchPedidosPorServicio(servicioId);
         setPedidosActivos(pedidos.filter(p => p.estado !== "entregado" && p.estado !== "cancelado"));
         setPedidosAntiguos(pedidos.filter(p => p.estado === "entregado" || p.estado === "cancelado"));
@@ -23,13 +55,13 @@ const PedidosAdmin = () => {
             }
         });
         setTiemposEstimados(tiempos);
-    };
+    }, [servicioId]);
 
     useEffect(() => {
         if (!isNaN(servicioId)) {
             cargarPedidos();
         }
-    }, [servicioId]);
+    }, [servicioId, cargarPedidos]);
 
     const handleEstadoChange = async (id_pedido: number, nuevo_estado: string) => {
         try {
@@ -63,7 +95,7 @@ const PedidosAdmin = () => {
     const pedidos = solapa === "activos" ? pedidosActivos : pedidosAntiguos;
     const navigate = useNavigate();
 
-    const verdeClaro = "#e6f7e6"; // Un verde claro minimalista
+    const verdeClaro = "#e6f7e6";
     const sombraSutil = "0 2px 4px rgba(0,0,0,0.08)";
 
     return (
@@ -177,6 +209,59 @@ const PedidosAdmin = () => {
                                 </div>
                             )}
                         </div>
+                    )}
+                    {p.estado === "entregado" && (
+                        <>
+                            <button onClick={() => toggleOpiniones(p.id_pedido)} style={{ marginTop: 10 }}>Ver opiniones</button>
+                            {visibles[p.id_pedido] && opinionesPorPedido[p.id_pedido] && (
+                                <div style={{ marginTop: 10, backgroundColor: "#f9f9f9", padding: 12, borderRadius: 6 }}>
+
+                                    {opinionesPorPedido[p.id_pedido]?.servicio ? (
+                                        <div style={{ marginBottom: 16 }}>
+                                            <strong style={{ display: "block", marginBottom: 4 }}>
+                                                Opinión del servicio: {opinionesPorPedido[p.id_pedido].nombre_servicio}
+                                            </strong>
+                                            <span>
+      {opinionesPorPedido[p.id_pedido].servicio?.usuario ?? "Usuario desconocido"} —
+                                                {opinionesPorPedido[p.id_pedido].servicio?.puntaje ?? 0}★
+    </span><br />
+                                            <span style={{ fontSize: 13 }}>
+      {opinionesPorPedido[p.id_pedido].servicio?.comentario ?? "Sin comentario"}
+    </span><br />
+                                            <small style={{ color: "#999" }}>
+                                                {opinionesPorPedido[p.id_pedido].servicio?.fecha ?? "Sin fecha"}
+                                            </small>
+                                        </div>
+                                    ) : (
+                                        <p style={{ color: "#999", fontSize: 13 }}>Sin opinión del servicio.</p>
+                                    )}
+
+                                    {opinionesPorPedido[p.id_pedido]?.productos?.length > 0 ? (
+                                        <>
+                                            <strong style={{ display: "block", marginBottom: 6 }}>Opiniones de productos:</strong>
+                                            {opinionesPorPedido[p.id_pedido].productos.map((op, idx) => (
+                                                <div key={idx} style={{ display: "flex", alignItems: "center", marginBottom: 10 }}>
+                                                    {op.foto && (
+                                                        <img
+                                                            src={op.foto}
+                                                            alt={op.producto ?? "producto"}
+                                                            style={{ width: 40, height: 40, borderRadius: 6, marginRight: 10, objectFit: "cover" }}
+                                                        />
+                                                    )}
+                                                    <div>
+                                                        <strong>{op.producto ?? "Producto"}</strong> — {op.usuario ?? "Usuario"} — {op.puntaje ?? 0}★<br />
+                                                        <span style={{ fontSize: 13 }}>{op.comentario ?? "Sin comentario"}</span><br />
+                                                        <small style={{ color: "#999" }}>{op.fecha ?? "Sin fecha"}</small>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </>
+                                    ) : (
+                                        <p style={{ color: "#999", fontSize: 13 }}>Sin opiniones de productos.</p>
+                                    )}
+                                </div>
+                            )}
+                        </>
                     )}
                 </div>
             ))}
