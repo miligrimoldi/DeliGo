@@ -26,6 +26,5 @@ def obtener_producto(id_producto):
         "nombre_servicio": producto.servicio.nombre,
         "puntaje_promedio": producto.puntaje_promedio,
         "cantidad_opiniones": producto.cantidad_opiniones,
-        "ingredientes": ingredientes_serializados,
-        "disponible": producto.disponible
+        "ingredientes": ingredientes_serializados
     })

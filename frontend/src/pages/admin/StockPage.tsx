@@ -1,25 +1,19 @@
 import {useParams, useNavigate } from "react-router-dom";
 import {useEffect, useState} from "react";
-import {getStock, updateStockDisponibilidad} from "../../api.ts";
-
-interface IngredienteStock {
-    idIngrediente: number;
-    nombre: string;
-    disponible: number;
-}
+import {getStockPorServicio, StockIngrediente, updateStockDisponibilidad} from "../../api.ts";
 
 
 const StockPage = () => {
 
     const { id_servicio } = useParams();
-    const [ingredientes, setIngredientes] = useState<IngredienteStock[]>([]);
+    const [ingredientes, setIngredientes] = useState<StockIngrediente[]>([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchStock = async () => {
             try {
-                const data = await getStock(Number(id_servicio));
+                const data = await getStockPorServicio(Number(id_servicio));
                 setIngredientes(data);
             } catch (error) {
                 console.error("Error al obtener stock:", error);
@@ -35,7 +29,7 @@ const StockPage = () => {
             await updateStockDisponibilidad(Number(id_servicio), id_ingrediente, nuevaCantidad);
             setIngredientes(prev =>
                 prev.map(ing =>
-                    ing.idIngrediente === id_ingrediente ? { ...ing, disponible: nuevaCantidad } : ing
+                    ing.id_ingrediente === id_ingrediente ? { ...ing, cantidad: nuevaCantidad } : ing
                 )
             );
         } catch (error) {
@@ -50,20 +44,20 @@ const StockPage = () => {
             <h2>Gestión de Stock</h2>
             <ul className="stock-list">
                 {ingredientes.map(ing => (
-                    <li key={ing.idIngrediente} className="stock-item">
+                    <li key={ing.id_ingrediente} className="stock-item">
                         <span className="nombre">{ing.nombre}</span>
                         <div className="cantidad-control">
                             <button
                                 onClick={() =>
-                                    cambiarCantidad(ing.idIngrediente, Math.max(0, ing.disponible - 1))
+                                    cambiarCantidad(ing.id_ingrediente, Math.max(0, ing.cantidad - 1))
                                 }
                             >
                                 -
                             </button>
-                            <span className="cantidad">{ing.disponible}</span>
+                            <span className="cantidad">{ing.cantidad}</span>
                             <button
                                 onClick={() =>
-                                    cambiarCantidad(ing.idIngrediente, ing.disponible + 1)
+                                    cambiarCantidad(ing.id_ingrediente, ing.cantidad + 1)
                                 }
                             >
                                 +

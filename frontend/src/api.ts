@@ -353,37 +353,42 @@ export const desasociarIngredientesDeProducto = async (
 };
 
 
-// Logica de manejo de stock
-export const getStock = async (id_servicio: number) => {
-    try {
-        const response = await api.get(`/stock/${id_servicio}`);
-        return response.data.map((item: any) => ({
-            idIngrediente: item.id_ingrediente,
-            nombre: item.nombre,
-            disponible: item.disponible,
-        }));
-    } catch (error) {
-        console.error("Error al obtener el stock:", error);
-        throw error;
-    }
-};
-
 
 export const updateStockDisponibilidad = async (
     id_servicio: number,
     id_ingrediente: number,
-    disponible: number
+    cantidad: number
 ) => {
     const response = await api.put(`stock/${id_servicio}/${id_ingrediente}`, {
-        disponible
+        cantidad
     });
     return response.data;
 };
 
-export const obtenerIngredientesDeProducto = async (id_producto: number) => {
+export const obtenerIngredientesDeProducto = async (id_producto: number): Promise<IngredienteNecesario[]> => {
     const response = await api.get(`/productos/${id_producto}/ingredientes`);
+    return response.data.ingredientes_necesarios;
+};
+
+export type StockIngrediente = {
+    id_ingrediente: number;
+    nombre: string;
+    cantidad: number;
+
+}
+
+
+type IngredienteNecesario = {
+    id_ingrediente: number;
+    nombre: string;
+    cantidad: number;
+}
+
+export const getStockPorServicio = async (id_servicio: number): Promise<StockIngrediente[]> => {
+    const response = await api.get(`/stock/${id_servicio}`);
     return response.data;
 };
+
 
 
 

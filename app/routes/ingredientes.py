@@ -70,7 +70,7 @@ def asociar_ingredientes_a_producto(id_producto):
             nuevo_stock = Stock(
                 id_servicio=id_servicio,
                 id_ingrediente=ingrediente.id_ingrediente,
-                disponibilidad=1
+                cantidad=1
             )
             db.session.add(nuevo_stock)
 

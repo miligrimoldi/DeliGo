@@ -1,6 +1,11 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import { getDetalleServicio, fetchProductosPorCategoria } from "../api.ts";
+import {
+    getDetalleServicio,
+    fetchProductosPorCategoria,
+    getStockPorServicio,
+    Producto, obtenerIngredientesDeProducto
+} from "../api.ts";
 import { FaArrowLeft } from "react-icons/fa";
 import { useCarrito } from './CarritoContext.tsx';
 
@@ -9,14 +14,6 @@ type Categoria = {
     nombre: string;
 };
 
-type Producto = {
-    id_producto: number;
-    nombre: string;
-    descripcion: string;
-    precio_actual: number;
-    foto: string;
-    disponible?: boolean;
-};
 
 type Servicio = {
     id_servicio: number;
@@ -43,35 +40,53 @@ const HomeServicioUsuario = () => {
     useEffect(() => {
         if (!id_servicio) return;
 
-        // Función que obtiene los detalles del servicio y productos
         const fetchData = async () => {
-            const data = await getDetalleServicio(Number(id_servicio));
-            setServicio(data.servicio);
-            setEntidad(data.entidad);
-            setCategorias(data.categorias);
-            setServicioActivo(data.servicio.id_servicio);
+            try {
+                // 1. Obtener detalles del servicio
+                const data = await getDetalleServicio(Number(id_servicio));
+                setServicio(data.servicio);
+                setEntidad(data.entidad);
+                setCategorias(data.categorias);
+                setServicioActivo(data.servicio.id_servicio);
 
-            const productosMap: Record<number, Producto[]> = {};
-            await Promise.all(
-                data.categorias.map(async (cat: Categoria) => {
+                // 2. Obtener stock
+                const stock = await getStockPorServicio(Number(id_servicio));
+
+                // 3. Obtener productos por categoría + su disponibilidad
+                const productosDisponiblesMap: Record<number, (Producto & { disponible: boolean })[]> = {};
+
+                for (const cat of data.categorias) {
                     const productos = await fetchProductosPorCategoria(Number(id_servicio), cat.id_categoria);
-                    productosMap[cat.id_categoria] = productos;
-                })
-            );
-            setProductosPorCategoria(productosMap);
+
+                    const productosConDisponibilidad = await Promise.all(
+                        productos.map(async (prod) => {
+                            const ingredientes_necesarios = await obtenerIngredientesDeProducto(prod.id_producto);
+                            const disponible = ingredientes_necesarios.every(ing => {
+                                const stockIng = stock.find(s => s.id_ingrediente === ing.id_ingrediente);
+                                return stockIng && stockIng.cantidad >= ing.cantidad;
+                            });
+                            return { ...prod, disponible };
+                        })
+                    );
+
+                    productosDisponiblesMap[cat.id_categoria] = productosConDisponibilidad;
+                }
+
+                setProductosPorCategoria(productosDisponiblesMap);
+            } catch (error) {
+                console.error("Error al cargar datos del servicio:", error);
+            }
         };
 
-        // Llamada inicial para obtener los datos
+        // Llamada inicial
         fetchData();
 
-        // Configurar el intervalo de 20 segundos
+        // Intervalo para actualizar cada 20 segundos
         const intervalId = setInterval(fetchData, 20000);
 
-        // Limpiar el intervalo cuando el componente se desmonte o id_servicio cambie
-        return () => {
-            clearInterval(intervalId);
-        };
+        return () => clearInterval(intervalId);
     }, [id_servicio]);
+
 
 
     const handleClickCategoria = (id_categoria: number) => {
@@ -243,7 +258,7 @@ const HomeServicioUsuario = () => {
                                 }}>{cat.nombre}</h3>
 
                                 {productosFiltrados.map((producto) => {
-                                    const isAvailable = Boolean(producto.disponible);
+                                    const isAvailable = producto.disponible;
 
                                     return (
                                         <div key={producto.id_producto} style={{

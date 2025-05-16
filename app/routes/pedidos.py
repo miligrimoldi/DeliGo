@@ -2,6 +2,13 @@ from flask import Blueprint, jsonify, request
 from app.models.pedido import Pedido
 from app.extensions import db
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from app.models.ingrediente_producto import IngredienteProducto
+from app.models.stock import Stock
+from sqlalchemy.exc import IntegrityError
+from app.models.producto_servicio import ProductoServicio
+from app.models.detalle_pedido import DetallePedido
+from app.models.usuario_consumidor import UsuarioConsumidor
+
 
 pedidos_bp = Blueprint('pedidos', __name__, url_prefix='/api/pedidos')
 
@@ -45,9 +52,6 @@ def crear_pedido():
     if not items:
         return jsonify({"error": "No hay productos en el pedido"}), 400
 
-    from app.models.producto_servicio import ProductoServicio
-    from app.models.detalle_pedido import DetallePedido
-    from app.models.usuario_consumidor import UsuarioConsumidor
 
     consumidor = UsuarioConsumidor.query.get(id_usuario)
     if not consumidor:
@@ -71,6 +75,13 @@ def crear_pedido():
     db.session.flush()
 
     for item in items:
+
+        ingredientes_a_descontar = {}
+
+        id_producto = item["id_producto"]
+        cantidad_producto = item["cantidad"]
+
+
         detalle = DetallePedido(
             id_pedido=nuevo_pedido.id_pedido,
             id_producto=item["id_producto"],
@@ -79,6 +90,25 @@ def crear_pedido():
             subtotal=item["precio_actual"] * item["cantidad"]
         )
         db.session.add(detalle)
+
+        asociaciones = IngredienteProducto.query.filter_by(id_producto = id_producto).all()
+        for asociacion in asociaciones:
+            id_ingrediente = asociacion.id_ingrediente
+            cantidad_necesaria = asociacion.cantidad_necesaria * cantidad_producto
+            if id_ingrediente in ingredientes_a_descontar:
+                ingredientes_a_descontar[id_ingrediente] += cantidad_necesaria
+            else:
+                ingredientes_a_descontar[id_ingrediente] = cantidad_necesaria
+
+    for id_ingrediente, cantidad_a_restar in ingredientes_a_descontar.items():
+        stock_entry = Stock.query.filter_by(id_servicio=id_servicio, id_ingrediente=id_ingrediente).first()
+        if not stock_entry:
+            return jsonify({"error": f"No hay stock registrado para el ingrediente ID {id_ingrediente}"}), 400
+
+        if stock_entry.cantidad < cantidad_a_restar:
+            return jsonify({"error": f"Stock insuficiente del ingrediente ID {id_ingrediente}"}), 400
+
+        stock_entry.cantidad -= cantidad_a_restar
 
     db.session.commit()
     return jsonify({"mensaje": "Pedido creado correctamente"}), 201
