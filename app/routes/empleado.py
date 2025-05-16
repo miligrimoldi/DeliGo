@@ -12,6 +12,7 @@ from app.models.pedido import Pedido
 from app.models.detalle_pedido import DetallePedido
 from app.models.usuario_empleado import UsuarioEmpleado
 from app.models.categoria import Categoria
+from datetime import datetime
 
 from app.extensions import db
 from sqlalchemy import func
@@ -65,7 +66,10 @@ def productos_servicio(id_servicio, id_categoria):
         "descripcion": p.descripcion,
         "informacion_nutricional": p.informacion_nutricional,
         "foto": p.foto,
-        "disponible": p.disponible
+        "es_desperdicio_cero": p.es_desperdicio_cero,
+        "precio_oferta": p.precio_oferta,
+        "cantidad_restante": p.cantidad_restante,
+        "tiempo_limite": p.tiempo_limite.strftime("%H:%M") if p.tiempo_limite else None
     } for p in productos])
 
 
@@ -230,6 +234,45 @@ def opiniones_por_producto(id_producto):
 
     return jsonify({"promedio": promedio, "opiniones": data})
 
+desperdicio_bp = Blueprint('desperdicio_bp', __name__)
 
-    
+@desperdicio_bp.route('/servicio/<int:id_servicio>/desperdicio', methods=['GET'])
+@jwt_required(optional=True)
+def productos_desp_cero(id_servicio):
+    ahora = datetime.now().time()
+
+    productos = ProductoServicio.query.filter_by(
+        id_servicio=id_servicio,
+        es_desperdicio_cero=True,
+        activo=True
+    ).all()
+
+    productos_validos = []
+    for p in productos:
+        if p.tiempo_limite is not None and p.tiempo_limite <= ahora:
+            p.es_desperdicio_cero = False
+            p.precio_oferta = None
+            p.cantidad_restante = 0
+            p.tiempo_limite = None
+        else:
+            productos_validos.append(p)
+
+    db.session.commit()
+
+    return jsonify([
+        {
+            "id_producto": p.id_producto,
+            "nombre": p.nombre,
+            "descripcion": p.descripcion,
+            "foto": p.foto,
+            "precio_original": p.precio_actual,
+            "precio_oferta": p.precio_oferta,
+            "cantidad_restante": p.cantidad_restante,
+            "tiempo_limite": p.tiempo_limite.strftime("%H:%M") if p.tiempo_limite else None
+        }
+        for p in productos_validos
+    ])
+
+
+
 

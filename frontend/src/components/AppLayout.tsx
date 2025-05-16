@@ -5,7 +5,7 @@ import { FaHome, FaUser, FaHeart, FaBox } from 'react-icons/fa';
 const AppLayout: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const ocultarBarra = ['/carrito', '/opinar'].some(path => location.pathname.startsWith(path));
+    const ocultarBarra = ['/carrito', '/opinar', '/desperdicio'].some(path => location.pathname.startsWith(path));
 
 
     const homePrefixes = ['/home', '/entidades', '/producto', '/entidad'];

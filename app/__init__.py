@@ -215,6 +215,8 @@ def create_app():
     app.register_blueprint(stock_bp)
     from app.routes.empleado import opiniones_bp
     app.register_blueprint(opiniones_bp)
+    from app.routes.empleado import desperdicio_bp
+    app.register_blueprint(desperdicio_bp)
 
     # Rutas frontend
     @app.route('/')
