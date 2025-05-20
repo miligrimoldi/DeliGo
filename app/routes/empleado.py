@@ -273,6 +273,40 @@ def productos_desp_cero(id_servicio):
         for p in productos_validos
     ])
 
+@opiniones_bp.route('/admin/pedido/<int:id_pedido>/opiniones', methods=['GET'])
+@jwt_required()
+def opiniones_por_pedido(id_pedido):
+    pedido = Pedido.query.get_or_404(id_pedido)
+    detalles = DetallePedido.query.filter_by(id_pedido=id_pedido).all()
+    opiniones_productos = []
+
+    for d in detalles:
+        if d.producto:
+            for op in d.producto.opiniones:
+                if op.id_pedido == id_pedido:
+                    opiniones_productos.append({
+                        "producto": d.producto.nombre,
+                        "foto": d.producto.foto,
+                        "comentario": op.comentario,
+                        "puntaje": op.puntaje,
+                        "usuario": op.usuario.nombre,
+                        "fecha": op.fecha.strftime("%Y-%m-%d") if op.fecha else ""
+                    })
+
+    opinion_servicio = OpinionServicio.query.filter_by(id_pedido=id_pedido).first()
+
+    return jsonify({
+        "nombre_servicio": pedido.servicio.nombre,
+        "servicio": {
+            "comentario": opinion_servicio.comentario if opinion_servicio else None,
+            "puntaje": opinion_servicio.puntaje if opinion_servicio else None,
+            "usuario": opinion_servicio.usuario.nombre if opinion_servicio else None,
+            "fecha": opinion_servicio.fecha.strftime("%Y-%m-%d") if opinion_servicio and opinion_servicio.fecha else None
+        } if opinion_servicio else None,
+        "productos": opiniones_productos
+    })
+
+
 
 
 

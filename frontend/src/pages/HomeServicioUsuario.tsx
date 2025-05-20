@@ -15,8 +15,11 @@ type Producto = {
     descripcion: string;
     precio_actual: number;
     foto: string;
-    disponible?: boolean;
     puntaje_promedio?: number;
+    es_desperdicio_cero?: boolean;
+    precio_oferta?: number;
+    cantidad_restante?: number;
+    tiempo_limite?: string | null;
 };
 
 type Servicio = {
@@ -322,22 +325,42 @@ const HomeServicioUsuario = () => {
                                 display: "flex", overflowX: "auto", gap: 10, paddingTop: 10
                             }}>
                                 {categorias.map((cat) => (
-                                    <div key={cat.id_categoria}
-                                         onClick={() => handleClickCategoria(cat.id_categoria)}
-                                         style={{
-                                             minWidth: 83, height: 132, backgroundColor: "#9AAA88",
-                                             borderRadius: 10, textAlign: "center", color: "#4B614C",
-                                             fontFamily: "Lato", fontWeight: 800, fontSize: 13,
-                                             display: "flex", flexDirection: "column", justifyContent: "center",
-                                             cursor: "pointer"
-                                         }}
+                                    <div
+                                        key={cat.id_categoria}
+                                        onClick={() => handleClickCategoria(cat.id_categoria)}
+                                        style={{
+                                            minWidth: 83,
+                                            height: 132,
+                                            backgroundColor: "#9AAA88",
+                                            borderRadius: 10,
+                                            textAlign: "center",
+                                            color: "#4B614C",
+                                            fontFamily: "Lato",
+                                            fontWeight: 800,
+                                            fontSize: 13,
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            justifyContent: "center",
+                                            cursor: "pointer",
+                                            transition: "background-color 0.3s ease",
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.backgroundColor = "#7F8F6E"; // verde más oscuro al pasar
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.backgroundColor = "#9AAA88"; // color original al salir
+                                        }}
                                     >
                                         <img
                                             src={obtenerImagenCategoria(cat.nombre)}
                                             style={{
-                                                width: 59, height: 66, objectFit: "contain",
-                                                borderRadius: "50%", backgroundColor: "#B1C89A",
-                                                margin: "0 auto 8px", padding: 6
+                                                width: 59,
+                                                height: 66,
+                                                objectFit: "contain",
+                                                borderRadius: "50%",
+                                                backgroundColor: "#B1C89A",
+                                                margin: "0 auto 8px",
+                                                padding: 6
                                             }}
                                         />
                                         {cat.nombre.toUpperCase()}
@@ -363,6 +386,30 @@ const HomeServicioUsuario = () => {
                                     <div style={{ padding: 15, flex: 1 }}>
                                         <h4 style={{ textAlign: "center", fontSize: 20, fontFamily: "Fredoka One", color: "black" }}>{producto.nombre.toUpperCase()}</h4>
                                         <p style={{ textAlign: "center", color: "black", fontSize: 17, fontFamily: "Montserrat" }}>{producto.descripcion}</p>
+                                        {producto.es_desperdicio_cero && (
+                                            <div style={{ textAlign: "center", marginTop: 6 }}>
+    <span style={{
+        backgroundColor: "#EF574B",
+        color: "white",
+        padding: "2px 8px",
+        borderRadius: 6,
+        fontSize: 13,
+        fontWeight: 600,
+        fontFamily: "Poppins"
+    }}>
+      ¡OFERTA!
+    </span>
+                                                <div style={{ marginTop: 4, fontFamily: "Poppins", fontSize: 14 }}>
+      <span style={{ textDecoration: "line-through", color: "#888", marginRight: 8 }}>
+        ${producto.precio_actual.toFixed(2)}
+      </span>
+                                                    <span style={{ color: "#4B614C", fontWeight: 600 }}>
+        ${producto.precio_oferta?.toFixed(2)}
+      </span>
+                                                </div>
+                                            </div>
+                                        )}
+
                                         <div style={{ textAlign: "center", marginTop: 10 }}>
                                             <button onClick={() => navigate(`/producto/${producto.id_producto}`)} style={{ backgroundColor: "#4B614C", color: "white", fontSize: 17, fontFamily: "Montserrat", fontWeight: 700, borderRadius: 30, padding: "10px 30px", border: "none" }}>
                                                 Ver

@@ -17,7 +17,7 @@ class ProductoServicio(db.Model):
     es_desperdicio_cero = db.Column(db.Boolean, default=False)
     precio_oferta = db.Column(db.Float, nullable=True)
     cantidad_restante = db.Column(db.Integer, default=0)
-    tiempo_limite = db.Column(db.Time, nullable=True)
+    tiempo_limite = db.Column(db.DateTime, nullable=True)
 
     servicio = db.relationship('Servicio', backref='productos')
     categoria = db.relationship('Categoria', backref='productos')

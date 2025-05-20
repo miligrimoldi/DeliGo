@@ -8,6 +8,8 @@ export type ItemCarrito = {
     foto: string;
     id_servicio: number;
     nombre_servicio: string;
+    precio_original?: number;
+    tiempo_limite?: string | null;
 };
 
 type CarritoPorServicio = {

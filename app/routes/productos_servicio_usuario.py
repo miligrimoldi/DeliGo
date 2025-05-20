@@ -27,11 +27,10 @@ def obtener_producto(id_producto):
         "puntaje_promedio": producto.puntaje_promedio,
         "cantidad_opiniones": producto.cantidad_opiniones,
         "ingredientes": ingredientes_serializados,
-        "disponible": producto.disponible,
         "es_desperdicio_cero": bool(producto.es_desperdicio_cero),
         "precio_oferta": producto.precio_oferta,
         "cantidad_restante": producto.cantidad_restante,
-        "tiempo_limite": producto.tiempo_limite.isoformat() if producto.tiempo_limite else None
+        "tiempo_limite": producto.tiempo_limite.strftime("%Y-%m-%d %H:%M") if producto.tiempo_limite else None
     })
 
 @producto_servicio_usuario_bp.route('/api/servicio/<int:id_servicio>/categoria/<int:id_categoria>/productos', methods=['GET'])
@@ -53,7 +52,7 @@ def productos_por_categoria_usuario(id_servicio, id_categoria):
             "es_desperdicio_cero": bool(p.es_desperdicio_cero),
             "precio_oferta": p.precio_oferta,
             "cantidad_restante": p.cantidad_restante,
-            "tiempo_limite": p.tiempo_limite.isoformat() if p.tiempo_limite else None
+            "tiempo_limite": p.tiempo_limite.strftime("%Y-%m-%d %H:%M") if p.tiempo_limite else None
         } for p in productos
     ])
 
@@ -72,7 +71,7 @@ def productos_desperdicio(id_servicio):
             "precio_original": p.precio_actual,
             "precio_oferta": p.precio_oferta,
             "cantidad_restante": p.cantidad_restante,
-            "tiempo_limite": p.tiempo_limite.strftime("%H:%M") if p.tiempo_limite else None
+            "tiempo_limite": p.tiempo_limite.strftime("%Y-%m-%d %H:%M") if p.tiempo_limite else None
         }
         for p in productos
     ])

@@ -43,13 +43,17 @@ const DesperdicioCero = () => {
             fetch(`/servicio/${id_servicio}/desperdicio`)
                 .then(res => res.json())
                 .then(data => {
+                    console.log("Productos desperdicio crudos:", data);
                     const ahora = new Date();
-                    const filtrados = data.filter((p: ProductoDesperdicio) => {
-                        if (!p.tiempo_limite) return true;
 
-                        const [hora, minuto] = p.tiempo_limite.split(":");
-                        const vencimiento = new Date();
-                        vencimiento.setHours(Number(hora), Number(minuto), 0, 0);
+                    const filtrados = data.filter((p: ProductoDesperdicio) => {
+                        if (!p.tiempo_limite) return p.cantidad_restante > 0;
+
+                        const vencimiento = new Date(p.tiempo_limite);
+                        if (isNaN(vencimiento.getTime())) {
+                            console.warn("Fecha inválida en producto:", p);
+                            return false;
+                        }
 
                         return ahora <= vencimiento && p.cantidad_restante > 0;
                     });
@@ -159,9 +163,7 @@ const DesperdicioCero = () => {
                                             const detalle = await res.json();
 
                                             const ahora = new Date();
-                                            const [hora, minuto] = detalle.tiempo_limite?.split(":") || [];
-                                            const vencimiento = new Date();
-                                            vencimiento.setHours(Number(hora), Number(minuto), 0, 0);
+                                            const vencimiento = new Date(detalle.tiempo_limite);
 
                                             if (!detalle.es_desperdicio_cero || ahora > vencimiento || detalle.cantidad_restante <= 0) {
                                                 alert("Este producto ya no está disponible con descuento.");
@@ -194,7 +196,7 @@ const DesperdicioCero = () => {
                                         cursor: "pointer",
                                     }}
                                 >
-                                    Agregar al carrito
+                                    Añadir al carrito
                                 </button>
                             </div>
                         </div>

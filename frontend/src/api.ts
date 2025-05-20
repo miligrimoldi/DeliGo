@@ -171,7 +171,6 @@ export type Producto = {
     precio_oferta?: number;
     cantidad_restante?: number;
     tiempo_limite?: string | null;
-
 }
 
 export const fetchProductosPorCategoria = async (id_servicio: number, id_categoria: number): Promise<Producto[]> => {
