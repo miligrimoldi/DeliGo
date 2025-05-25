@@ -6,6 +6,7 @@ from werkzeug.security import generate_password_hash
 from app import db
 from app.models import User
 from app.models.usuario_empleado import UsuarioEmpleado
+from app.models.producto_servicio import ProductoServicio
 
 empleados_bp = Blueprint('empleados', __name__)
 @empleados_bp.route('/servicios/<int:id_servicio>/empleados', methods=['POST'])
@@ -83,3 +84,26 @@ def listar_empleados(id_servicio):
             'esAdmin': e.esAdmin
         } for e in empleados
     ])
+
+@empleados_bp.route("/producto/<int:id_producto>/desperdicio", methods=["POST"])
+@jwt_required()
+def marcar_como_desperdicio(id_producto):
+    data = request.json
+    producto = ProductoServicio.query.get_or_404(id_producto)
+    producto.es_desperdicio_cero = True
+    producto.precio_oferta = data["precio_oferta"]
+    producto.cantidad_restante = data.get("cantidad_restante", 1)
+    producto.tiempo_limite = data.get("tiempo_limite")  # string tipo "21:00"
+    db.session.commit()
+    return jsonify({"message": "Producto marcado como Desperdicio Cero"})
+
+@empleados_bp.route("/admin/producto/<int:id_producto>/desperdicio", methods=["DELETE"])
+@jwt_required()
+def quitar_desperdicio_cero(id_producto):
+    producto = ProductoServicio.query.get_or_404(id_producto)
+    producto.es_desperdicio_cero = False
+    producto.precio_oferta = None
+    producto.cantidad_restante = None
+    producto.tiempo_limite = None
+    db.session.commit()
+    return jsonify({"message": "Producto desmarcado de Desperdicio Cero"})

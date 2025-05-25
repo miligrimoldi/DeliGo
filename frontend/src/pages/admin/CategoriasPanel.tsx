@@ -6,9 +6,13 @@ import {
     Producto,
     Categoria,
     eliminarProducto,
-    modificarProducto, asociarIngredientesAProducto, desasociarIngredientesDeProducto, obtenerIngredientesDeProducto,
+    modificarProducto,
+    asociarIngredientesAProducto,
+    desasociarIngredientesDeProducto,
+    obtenerIngredientesDeProducto,
 } from "../../api.ts";
 import "../../css/CategoriasPanel.css";
+import ModalDesperdicioCero from "./ModalDesperdicioCero";
 
 type Props = {
     id_servicio: number;
@@ -27,6 +31,7 @@ type IngredienteOriginal = {
 
 
 const CategoriasPanel = ({ id_servicio }: Props) => {
+    const user = JSON.parse(localStorage.getItem("user") || "null");
     const [categorias, setCategorias] = useState<Categoria[]>([]);
     const [productos, setProductos] = useState<Producto[]>([]);
     const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<Categoria | null>(null);
@@ -38,6 +43,7 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
     const [ingredientesSeleccionados, setIngredientesSeleccionados] = useState<IngredienteSeleccionado[]>([]);
     const [nuevoIngrediente, setNuevoIngrediente] = useState("");
     const [ingredientesOriginales, setIngredientesOriginales] = useState<IngredienteOriginal[]>([]);
+    const [productoDesperdicio, setProductoDesperdicio] = useState<Producto | null>(null);
 
 
     const [formData, setFormData] = useState({
@@ -271,7 +277,9 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
                                 <li key={producto.id_producto} className="item-producto">
                                     <strong>{producto.nombre}</strong> - ${producto.precio_actual.toFixed(2)}
                                     <div className="botones-acciones">
-                                        <button className="btn-accion eliminar" onClick={() => handleEliminarProducto(producto.id_producto)}>Eliminar</button>
+                                        <button className="btn-accion eliminar"
+                                                onClick={() => handleEliminarProducto(producto.id_producto)}>Eliminar
+                                        </button>
                                         <button
                                             className="btn-accion editar"
                                             onClick={async () => {
@@ -296,18 +304,37 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
                                                 }
 
                                                 setMostrarFormulario(true);
-                                            }}
-                                        >
-                                            Editar
+                                            }}>Editar</button>
+                                        <button className="btn-accion desperdicio" onClick={() => setProductoDesperdicio(producto)}>
+                                            {producto.es_desperdicio_cero === true ? "Editar Desperdicio" : "Desperdicio Cero"}
                                         </button>
-                                    </div>
+                                </div>
                                 </li>
-                            ))}
+                                ))}
                         </ul>
                     )}
-                    <button className="btn-agregar" onClick={() => setMostrarFormulario((prev) => !prev)}>
+
+                    {productoDesperdicio && user?.esAdmin && (
+                        <ModalDesperdicioCero
+                            idProducto={productoDesperdicio.id_producto}
+                            precioActual={productoDesperdicio.precio_actual}
+                            yaMarcado={productoDesperdicio.es_desperdicio_cero === true}
+                            precioOfertaInicial={productoDesperdicio.precio_oferta ?? undefined}
+                            cantidadRestanteInicial={productoDesperdicio.cantidad_restante ?? undefined}
+                            tiempoLimiteInicial={productoDesperdicio.tiempo_limite ?? undefined}
+                            onClose={() => setProductoDesperdicio(null)}
+                            onSuccess={async () => {
+                                if (categoriaSeleccionada) {
+                                    const actualizados = await fetchProductosPorCategoria(id_servicio, categoriaSeleccionada.id_categoria);
+                                    setProductos(actualizados);
+                                }
+                            }}
+                        />
+                    )}
+
+                    {user?.esAdmin && <button className="btn-agregar" onClick={() => setMostrarFormulario((prev) => !prev)}>
                         {mostrarFormulario ? "Cancelar" : "Cargar nuevo producto"}
-                    </button>
+                    </button>}
 
                     {mostrarFormulario && (
                         <form className="formulario-producto" onSubmit={handleSubmit} style={{ marginTop: 20, padding: 15, backgroundColor: "white", borderRadius: 10, boxShadow: "0 1px 5px rgba(0,0,0,0.1)" }}>

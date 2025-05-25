@@ -167,6 +167,10 @@ export type Producto = {
     puntaje_promedio?: number;
     cantidad_opiniones?: number;
     disponible?: boolean;
+    es_desperdicio_cero?: boolean;
+    precio_oferta?: number;
+    cantidad_restante?: number;
+    tiempo_limite?: string | null;
 }
 
 export const fetchProductosPorCategoria = async (id_servicio: number, id_categoria: number): Promise<Producto[]> => {
@@ -388,6 +392,24 @@ export const getStockPorServicio = async (id_servicio: number): Promise<StockIng
     const response = await api.get(`/stock/${id_servicio}`);
     return response.data;
 };
+
+export const fetchProductosPorCategoriaPublica = async (id_servicio: number, id_categoria: number): Promise<Producto[]> => {
+    const response = await api.get(`/api/servicio/${id_servicio}/categoria/${id_categoria}/productos`);
+    return response.data;
+};
+
+export const marcarComoDesperdicioCero = async (
+    id_producto: number,
+    data: { precio_oferta: number; cantidad_restante: number; tiempo_limite?: string | null }
+) => {
+    const res = await api.post(`/producto/${id_producto}/desperdicio`, data);
+    return res.data;
+};
+
+export const desmarcarComoDesperdicioCero = async (id_producto: number): Promise<void> => {
+    await api.delete(`/admin/producto/${id_producto}/desperdicio`);
+};
+
 
 
 

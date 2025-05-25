@@ -21,6 +21,10 @@ type Producto = {
     cantidad_opiniones?: number;
     nombre_servicio?: string;
     ingredientes?: Ingrediente[];
+    es_desperdicio_cero?: boolean;
+    precio_oferta?: number;
+    cantidad_restante?: number;
+    tiempo_limite?: string | null;
 };
 
 type Ingrediente = {
@@ -152,9 +156,29 @@ const ProductoDetalle = () => {
                         marginBottom: 8
                     }}>
                         <div>
-                            <div style={{ color: '#769B7B', fontSize: 18, fontFamily: 'Poppins', fontWeight: 600 }}>
-                                ${producto.precio_actual.toFixed(2)}
-                            </div>
+                            {producto.es_desperdicio_cero ? (
+                                <div style={{ fontFamily: 'Poppins' }}>
+                                    <div style={{
+                                        color: '#EF574B',
+                                        fontSize: 18,
+                                        fontWeight: 700,
+                                    }}>
+                                        Oferta: ${producto.precio_oferta?.toFixed(2)}
+                                    </div>
+                                    <div style={{
+                                        textDecoration: 'line-through',
+                                        color: '#888',
+                                        fontSize: 15,
+                                        fontWeight: 500
+                                    }}>
+                                        ${producto.precio_actual.toFixed(2)}
+                                    </div>
+                                </div>
+                            ) : (
+                                <div style={{ color: '#769B7B', fontSize: 18, fontFamily: 'Poppins', fontWeight: 600 }}>
+                                    ${producto.precio_actual.toFixed(2)}
+                                </div>
+                            )}
                             <div style={{ fontSize: 20, fontFamily: 'Poppins', fontWeight: 600 }}>
                                 {producto.nombre}
                             </div>
@@ -232,10 +256,16 @@ const ProductoDetalle = () => {
 
                     <button
                         onClick={() => {
+                            const precioFinal = producto.es_desperdicio_cero && producto.precio_oferta !== undefined
+                                ? producto.precio_oferta
+                                : producto.precio_actual;
+
                             agregarItem(producto.id_servicio, {
                                 id_producto: producto.id_producto,
                                 nombre: producto.nombre,
-                                precio_actual: producto.precio_actual,
+                                precio_actual: precioFinal,
+                                precio_original: producto.precio_actual,
+                                tiempo_limite: producto.tiempo_limite,
                                 cantidad,
                                 foto: producto.foto,
                                 id_servicio: producto.id_servicio,

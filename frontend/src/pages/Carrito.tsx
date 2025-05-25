@@ -120,9 +120,35 @@ const Carrito = () => {
                                  style={{ width: 68, height: 68, borderRadius: '50%' }} />
                             <div style={{ flex: 1 }}>
                                 <div style={{ fontWeight: 600, fontFamily: 'Poppins' }}>{item.nombre}</div>
-                                <div style={{ fontSize: 12, color: '#6CC51D', fontWeight: 500 }}>
-                                    ${item.precio_actual.toFixed(2)} x {item.cantidad}
-                                </div>
+                                {item.precio_original && item.precio_original > item.precio_actual ? (
+                                    <div>
+                                        <div style={{ fontSize: 12, color: '#EF574B', fontWeight: 600 }}>
+                                            Oferta: ${item.precio_actual.toFixed(2)} x {item.cantidad}
+                                        </div>
+                                        <div style={{
+                                            fontSize: 11,
+                                            color: '#888',
+                                            textDecoration: 'line-through',
+                                            marginTop: 2
+                                        }}>
+                                            ${item.precio_original.toFixed(2)} x {item.cantidad}
+                                        </div>
+                                        {item.tiempo_limite && (
+                                            <div style={{
+                                                fontSize: 10,
+                                                color: '#4B614C',
+                                                marginTop: 4,
+                                                fontStyle: 'italic'
+                                            }}>
+                                                Válido hasta {new Date(item.tiempo_limite).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div style={{ fontSize: 12, color: '#6CC51D', fontWeight: 500 }}>
+                                        ${item.precio_actual.toFixed(2)} x {item.cantidad}
+                                    </div>
+                                )}
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
                                     <button
                                         onClick={() => modificarCantidad(item.id_servicio, item.id_producto, item.cantidad - 1)}
