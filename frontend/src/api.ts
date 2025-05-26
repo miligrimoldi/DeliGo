@@ -410,6 +410,16 @@ export const desmarcarComoDesperdicioCero = async (id_producto: number): Promise
     await api.delete(`/admin/producto/${id_producto}/desperdicio`);
 };
 
+export const getPedidoById = async (id_pedido: number) => {
+    try {
+        const response = await api.get(`/admin/${id_pedido}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error al obtener el pedido:", error);
+        throw error;
+    }
+}
+
 
 
 

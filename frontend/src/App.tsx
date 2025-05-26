@@ -22,6 +22,7 @@ import Opinar from "./pages/Opinar.tsx";
 import StockPage from "./pages/admin/StockPage.tsx";
 import Opiniones from "./pages/admin/Opiniones.tsx";
 import DesperdicioCero from "./pages/DesperdicioCero.tsx";
+import ComprobantePedido from "./pages/admin/ComprobantePedido.tsx";
 
 function App() {
     useAuthRedirect();
@@ -88,7 +89,7 @@ function App() {
                     }
                 />
                 <Route
-                    path="/admin/comprobante:id_pedido"
+                    path="/admin/comprobante/:id_pedido"
                     element={
                         <ProtectedRoute onlyAdmin={true}>
                             <ComprobantePedido/>
