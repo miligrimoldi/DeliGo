@@ -93,7 +93,7 @@ def marcar_como_desperdicio(id_producto):
     producto.es_desperdicio_cero = True
     producto.precio_oferta = data["precio_oferta"]
     producto.cantidad_restante = data.get("cantidad_restante", 1)
-    producto.tiempo_limite = data.get("tiempo_limite")  # string tipo "21:00"
+    producto.tiempo_limite = data.get("tiempo_limite")
     db.session.commit()
     return jsonify({"message": "Producto marcado como Desperdicio Cero"})
 

@@ -69,7 +69,7 @@ def productos_servicio(id_servicio, id_categoria):
         "es_desperdicio_cero": p.es_desperdicio_cero,
         "precio_oferta": p.precio_oferta,
         "cantidad_restante": p.cantidad_restante,
-        "tiempo_limite": p.tiempo_limite.strftime("%H:%M") if p.tiempo_limite else None
+        "tiempo_limite": p.tiempo_limite.isoformat() if p.tiempo_limite else None
     } for p in productos])
 
 
@@ -268,7 +268,7 @@ def productos_desp_cero(id_servicio):
             "precio_original": p.precio_actual,
             "precio_oferta": p.precio_oferta,
             "cantidad_restante": p.cantidad_restante,
-            "tiempo_limite": p.tiempo_limite.strftime("%H:%M") if p.tiempo_limite else None
+            "tiempo_limite": p.tiempo_limite.isoformat() if p.tiempo_limite else None
         }
         for p in productos_validos
     ])

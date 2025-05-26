@@ -40,7 +40,12 @@ const ModalDesperdicioCero = ({
                 setCantidadRestante(cantidadRestanteInicial);
             }
             if (tiempoLimiteInicial) {
-                setTiempoLimite(tiempoLimiteInicial);
+                const date = new Date(tiempoLimiteInicial);
+                if (!isNaN(date.getTime())) {
+                    const tzOffset = date.getTimezoneOffset() * 60000;
+                    const localISOTime = new Date(date.getTime() - tzOffset).toISOString().slice(0, 16);
+                    setTiempoLimite(localISOTime);
+                }
             }
         }
     }, []);
