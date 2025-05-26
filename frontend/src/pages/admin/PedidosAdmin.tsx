@@ -212,6 +212,23 @@ const PedidosAdmin = () => {
                     )}
                     {p.estado === "entregado" && (
                         <>
+                            <button
+                                onClick={() => navigate(`/admin/comprobante/${p.id_pedido}`)}
+                                style={{
+                                    backgroundColor: "#2f6f3f",
+                                    color: "white",
+                                    padding: "8px 12px",
+                                    border: "none",
+                                    borderRadius: "6px",
+                                    cursor: "pointer",
+                                    fontFamily: "Montserrat, sans-serif",
+                                    fontSize: "14px",
+                                    boxShadow: sombraSutil,
+                                    marginTop: "10px"
+                                }}
+                            >
+                                Ver comprobante
+                            </button>
                             <button onClick={() => toggleOpiniones(p.id_pedido)} style={{ marginTop: 10 }}>Ver opiniones</button>
                             {visibles[p.id_pedido] && opinionesPorPedido[p.id_pedido] && (
                                 <div style={{ marginTop: 10, backgroundColor: "#f9f9f9", padding: 12, borderRadius: 6 }}>
