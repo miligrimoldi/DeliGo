@@ -213,7 +213,7 @@ const PedidosAdmin = () => {
                     {p.estado === "entregado" && (
                         <>
                             <button
-                                onClick={() => navigate(`/admin/comprobante/${p.id_pedido}`)}
+                                onClick={() => navigate(`/admin/${id_servicio}/comprobante/${p.id_pedido}`)}
                                 style={{
                                     backgroundColor: "#2f6f3f",
                                     color: "white",

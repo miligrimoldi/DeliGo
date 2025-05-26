@@ -1,10 +1,11 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getPedidoById } from "../../api.ts";
 
 const ComprobantePedido = () => {
-    const { id_pedido } = useParams();
+    const { id_pedido, id_servicio } = useParams();
     const [pedido, setPedido] = useState<any>(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const obtenerPedido = async () => {
@@ -35,7 +36,11 @@ const ComprobantePedido = () => {
         }}>
             <h2 style={{ color: "#2f6f3f", textAlign: "center", marginBottom: "20px" }}>Comprobante de Pedido</h2>
             <p><strong>Número de Pedido:</strong> {pedido.id_pedido}</p>
-            <p><strong>Fecha:</strong> {new Date(pedido.fecha).toLocaleString()}</p>
+            <p><strong>Fecha:</strong> {
+                new Date(pedido.fecha).toLocaleString("es-AR", {
+                    timeZone: "America/Argentina/Buenos_Aires"
+                })
+            }</p>
             <p><strong>Usuario:</strong> {pedido.email_usuario}</p>
             <p><strong>Entidad:</strong> {pedido.entidad.nombre}</p>
             <p><strong>Servicio:</strong> {pedido.servicio.nombre}</p>
@@ -59,6 +64,27 @@ const ComprobantePedido = () => {
             </ul>
 
             <h3 style={{ marginTop: "20px", color: "#2f6f3f" }}>Total: ${parseFloat(pedido.total).toFixed(2)}</h3>
+
+            <div style={{ textAlign: "center", marginTop: "30px" }}>
+                <button
+                    onClick={() => navigate(`/empleado/${id_servicio}/pedidos`)}
+                    style={{
+                        backgroundColor: "#2f6f3f",
+                        color: "white",
+                        border: "none",
+                        padding: "10px 20px",
+                        borderRadius: "8px",
+                        fontSize: "16px",
+                        cursor: "pointer",
+                        boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+                        transition: "background-color 0.3s",
+                    }}
+                    onMouseOver={e => (e.currentTarget.style.backgroundColor = "#245733")}
+                    onMouseOut={e => (e.currentTarget.style.backgroundColor = "#2f6f3f")}
+                >
+                    Volver a Pedidos
+                </button>
+            </div>
         </div>
     );
 };

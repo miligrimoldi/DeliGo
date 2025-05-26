@@ -89,7 +89,7 @@ function App() {
                     }
                 />
                 <Route
-                    path="/admin/comprobante/:id_pedido"
+                    path="/admin/:id_servicio/comprobante/:id_pedido"
                     element={
                         <ProtectedRoute onlyAdmin={true}>
                             <ComprobantePedido/>
