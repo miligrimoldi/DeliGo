@@ -156,35 +156,55 @@ const MisPedidosUsuario = () => {
             </div>
 
             {p.estado === "entregado" && (
-                opinados[p.id] ? (
-                    <div style={{
-                        marginTop: 10,
-                        textAlign: "left",
-                        color: "gray",
-                        fontFamily: "Poppins",
-                        fontSize: 14,
-                    }}>
-                        Ya opinaste
-                    </div>
-                ) : (
+                <div style={{ marginTop: 10 }}>
+                    {opinados[p.id] ? (
+                        <div
+                            style={{
+                                textAlign: "left",
+                                color: "gray",
+                                fontFamily: "Poppins",
+                                fontSize: 14,
+                            }}
+                        >
+                            Ya opinaste
+                        </div>
+                    ) : (
+                        <div
+                            style={{
+                                textAlign: "left",
+                                color: "#9AAA88",
+                                fontFamily: "Poppins",
+                                fontSize: 14,
+                                cursor: "pointer",
+                                textDecoration: "none",
+                                marginBottom: 4,
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
+                            onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
+                            onClick={() => navigate(`/opinar/${p.id}`)}
+                        >
+                            Opinar
+                        </div>
+                    )}
+
                     <div
                         style={{
-                            marginTop: 10,
                             textAlign: "left",
-                            color: "#9AAA88",
+                            color: "#4A4A4A",
                             fontFamily: "Poppins",
                             fontSize: 14,
                             cursor: "pointer",
                             textDecoration: "none",
                         }}
-                        onMouseEnter={e => e.currentTarget.style.textDecoration = "underline"}
-                        onMouseLeave={e => e.currentTarget.style.textDecoration = "none"}
-                        onClick={() => navigate(`/opinar/${p.id}`)}
+                        onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
+                        onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
+                        onClick={() => navigate(`/comprobante/${p.id}`)}
                     >
-                        Opinar
+                        Ver comprobante
                     </div>
-                )
+                </div>
             )}
+
 
             {p.estado === "en_preparacion" && p.tiempo_estimado_minutos && (
                 <div style={{ marginTop: 10, fontSize: 14 }}>

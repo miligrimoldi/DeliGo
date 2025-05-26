@@ -18,7 +18,7 @@ def get_stock(id_servicio):
         {
             'id_ingrediente': ingrediente.id_ingrediente,
             'nombre': ingrediente.nombre,
-            'disponible': stock.disponibilidad
+            'cantidad': stock.cantidad
         }
         for stock, ingrediente in stock_items
     ]
@@ -29,14 +29,14 @@ def get_stock(id_servicio):
 @jwt_required()
 def actualizar_stock(id_servicio, id_ingrediente):
     data = request.get_json()
-    disponible = data.get('disponible')
+    nueva_cantidad = data.get('cantidad')
 
 
     stock_item = Stock.query.filter_by(id_servicio=id_servicio, id_ingrediente=id_ingrediente).first()
     if not stock_item:
         return jsonify({'error': 'Ingrediente no asociado al servicio'}), 404
 
-    stock_item.disponibilidad = disponible
+    stock_item.cantidad = nueva_cantidad
 
     db.session.commit()
 

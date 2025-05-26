@@ -85,8 +85,7 @@ def nuevo_producto(id_servicio, id_categoria):
         descripcion=data.get("descripcion"),
         informacion_nutricional=data.get("informacion_nutricional"),
         precio_actual=data.get("precio_actual"),
-        foto=data.get("foto"),
-        disponible = True
+        foto=data.get("foto")
     )
 
     db.session.add(nuevo_producto)

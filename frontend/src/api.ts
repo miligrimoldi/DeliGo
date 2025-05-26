@@ -206,9 +206,20 @@ export async function fetchProductoPorId(id: number) {
 }
 
 export const realizarPedido = async (items: ItemCarrito[]) => {
-    const response = await api.post('/api/pedidos', { items });
-    return response.data;
+    try {
+        const response = await api.post('/api/pedidos', { items });
+        return response.data;
+    } catch (error: any) {
+        // Verificamos si hay un mensaje en la respuesta del backend
+        if (error.response && error.response.data && error.response.data.message) {
+            throw new Error(error.response.data.message);
+        } else {
+            // Si no hay mensaje específico, lanzamos un error genérico
+            throw new Error('Error al realizar el pedido');
+        }
+    }
 };
+
 
 export type DetallePedido = {
     id_detalle: number;
@@ -357,35 +368,39 @@ export const desasociarIngredientesDeProducto = async (
 };
 
 
-// Logica de manejo de stock
-export const getStock = async (id_servicio: number) => {
-    try {
-        const response = await api.get(`/stock/${id_servicio}`);
-        return response.data.map((item: any) => ({
-            idIngrediente: item.id_ingrediente,
-            nombre: item.nombre,
-            disponible: item.disponible,
-        }));
-    } catch (error) {
-        console.error("Error al obtener el stock:", error);
-        throw error;
-    }
-};
-
 
 export const updateStockDisponibilidad = async (
     id_servicio: number,
     id_ingrediente: number,
-    disponible: number
+    cantidad: number
 ) => {
     const response = await api.put(`stock/${id_servicio}/${id_ingrediente}`, {
-        disponible
+        cantidad
     });
     return response.data;
 };
 
-export const obtenerIngredientesDeProducto = async (id_producto: number) => {
+export const obtenerIngredientesDeProducto = async (id_producto: number): Promise<IngredienteNecesario[]> => {
     const response = await api.get(`/productos/${id_producto}/ingredientes`);
+    return response.data.ingredientes_necesarios;
+};
+
+export type StockIngrediente = {
+    id_ingrediente: number;
+    nombre: string;
+    cantidad: number;
+
+}
+
+
+type IngredienteNecesario = {
+    id_ingrediente: number;
+    nombre: string;
+    cantidad: number;
+}
+
+export const getStockPorServicio = async (id_servicio: number): Promise<StockIngrediente[]> => {
+    const response = await api.get(`/stock/${id_servicio}`);
     return response.data;
 };
 
@@ -405,6 +420,17 @@ export const marcarComoDesperdicioCero = async (
 export const desmarcarComoDesperdicioCero = async (id_producto: number): Promise<void> => {
     await api.delete(`/admin/producto/${id_producto}/desperdicio`);
 };
+
+export const getPedidoById = async (id_pedido: number) => {
+    try {
+        const response = await api.get(`/admin/${id_pedido}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error al obtener el pedido:", error);
+        throw error;
+    }
+}
+
 
 
 

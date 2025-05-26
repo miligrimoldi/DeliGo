@@ -1,8 +1,9 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useCarrito } from '../pages/CarritoContext';
 import { FaArrowLeft, FaTrash } from 'react-icons/fa';
 import { realizarPedido } from '../api';
+import axios from 'axios';
 
 const Carrito = () => {
     const { id_servicio } = useParams<{ id_servicio: string }>();
@@ -16,6 +17,7 @@ const Carrito = () => {
     } = useCarrito();
     const navigate = useNavigate();
     const from = localStorage.getItem('lastFromCarrito') || '/entidades';
+    const [errorMensaje, setErrorMensaje] = useState('');
 
     useEffect(() => {
         if (id_servicio) {
@@ -25,13 +27,22 @@ const Carrito = () => {
 
     const handleRealizarPedido = async () => {
         try {
+            setErrorMensaje('');
             await realizarPedido(items);
             if (id_servicio) vaciarCarrito(Number(id_servicio));
             navigate("/mis-pedidos");
-        } catch (error) {
+        } catch (error: unknown) {
             console.error("Error al realizar el pedido:", error);
+
+            if (axios.isAxiosError(error)) {
+                const mensaje = error.response?.data?.message;
+                setErrorMensaje(mensaje || 'Error al realizar el pedido');
+            } else {
+                setErrorMensaje('Ocurrió un error al realizar el pedido');
+            }
         }
     };
+
 
     if (items.length === 0) {
         return (
@@ -182,6 +193,21 @@ const Carrito = () => {
                         <span style={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: 18 }}>Total</span>
                         <span style={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: 18 }}>${total.toFixed(2)}</span>
                     </div>
+
+                    {errorMensaje && (
+                        <div style={{
+                            marginTop: 16,
+                            backgroundColor: '#FFE5E5',
+                            color: '#D8000C',
+                            padding: '10px 15px',
+                            borderRadius: 5,
+                            fontFamily: 'Poppins',
+                            fontSize: 14,
+                            fontWeight: 500
+                        }}>
+                            {errorMensaje}
+                        </div>
+                    )}
 
                     <button
                         onClick={handleRealizarPedido}

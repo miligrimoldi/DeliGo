@@ -29,6 +29,7 @@ type IngredienteOriginal = {
     cantidad: number;
 }
 
+
 const CategoriasPanel = ({ id_servicio }: Props) => {
     const user = JSON.parse(localStorage.getItem("user") || "null");
     const [categorias, setCategorias] = useState<Categoria[]>([]);
@@ -293,8 +294,8 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
                                                 try {
                                                     const data = await obtenerIngredientesDeProducto(producto.id_producto);
 
-                                                    setIngredientesOriginales(data.ingredientes_necesarios);
-                                                    setIngredientesSeleccionados(data.ingredientes_necesarios.map((ing: any) => ({
+                                                    setIngredientesOriginales(data);
+                                                    setIngredientesSeleccionados(data.map((ing: any) => ({
                                                         nombre: ing.nombre,
                                                         cantidad: ing.cantidad
                                                     })));

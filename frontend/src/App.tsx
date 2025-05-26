@@ -22,6 +22,8 @@ import Opinar from "./pages/Opinar.tsx";
 import StockPage from "./pages/admin/StockPage.tsx";
 import Opiniones from "./pages/admin/Opiniones.tsx";
 import DesperdicioCero from "./pages/DesperdicioCero.tsx";
+import ComprobantePedido from "./pages/admin/ComprobantePedido.tsx";
+import ComprobanteUsuarioPedido from "./pages/ComprobanteUsuarioPedido.tsx";
 
 function App() {
     useAuthRedirect();
@@ -88,6 +90,14 @@ function App() {
                     }
                 />
                 <Route
+                    path="/admin/:id_servicio/comprobante/:id_pedido"
+                    element={
+                        <ProtectedRoute onlyAdmin={true}>
+                            <ComprobantePedido/>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
                     path="/admin/:id_servicio/opiniones"
                     element={
                         <ProtectedRoute onlyAdmin={true}>
@@ -116,6 +126,7 @@ function App() {
                     <Route path="/entidades" element={<EntidadesTabs/>}/>
                     <Route path="/home/:id_servicio" element={<HomeServicioUsuario/>}/>
                     <Route path="/carrito/:id_servicio" element={<Carrito />} />
+                    <Route path="/comprobante/:id" element={<ComprobanteUsuarioPedido/>}/>
                     <Route path="/mis-pedidos" element={<MisPedidosUsuario/>}/>
                     <Route path="/perfil" element={<MyProfilePage/>}/>
                     <Route path="/producto/:id_producto" element={<ProductoDetalle/>}/>

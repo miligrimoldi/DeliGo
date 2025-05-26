@@ -3,7 +3,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 from werkzeug.security import generate_password_hash
 
-from app import db
+from app import db, Pedido
 from app.models import User
 from app.models.usuario_empleado import UsuarioEmpleado
 from app.models.producto_servicio import ProductoServicio
@@ -107,3 +107,34 @@ def quitar_desperdicio_cero(id_producto):
     producto.tiempo_limite = None
     db.session.commit()
     return jsonify({"message": "Producto desmarcado de Desperdicio Cero"})
+
+# Agrego ruta para buscar un pedido por id (para comprobantes)
+
+@empleados_bp.route("/admin/<int:id_pedido>", methods=['GET'])
+@jwt_required()
+def obtener_pedido(id_pedido):
+    pedido = Pedido.query.get_or_404(id_pedido)
+    return jsonify({
+        "id_pedido": pedido.id_pedido,
+        "fecha": pedido.fecha.isoformat(),
+        "estado": pedido.estado,
+        "total": float(pedido.total),
+        "email_usuario": pedido.usuario.email,
+        "entidad": {
+            "nombre": pedido.entidad.nombre
+        },
+        "servicio": {
+            "nombre": pedido.servicio.nombre
+        },
+        "detalles": [
+            {
+                "id_detalle": d.id_detalle,
+                "cantidad": d.cantidad,
+                "producto": {
+                    "nombre": d.producto.nombre,
+                    "precio": float(d.producto.precio_actual)
+                }
+            }
+            for d in pedido.detalles
+        ]
+    })
