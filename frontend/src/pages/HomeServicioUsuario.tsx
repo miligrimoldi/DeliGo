@@ -1,25 +1,16 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import {getDetalleServicio, fetchProductosPorCategoriaPublica} from "../api.ts";
+import {
+    getDetalleServicio,
+    fetchProductosPorCategoria,
+    obtenerIngredientesDeProducto, getStockPorServicio, Producto
+} from "../api.ts";
 import { FaArrowLeft, FaFilter } from "react-icons/fa";
 import { useCarrito } from './CarritoContext.tsx';
 
 type Categoria = {
     id_categoria: number;
     nombre: string;
-};
-
-type Producto = {
-    id_producto: number;
-    nombre: string;
-    descripcion: string;
-    precio_actual: number;
-    foto: string;
-    puntaje_promedio?: number;
-    es_desperdicio_cero?: boolean;
-    precio_oferta?: number;
-    cantidad_restante?: number;
-    tiempo_limite?: string | null;
 };
 
 type Servicio = {
@@ -48,38 +39,54 @@ const HomeServicioUsuario = () => {
     const { items, setServicioActivo } = useCarrito();
     const totalArticulos = items.reduce((sum, item) => sum + item.cantidad, 0);
 
-
     useEffect(() => {
         if (!id_servicio) return;
 
-        // Función que obtiene los detalles del servicio y productos
         const fetchData = async () => {
-            const data = await getDetalleServicio(Number(id_servicio));
-            setServicio(data.servicio);
-            setEntidad(data.entidad);
-            setCategorias(data.categorias);
-            setServicioActivo(data.servicio.id_servicio);
+            try {
+                // 1. Obtener detalles del servicio
+                const data = await getDetalleServicio(Number(id_servicio));
+                setServicio(data.servicio);
+                setEntidad(data.entidad);
+                setCategorias(data.categorias);
+                setServicioActivo(data.servicio.id_servicio);
 
-            const productosMap: Record<number, Producto[]> = {};
-            await Promise.all(
-                data.categorias.map(async (cat: Categoria) => {
-                    const productos = await fetchProductosPorCategoriaPublica(Number(id_servicio), cat.id_categoria);
-                    productosMap[cat.id_categoria] = productos;
-                })
-            );
-            setProductosPorCategoria(productosMap);
+                // 2. Obtener stock
+                const stock = await getStockPorServicio(Number(id_servicio));
+
+                // 3. Obtener productos por categoría + su disponibilidad
+                const productosDisponiblesMap: Record<number, (Producto & { disponible: boolean })[]> = {};
+
+                for (const cat of data.categorias) {
+                    const productos = await fetchProductosPorCategoria(Number(id_servicio), cat.id_categoria);
+
+                    const productosConDisponibilidad = await Promise.all(
+                        productos.map(async (prod) => {
+                            const ingredientes_necesarios = await obtenerIngredientesDeProducto(prod.id_producto);
+                            const disponible = ingredientes_necesarios.every(ing => {
+                                const stockIng = stock.find(s => s.id_ingrediente === ing.id_ingrediente);
+                                return stockIng && stockIng.cantidad >= ing.cantidad;
+                            });
+                            return { ...prod, disponible };
+                        })
+                    );
+
+                    productosDisponiblesMap[cat.id_categoria] = productosConDisponibilidad;
+                }
+
+                setProductosPorCategoria(productosDisponiblesMap);
+            } catch (error) {
+                console.error("Error al cargar datos del servicio:", error);
+            }
         };
 
-        // Llamada inicial para obtener los datos
+        // Llamada inicial
         fetchData();
 
-        // Configurar el intervalo de 20 segundos
+        // Intervalo para actualizar cada 20 segundos
         const intervalId = setInterval(fetchData, 20000);
 
-        // Limpiar el intervalo cuando el componente se desmonte o id_servicio cambie
-        return () => {
-            clearInterval(intervalId);
-        };
+        return () => clearInterval(intervalId);
     }, [id_servicio]);
 
     const handleFiltroChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -378,46 +385,112 @@ const HomeServicioUsuario = () => {
                     return (
                         <div key={cat.id_categoria} ref={(el) => { refs.current[cat.id_categoria] = el; }} style={{ marginBottom: "2rem" }}>
                             <h3 style={{ color: "#4B614C", fontSize: 20, fontFamily: "Lato", fontWeight: 800, marginBottom: 10 }}>{cat.nombre}</h3>
-                            {productosFiltrados.map((producto) => (
-                                <div key={producto.id_producto} style={{ backgroundColor: "white", borderRadius: 20, display: "flex", overflow: "hidden", marginBottom: 20, boxShadow: "0 1px 5px rgba(0,0,0,0.1)" }}>
-                                    <div style={{ width: 176, backgroundColor: "#4B614C" }}>
-                                        <img src={producto.foto} alt={producto.nombre} style={{ width: "100%", height: 169, objectFit: "cover", borderRadius: 20 }} />
-                                    </div>
-                                    <div style={{ padding: 15, flex: 1 }}>
-                                        <h4 style={{ textAlign: "center", fontSize: 20, fontFamily: "Fredoka One", color: "black" }}>{producto.nombre.toUpperCase()}</h4>
-                                        <p style={{ textAlign: "center", color: "black", fontSize: 17, fontFamily: "Montserrat" }}>{producto.descripcion}</p>
-                                        {producto.es_desperdicio_cero && (
-                                            <div style={{ textAlign: "center", marginTop: 6 }}>
-    <span style={{
-        backgroundColor: "#EF574B",
-        color: "white",
-        padding: "2px 8px",
-        borderRadius: 6,
-        fontSize: 13,
-        fontWeight: 600,
-        fontFamily: "Poppins"
-    }}>
-      ¡OFERTA!
-    </span>
-                                                <div style={{ marginTop: 4, fontFamily: "Poppins", fontSize: 14 }}>
-      <span style={{ textDecoration: "line-through", color: "#888", marginRight: 8 }}>
-        ${producto.precio_actual.toFixed(2)}
-      </span>
-                                                    <span style={{ color: "#4B614C", fontWeight: 600 }}>
-        ${producto.precio_oferta?.toFixed(2)}
-      </span>
-                                                </div>
-                                            </div>
-                                        )}
+                            {productosFiltrados.map((producto) => {
+                                const isAvailable = producto.disponible;
 
-                                        <div style={{ textAlign: "center", marginTop: 10 }}>
-                                            <button onClick={() => navigate(`/producto/${producto.id_producto}`)} style={{ backgroundColor: "#4B614C", color: "white", fontSize: 17, fontFamily: "Montserrat", fontWeight: 700, borderRadius: 30, padding: "10px 30px", border: "none" }}>
-                                                Ver
-                                            </button>
+                                return (
+                                    <div
+                                        key={producto.id_producto}
+                                        style={{
+                                            backgroundColor: isAvailable ? "white" : "#e0e0e0",
+                                            borderRadius: 20,
+                                            display: "flex",
+                                            overflow: "hidden",
+                                            marginBottom: 20,
+                                            boxShadow: "0 1px 5px rgba(0,0,0,0.1)",
+                                            opacity: isAvailable ? 1 : 0.6
+                                        }}
+                                    >
+                                        <div style={{ width: 176, backgroundColor: "#4B614C" }}>
+                                            <img
+                                                src={producto.foto}
+                                                alt={producto.nombre}
+                                                style={{
+                                                    width: "100%",
+                                                    height: 169,
+                                                    objectFit: "cover",
+                                                    borderRadius: 20
+                                                }}
+                                            />
+                                        </div>
+                                        <div style={{ padding: 15, flex: 1 }}>
+                                            <h4 style={{
+                                                textAlign: "center",
+                                                fontSize: 20,
+                                                fontFamily: "Fredoka One",
+                                                color: "black"
+                                            }}>
+                                                {producto.nombre.toUpperCase()}
+                                            </h4>
+                                            <p style={{
+                                                textAlign: "center",
+                                                color: "black",
+                                                fontSize: 17,
+                                                fontFamily: "Montserrat"
+                                            }}>
+                                                {producto.descripcion}
+                                            </p>
+
+                                            {producto.es_desperdicio_cero && (
+                                                <div style={{ textAlign: "center", marginTop: 6 }}>
+                        <span style={{
+                            backgroundColor: "#EF574B",
+                            color: "white",
+                            padding: "2px 8px",
+                            borderRadius: 6,
+                            fontSize: 13,
+                            fontWeight: 600,
+                            fontFamily: "Poppins"
+                        }}>
+                            ¡OFERTA!
+                        </span>
+                                                    <div style={{
+                                                        marginTop: 4,
+                                                        fontFamily: "Poppins",
+                                                        fontSize: 14
+                                                    }}>
+                            <span style={{
+                                textDecoration: "line-through",
+                                color: "#888",
+                                marginRight: 8
+                            }}>
+                                ${producto.precio_actual.toFixed(2)}
+                            </span>
+                                                        <span style={{
+                                                            color: "#4B614C",
+                                                            fontWeight: 600
+                                                        }}>
+                                ${producto.precio_oferta?.toFixed(2)}
+                            </span>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <div style={{ textAlign: "center", marginTop: 10 }}>
+                                                <button
+                                                    onClick={() => navigate(`/producto/${producto.id_producto}`)}
+                                                    style={{
+                                                        backgroundColor: "#4B614C",
+                                                        color: "white",
+                                                        fontSize: 17,
+                                                        fontFamily: "Montserrat",
+                                                        fontWeight: 700,
+                                                        borderRadius: 30,
+                                                        padding: "10px 30px",
+                                                        border: "none",
+                                                        cursor: isAvailable ? "pointer" : "not-allowed",
+                                                        opacity: isAvailable ? 1 : 0.7
+                                                    }}
+                                                    disabled={!isAvailable}
+                                                >
+                                                    Ver
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
+
                         </div>
                     );
                 })}
