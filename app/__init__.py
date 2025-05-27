@@ -7,6 +7,9 @@ import os
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 
+from dotenv import load_dotenv
+load_dotenv()
+
 from app.models.ingrediente import Ingrediente
 from app.models.pedido import Pedido
 from app.models.detalle_pedido import DetallePedido
@@ -67,6 +70,7 @@ def create_app():
         from app.models.ingrediente import Ingrediente
         from app.models.ingrediente_producto import IngredienteProducto
         from app.models.stock import Stock
+        from app.models.chat_message import ChatMessage
         db.create_all()
 
         Ingrediente.productos = db.relationship(
@@ -217,6 +221,8 @@ def create_app():
     app.register_blueprint(opiniones_bp)
     from app.routes.empleado import desperdicio_bp
     app.register_blueprint(desperdicio_bp)
+    from app.routes.chatbot import chatbot_bp
+    app.register_blueprint(chatbot_bp)
 
     # Rutas frontend
     @app.route('/')
