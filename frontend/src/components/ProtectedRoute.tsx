@@ -12,7 +12,8 @@ const ProtectedRoute: React.FC<Props> = ({ children, onlyEmployee = false, onlyU
     const userData = localStorage.getItem('user');
     const user = userData ? JSON.parse(userData) : null;
 
-    if (!user) return <Navigate to="/login" />;
+    if (!user) return <Navigate to="/login" replace />;
+
 
     if (onlyAdmin && !user.esAdmin) return <Navigate to={`/admin/${user.id_servicio}`} />;
     if (onlyEmployee && !(user.tipo === "empleado")) return <Navigate to="/home/1" />;
