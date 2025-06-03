@@ -3,10 +3,12 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash
 
 from app.main import obtener_usuario
+from app.models.ingrediente_producto import IngredienteProducto
 from app.models.producto_servicio import ProductoServicio
 from app.models.servicio import Servicio
 from app.models.opinion_servicio import OpinionServicio
 from app.models.opinion_producto import OpinionProducto
+from app.models.stock import Stock
 from app.models.usuario import User
 from app.models.pedido import Pedido
 from app.models.detalle_pedido import DetallePedido
@@ -50,6 +52,7 @@ def categorias_servicio(id_servicio):
 # Obtener productos de un servicio
 
 productos_servicio_bp = Blueprint('productos_servicio', __name__)
+
 @productos_servicio_bp.route('/empleado/servicio/<int:id_servicio>/categoria/<int:id_categoria>/productos', methods=['GET'])
 @jwt_required()
 def productos_servicio(id_servicio, id_categoria):
@@ -69,7 +72,7 @@ def productos_servicio(id_servicio, id_categoria):
         "es_desperdicio_cero": p.es_desperdicio_cero,
         "precio_oferta": p.precio_oferta,
         "cantidad_restante": p.cantidad_restante,
-        "tiempo_limite": p.tiempo_limite.isoformat() if p.tiempo_limite else None
+        "tiempo_limite": p.tiempo_limite.isoformat() if p.tiempo_limite else None,
     } for p in productos])
 
 

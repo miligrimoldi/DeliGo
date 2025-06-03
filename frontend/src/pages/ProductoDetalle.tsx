@@ -25,6 +25,7 @@ type Producto = {
     precio_oferta?: number;
     cantidad_restante?: number;
     tiempo_limite?: string | null;
+    max_disponible?: number;
 };
 
 type Ingrediente = {
@@ -66,7 +67,11 @@ const ProductoDetalle = () => {
         localStorage.setItem('lastFromCarrito', window.location.pathname);
     }, []);
 
-    const aumentarCantidad = () => setCantidad((prev) => prev + 1);
+    const aumentarCantidad = () => {
+        if (producto?.max_disponible && cantidad < producto.max_disponible) {
+            setCantidad((prev) => prev + 1);
+        }
+    };
     const disminuirCantidad = () => setCantidad((prev) => (prev > 1 ? prev - 1 : 1));
 
     const handleIrAlCarrito = () => {
@@ -250,7 +255,20 @@ const ProductoDetalle = () => {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                             <button onClick={disminuirCantidad} style={{ fontSize: 20, background: 'none', border: 'none' }}>−</button>
                             <span style={{ fontSize: 18, fontFamily: 'Poppins', fontWeight: 500 }}>{cantidad}</span>
-                            <button onClick={aumentarCantidad} style={{ fontSize: 20, background: 'none', border: 'none' }}>+</button>
+                            <button
+                                onClick={aumentarCantidad}
+                                disabled={producto?.max_disponible !== undefined && cantidad >= producto.max_disponible}
+                                style={{
+                                    fontSize: 20,
+                                    background: 'none',
+                                    border: 'none',
+                                    color: cantidad >= (producto?.max_disponible || Infinity) ? '#ccc' : 'inherit',
+                                    cursor: cantidad >= (producto?.max_disponible || Infinity) ? 'not-allowed' : 'pointer'
+                                }}
+                            >
+                                +
+                            </button>
+
                         </div>
                     </div>
 
