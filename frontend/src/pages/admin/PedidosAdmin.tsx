@@ -27,6 +27,7 @@ const PedidosAdmin = () => {
     const [pedidosAntiguos, setPedidosAntiguos] = useState<PedidoConDetalles[]>([]);
     const [solapa, setSolapa] = useState<"activos" | "antiguos">("activos");
     const [tiemposEstimados, setTiemposEstimados] = useState<Record<number, number>>({});
+    const [tiemposOriginales, setTiemposOriginales] = useState<Record<number, number>>({});
     const [opinionesPorPedido, setOpinionesPorPedido] = useState<Record<number, OpinionPedido>>({});
     const [visibles, setVisibles] = useState<Record<number, boolean>>({});
 
@@ -49,12 +50,15 @@ const PedidosAdmin = () => {
         setPedidosAntiguos(pedidos.filter(p => p.estado === "entregado" || p.estado === "cancelado"));
 
         const tiempos: Record<number, number> = {};
+        const originales: Record<number, number> = {};
         pedidos.forEach(p => {
             if (p.estado === "en_preparacion" && p.tiempo_estimado_minutos !== undefined) {
                 tiempos[p.id_pedido] = p.tiempo_estimado_minutos;
+                originales[p.id_pedido] = p.tiempo_estimado_minutos;
             }
         });
         setTiemposEstimados(tiempos);
+        setTiemposOriginales(originales);
     }, [servicioId]);
 
     useEffect(() => {
@@ -86,6 +90,7 @@ const PedidosAdmin = () => {
         try {
             setTiemposEstimados(prev => ({ ...prev, [id_pedido]: nuevoTiempo }));
             await cambiarEstadoPedido(id_pedido, "en_preparacion", nuevoTiempo);
+            setTiemposOriginales(prev => ({ ...prev, [id_pedido]: nuevoTiempo }));
             await cargarPedidos();
         } catch (err) {
             console.error("Error al actualizar tiempo estimado", err);
@@ -200,27 +205,29 @@ const PedidosAdmin = () => {
                                             boxShadow: sombraSutil
                                         }}
                                     />
-                                    <button
-                                        onClick={() => {
-                                            const tiempo = tiemposEstimados[p.id_pedido];
-                                            if (!tiempo || isNaN(tiempo)) {
-                                                alert("Ingresá un tiempo válido.");
-                                                return;
-                                            }
-                                            handleTiempoChange(p.id_pedido, tiempo);
-                                        }}
-                                        style={{
-                                            backgroundColor: "#2f6f3f",
-                                            color: "white",
-                                            padding: "6px 10px",
-                                            borderRadius: "6px",
-                                            border: "none",
-                                            fontSize: "14px",
-                                            cursor: "pointer"
-                                        }}
-                                    >
-                                        Confirmar
-                                    </button>
+                                    {(tiemposEstimados[p.id_pedido] !== tiemposOriginales[p.id_pedido]) && (
+                                        <button
+                                            onClick={() => {
+                                                const tiempo = tiemposEstimados[p.id_pedido];
+                                                if (!tiempo || isNaN(tiempo)) {
+                                                    alert("Ingresá un tiempo válido.");
+                                                    return;
+                                                }
+                                                handleTiempoChange(p.id_pedido, tiempo);
+                                            }}
+                                            style={{
+                                                backgroundColor: "#2f6f3f",
+                                                color: "white",
+                                                padding: "6px 10px",
+                                                borderRadius: "6px",
+                                                border: "none",
+                                                fontSize: "14px",
+                                                cursor: "pointer"
+                                            }}
+                                        >
+                                            Confirmar
+                                        </button>
+                                    )}
                                 </div>
                             )}
                         </div>

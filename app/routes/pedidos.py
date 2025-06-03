@@ -106,7 +106,7 @@ def crear_pedido():
             return jsonify({"error": f"No hay stock registrado para el ingrediente ID {id_ingrediente}"}), 400
 
         if stock_entry.cantidad < cantidad_a_restar:
-            return jsonify({"error": f"Stock insuficiente del ingrediente ID {id_ingrediente}"}), 400
+            return jsonify({"error": f"Stock insuficiente para realizar el pedido."}), 400
 
         stock_entry.cantidad -= cantidad_a_restar
 

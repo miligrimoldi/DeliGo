@@ -210,15 +210,11 @@ export const realizarPedido = async (items: ItemCarrito[]) => {
         const response = await api.post('/api/pedidos', { items });
         return response.data;
     } catch (error: any) {
-        // Verificamos si hay un mensaje en la respuesta del backend
-        if (error.response && error.response.data && error.response.data.message) {
-            throw new Error(error.response.data.message);
-        } else {
-            // Si no hay mensaje específico, lanzamos un error genérico
-            throw new Error('Error al realizar el pedido');
-        }
+        const mensaje = error.response?.data?.error || error.response?.data?.message;
+        throw new Error(mensaje || 'Error al realizar el pedido');
     }
 };
+
 
 
 export type DetallePedido = {

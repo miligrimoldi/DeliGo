@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { useCarrito } from '../pages/CarritoContext';
 import { FaArrowLeft, FaTrash } from 'react-icons/fa';
 import { realizarPedido } from '../api';
-import axios from 'axios';
 
 const Carrito = () => {
     const { id_servicio } = useParams<{ id_servicio: string }>();
@@ -34,12 +33,13 @@ const Carrito = () => {
         } catch (error: unknown) {
             console.error("Error al realizar el pedido:", error);
 
-            if (axios.isAxiosError(error)) {
-                const mensaje = error.response?.data?.message;
-                setErrorMensaje(mensaje || 'Error al realizar el pedido');
+            if (error instanceof Error) {
+                setErrorMensaje(error.message);
             } else {
                 setErrorMensaje('Ocurrió un error al realizar el pedido');
             }
+
+
         }
     };
 
