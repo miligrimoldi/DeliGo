@@ -362,7 +362,25 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
 
                             <div style={{ marginBottom: 15 }}>
                                 <label htmlFor="precio_actual" style={{ display: "block", marginBottom: 5, fontFamily: "Montserrat", fontSize: 14, color: "#333" }}>Precio:</label>
-                                <input type="number" id="precio_actual" name="precio_actual" placeholder="Precio" value={formData.precio_actual} onChange={handleChange} required step="0.01" style={{ width: "100%", padding: 8, borderRadius: 5, border: "1px solid #ccc", fontFamily: "Montserrat", fontSize: 14 }} />
+                                <input
+                                    type="number"
+                                    id="precio_actual"
+                                    name="precio_actual"
+                                    placeholder="Precio"
+                                    value={formData.precio_actual}
+                                    onChange={handleChange}
+                                    required
+                                    step="0.01"
+                                    min="0"
+                                    style={{
+                                        width: "100%",
+                                        padding: 8,
+                                        borderRadius: 5,
+                                        border: "1px solid #ccc",
+                                        fontFamily: "Montserrat",
+                                        fontSize: 14
+                                    }}
+                                />
                             </div>
 
                             <div style={{ marginBottom: 15 }}>
