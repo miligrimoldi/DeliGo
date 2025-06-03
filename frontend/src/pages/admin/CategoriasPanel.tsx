@@ -272,46 +272,63 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
                     {productos.length === 0 ? (
                         <p className="admin-loading">No hay productos aún en esta categoría.</p>
                     ) : (
-                        <ul className="lista-productos">
+                        <div className="grid-productos-admin">
                             {productos.map((producto) => (
-                                <li key={producto.id_producto} className="item-producto">
-                                    <strong>{producto.nombre}</strong> - ${producto.precio_actual.toFixed(2)}
-                                    <div className="botones-acciones">
-                                        <button className="btn-accion eliminar"
-                                                onClick={() => handleEliminarProducto(producto.id_producto)}>Eliminar
-                                        </button>
-                                        <button
-                                            className="btn-accion editar"
-                                            onClick={async () => {
-                                                setProductoEditando(producto);
-                                                setFormData({
-                                                    nombre: producto.nombre,
-                                                    precio_actual: producto.precio_actual,
-                                                    descripcion: producto.descripcion,
-                                                    informacion_nutricional: producto.informacion_nutricional || "",
-                                                    foto: producto.foto || "",
-                                                });
-                                                try {
-                                                    const data = await obtenerIngredientesDeProducto(producto.id_producto);
+                                <div key={producto.id_producto} className="tarjeta-producto-admin">
+                                    <img src={producto.foto} alt={producto.nombre} className="foto-producto-admin" />
+                                    <div className="info-producto-admin">
+                                        <h4>{producto.nombre}</h4>
+                                        <p className="precio-producto-admin">${producto.precio_actual.toFixed(2)}</p>
+                                        <p className="desc-producto-admin">{producto.descripcion}</p>
+                                        <div className="acciones-producto-admin">
+                                            <button
+                                                className="btn-accion editar"
+                                                onClick={async () => {
+                                                    setProductoEditando(producto);
+                                                    setFormData({
+                                                        nombre: producto.nombre,
+                                                        precio_actual: producto.precio_actual,
+                                                        descripcion: producto.descripcion,
+                                                        informacion_nutricional: producto.informacion_nutricional || "",
+                                                        foto: producto.foto || "",
+                                                    });
+                                                    try {
+                                                        const data = await obtenerIngredientesDeProducto(producto.id_producto);
+                                                        setIngredientesOriginales(data);
+                                                        setIngredientesSeleccionados(
+                                                            data.map((ing: any) => ({
+                                                                nombre: ing.nombre,
+                                                                cantidad: ing.cantidad,
+                                                            }))
+                                                        );
+                                                    } catch (error) {
+                                                        console.error("Error al cargar ingredientes del producto:", error);
+                                                    }
 
-                                                    setIngredientesOriginales(data);
-                                                    setIngredientesSeleccionados(data.map((ing: any) => ({
-                                                        nombre: ing.nombre,
-                                                        cantidad: ing.cantidad
-                                                    })));
-                                                } catch (error) {
-                                                    console.error("Error al cargar ingredientes del producto:", error);
-                                                }
-
-                                                setMostrarFormulario(true);
-                                            }}>Editar</button>
-                                        <button className="btn-accion desperdicio" onClick={() => setProductoDesperdicio(producto)}>
-                                            {producto.es_desperdicio_cero === true ? "Editar Desperdicio" : "Desperdicio Cero"}
-                                        </button>
+                                                    setMostrarFormulario(true);
+                                                }}
+                                            >
+                                                Editar
+                                            </button>
+                                            <button
+                                                className="btn-accion eliminar"
+                                                onClick={() => handleEliminarProducto(producto.id_producto)}
+                                            >
+                                                Eliminar
+                                            </button>
+                                            <button
+                                                className="btn-accion desperdicio"
+                                                onClick={() => setProductoDesperdicio(producto)}
+                                            >
+                                                {producto.es_desperdicio_cero === true
+                                                    ? "Editar Desperdicio"
+                                                    : "Desperdicio Cero"}
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
-                                </li>
-                                ))}
-                        </ul>
+                            ))}
+                        </div>
                     )}
 
                     {productoDesperdicio && user?.esAdmin && (

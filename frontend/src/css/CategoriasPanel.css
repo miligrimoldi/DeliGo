@@ -132,3 +132,111 @@
     color: #666;
     font-style: italic;
 }
+
+.grid-productos-admin {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.tarjeta-producto-admin {
+    background-color: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.foto-producto-admin {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+}
+
+.info-producto-admin {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.info-producto-admin h4 {
+    font-size: 18px;
+    font-family: "Fredoka One";
+    margin: 0;
+    color: #4B614C;
+}
+
+.precio-producto-admin {
+    font-weight: bold;
+    font-family: "Montserrat";
+    font-size: 16px;
+}
+
+.desc-producto-admin {
+    font-size: 14px;
+    font-family: "Montserrat";
+    color: #333;
+}
+
+.acciones-producto-admin {
+    display: flex;
+    justify-content: space-between;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.acciones-producto-admin button {
+    flex: 1;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 600;
+    background-color: white;
+    color: #2f6f3f;
+    transition: all 0.25s ease;
+}
+
+/* Botón editar */
+.acciones-producto-admin .editar {
+    border: 1px solid #94c794;
+    background-color: #e9f7e9;
+}
+
+.acciones-producto-admin .editar:hover {
+    background-color: #d3f0d3;
+    border-color: #2f6f3f;
+    color: #2f6f3f;
+}
+
+/* Botón eliminar */
+.acciones-producto-admin .eliminar {
+    border: 1px solid #f2c2c2;
+    background-color: #fff5f5;
+    color: #a73232;
+}
+
+.acciones-producto-admin .eliminar:hover {
+    background-color: #ffecec;
+    border-color: #c0392b;
+    color: #c0392b;
+}
+
+/* Botón desperdicio */
+.acciones-producto-admin .desperdicio {
+    border: 1px solid #c4e3d4;
+    background-color: #e6f7f0;
+    color: #2a8570;
+}
+
+.acciones-producto-admin .desperdicio:hover {
+    background-color: #d0f0e3;
+    border-color: #1c6e59;
+    color: #1c6e59;
+}
+
