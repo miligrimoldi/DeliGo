@@ -64,23 +64,23 @@ const PedidosAdmin = () => {
     }, [servicioId, cargarPedidos]);
 
     const handleEstadoChange = async (id_pedido: number, nuevo_estado: string) => {
+        if (nuevo_estado === "en_preparacion") {
+            setPedidosActivos(prev =>
+                prev.map(p =>
+                    p.id_pedido === id_pedido ? { ...p, estado: nuevo_estado } : p
+                )
+            );
+            return;
+        }
+
         try {
-            if (nuevo_estado === "en_preparacion") {
-                const tiempo = prompt("Ingresar tiempo estimado de entrega en minutos:");
-                const tiempoNum = parseInt(tiempo ?? "");
-                if (isNaN(tiempoNum)) {
-                    alert("Debe ingresar un número válido.");
-                    return;
-                }
-                await cambiarEstadoPedido(id_pedido, nuevo_estado, tiempoNum);
-            } else {
-                await cambiarEstadoPedido(id_pedido, nuevo_estado);
-            }
+            await cambiarEstadoPedido(id_pedido, nuevo_estado);
             await cargarPedidos();
         } catch (err) {
             console.error("Error al cambiar estado del pedido", err);
         }
     };
+
 
     const handleTiempoChange = async (id_pedido: number, nuevoTiempo: number) => {
         try {
@@ -176,7 +176,7 @@ const PedidosAdmin = () => {
                             </select>
 
                             {p.estado === "en_preparacion" && (
-                                <div className="tiempo-estimado" style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                                <div className="tiempo-estimado" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                                     <label style={{ fontSize: "14px", color: "#555" }}>Tiempo estimado (min):</label>
                                     <input
                                         type="number"
@@ -188,24 +188,39 @@ const PedidosAdmin = () => {
                                                 setTiemposEstimados(prev => ({ ...prev, [p.id_pedido]: nuevoTiempo }));
                                             }
                                         }}
-                                        onBlur={(e) => {
-                                            const nuevoTiempo = parseInt(e.target.value);
-                                            if (!isNaN(nuevoTiempo)) {
-                                                handleTiempoChange(p.id_pedido, nuevoTiempo);
-                                            }
-                                        }}
                                         style={{
                                             padding: "8px",
                                             borderRadius: "5px",
                                             border: `1px solid ${verdeClaro}`,
+                                            width: "80px",
                                             fontFamily: "Montserrat, sans-serif",
                                             fontSize: "14px",
                                             color: "#333",
-                                            width: "80px",
-                                            boxShadow: sombraSutil,
-                                            backgroundColor: "white"
+                                            backgroundColor: "white",
+                                            boxShadow: sombraSutil
                                         }}
                                     />
+                                    <button
+                                        onClick={() => {
+                                            const tiempo = tiemposEstimados[p.id_pedido];
+                                            if (!tiempo || isNaN(tiempo)) {
+                                                alert("Ingresá un tiempo válido.");
+                                                return;
+                                            }
+                                            handleTiempoChange(p.id_pedido, tiempo);
+                                        }}
+                                        style={{
+                                            backgroundColor: "#2f6f3f",
+                                            color: "white",
+                                            padding: "6px 10px",
+                                            borderRadius: "6px",
+                                            border: "none",
+                                            fontSize: "14px",
+                                            cursor: "pointer"
+                                        }}
+                                    >
+                                        Confirmar
+                                    </button>
                                 </div>
                             )}
                         </div>
