@@ -24,6 +24,7 @@ import Opiniones from "./pages/admin/Opiniones.tsx";
 import DesperdicioCero from "./pages/DesperdicioCero.tsx";
 import ComprobantePedido from "./pages/admin/ComprobantePedido.tsx";
 import ComprobanteUsuarioPedido from "./pages/ComprobanteUsuarioPedido.tsx";
+import AdminLayout from "./components/AdminLayout.tsx";
 
 function App() {
     useAuthRedirect();
@@ -49,71 +50,32 @@ function App() {
                 />
 
                 {/* Admin protegidas */}
+                {/* Admin y empleados con layout de chatbot */}
                 <Route
-                    path="/empleado/:id_servicio"
                     element={
                         <ProtectedRoute onlyEmployee={true}>
-                            <HomeEmpleado/>
+                            <AdminLayout />
                         </ProtectedRoute>
                     }
-                />
-                <Route
-                    path="/empleado/:id_servicio/pedidos"
-                    element={
-                        <ProtectedRoute onlyEmployee={true}>
-                            <PedidosAdmin/>
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/empleado-perfil"
-                    element={
-                        <ProtectedRoute onlyEmployee={true}>
-                            <MyProfileAdmin/>
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/empleado/:id_servicio/stock"
-                    element={
-                        <ProtectedRoute onlyEmployee={true}>
-                            <StockPage/>
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/admin/:id_servicio/empleados"
-                    element={
-                        <ProtectedRoute onlyAdmin={true}>
-                            <EmpleadosServicio/>
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/admin/:id_servicio/comprobante/:id_pedido"
-                    element={
-                        <ProtectedRoute onlyAdmin={true}>
-                            <ComprobantePedido/>
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/admin/:id_servicio/opiniones"
-                    element={
-                        <ProtectedRoute onlyAdmin={true}>
-                            <Opiniones />
-                        </ProtectedRoute>
-                    }
-                />
+                >
+                    <Route path="/empleado/:id_servicio" element={<HomeEmpleado />} />
+                    <Route path="/empleado/:id_servicio/pedidos" element={<PedidosAdmin />} />
+                    <Route path="/empleado/:id_servicio/stock" element={<StockPage />} />
+                    <Route path="/empleado/:id_servicio/opiniones" element={<Opiniones />} />
+                    <Route path="/empleado-perfil" element={<MyProfileAdmin />} />
+                </Route>
 
                 <Route
-                    path="/empleado/:id_servicio/opiniones"
                     element={
-                        <ProtectedRoute onlyEmployee={true}>
-                            <Opiniones />
+                        <ProtectedRoute onlyAdmin={true}>
+                            <AdminLayout />
                         </ProtectedRoute>
                     }
-                />
+                >
+                    <Route path="/admin/:id_servicio/empleados" element={<EmpleadosServicio />} />
+                    <Route path="/admin/:id_servicio/comprobante/:id_pedido" element={<ComprobantePedido />} />
+                    <Route path="/admin/:id_servicio/opiniones" element={<Opiniones />} />
+                </Route>
 
                 {/* Clientes protegidas */}
                 <Route
