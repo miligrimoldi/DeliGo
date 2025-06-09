@@ -5,12 +5,18 @@ from app.models.producto_servicio import ProductoServicio
 from app.models.servicio import Servicio
 from app.models.entidad import Entidad
 from app.extensions import db
+from app.intents.chat_intents_admin import responder_admin_intents
 import re
 
 STOPWORDS = {"el", "la", "un", "una", "cuanto", "cuesta", "es", "en", "del", "de", "por", "a", "y", "los", "las", "con", "al", "que"}
 
 def procesar_mensaje(user_id: int, user_input: str):
     input_lower = user_input.lower()
+
+    # Admin
+    admin_response = responder_admin_intents(user_id, user_input)
+    if admin_response:
+        return admin_response
 
     palabras = [p for p in re.findall(r'\w+', input_lower) if p not in STOPWORDS and len(p) > 2]
 
