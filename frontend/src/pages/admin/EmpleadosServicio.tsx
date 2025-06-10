@@ -69,30 +69,36 @@ const EmpleadosServicio = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="empleados-servicio">
-            <h2>Empleados del Servicio</h2>
-            <ul>
-                {empleados.map((e) => (
-                    <li key={e.id}>
-                        {e.nombre} {e.apellido} - {e.email} ({e.dni})
-                        <button onClick={() => handleEliminar(e.id)}>Eliminar</button>
-                    </li>
-                ))}
-            </ul>
+        <div className="page-container">
+            <div className="panel-box">
+                <h2>Empleados del Servicio</h2>
+                <ul className="lista-items">
+                    {empleados.map((e) => (
+                        <li key={e.id} className="item">
+                            <span>{e.nombre} {e.apellido} - {e.email} ({e.dni})</span>
+                            <div className="controls">
+                                <button onClick={() => handleEliminar(e.id)}>Eliminar</button>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
 
-            <h3>Agregar nuevo empleado</h3>
-            {error && <p style={{ color: "red", marginBottom: "10px" }}>{error}</p>}
-            <div className="form-empleado">
-                <input name="nombre" placeholder="Nombre" value={form.nombre} onChange={handleInputChange} />
-                <input name="apellido" placeholder="Apellido" value={form.apellido} onChange={handleInputChange} />
-                <input name="email" placeholder="Email" value={form.email} onChange={handleInputChange} />
-                <input name="dni" placeholder="DNI" value={form.dni} onChange={handleInputChange} />
-                <input name="contrasena" placeholder="Contraseña" type="password" value={form.contrasena} onChange={handleInputChange} />
-                <button onClick={handleCrear}>Crear empleado</button>
+                <h3 style={{ marginTop: "20px", color: "#4b614c" }}>Agregar nuevo empleado</h3>
+                {error && <p style={{ color: "red" }}>{error}</p>}
+                <div className="form">
+                    <input name="nombre" placeholder="Nombre" value={form.nombre} onChange={handleInputChange} />
+                    <input name="apellido" placeholder="Apellido" value={form.apellido} onChange={handleInputChange} />
+                    <input name="email" placeholder="Email" value={form.email} onChange={handleInputChange} />
+                    <input name="dni" placeholder="DNI" value={form.dni} onChange={handleInputChange} />
+                    <input name="contrasena" type="password" placeholder="Contraseña" value={form.contrasena} onChange={handleInputChange} />
+                    <button onClick={handleCrear}>Crear empleado</button>
+                </div>
+
+                <button className="btn-home" onClick={() => navigate(`/empleado/${id_servicio}`)}>Volver al Home</button>
             </div>
-            <button className="inicio" onClick={() => navigate(`/empleado/${id_servicio}`)}>Home</button>
         </div>
     );
+
 };
 
 export default EmpleadosServicio;

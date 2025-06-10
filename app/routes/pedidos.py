@@ -52,7 +52,6 @@ def crear_pedido():
     if not items:
         return jsonify({"error": "No hay productos en el pedido"}), 400
 
-
     consumidor = UsuarioConsumidor.query.get(id_usuario)
     if not consumidor:
         return jsonify({"error": "Usuario no válido"}), 403
@@ -63,43 +62,64 @@ def crear_pedido():
 
     id_servicio = primer_producto.id_servicio
     id_entidad = primer_producto.servicio.id_entidad
-    total = sum(item['precio_actual'] * item['cantidad'] for item in items)
 
+    total = 0
     nuevo_pedido = Pedido(
         id_usuario_consumidor=id_usuario,
         id_entidad=id_entidad,
         id_servicio=id_servicio,
-        total=total
+        total=0  # se actualizará más abajo
     )
     db.session.add(nuevo_pedido)
     db.session.flush()
 
+    ingredientes_a_descontar = {}
+
     for item in items:
-
-        ingredientes_a_descontar = {}
-
         id_producto = item["id_producto"]
         cantidad_producto = item["cantidad"]
 
+        producto = ProductoServicio.query.get(id_producto)
+        if not producto:
+            return jsonify({"error": f"Producto con id {id_producto} no encontrado"}), 404
+
+        # Determinar el precio a usar
+        if producto.es_desperdicio_cero and producto.precio_oferta is not None:
+            precio_unitario = producto.precio_oferta
+            # Verificar cantidad restante en oferta
+            if producto.cantidad_restante is None or producto.cantidad_restante < cantidad_producto:
+                return jsonify({"error": f"No hay suficiente cantidad disponible en oferta para '{producto.nombre}'"}), 400
+            producto.cantidad_restante -= cantidad_producto
+        else:
+            precio_unitario = producto.precio_actual
+
+        if producto.es_desperdicio_cero and producto.cantidad_restante is not None:
+            producto.cantidad_restante -= item["cantidad"]
+            if producto.cantidad_restante <= 0:
+                producto.cantidad_restante = 0
+                producto.es_desperdicio_cero = False
+                producto.precio_oferta = None
+                producto.tiempo_limite = None
+
+        subtotal = precio_unitario * cantidad_producto
+        total += subtotal
 
         detalle = DetallePedido(
             id_pedido=nuevo_pedido.id_pedido,
-            id_producto=item["id_producto"],
-            cantidad=item["cantidad"],
-            precio_unitario=item["precio_actual"],
-            subtotal=item["precio_actual"] * item["cantidad"]
+            id_producto=id_producto,
+            cantidad=cantidad_producto,
+            precio_unitario=precio_unitario,
+            subtotal=subtotal
         )
         db.session.add(detalle)
 
-        asociaciones = IngredienteProducto.query.filter_by(id_producto = id_producto).all()
+        asociaciones = IngredienteProducto.query.filter_by(id_producto=id_producto).all()
         for asociacion in asociaciones:
             id_ingrediente = asociacion.id_ingrediente
             cantidad_necesaria = asociacion.cantidad_necesaria * cantidad_producto
-            if id_ingrediente in ingredientes_a_descontar:
-                ingredientes_a_descontar[id_ingrediente] += cantidad_necesaria
-            else:
-                ingredientes_a_descontar[id_ingrediente] = cantidad_necesaria
+            ingredientes_a_descontar[id_ingrediente] = ingredientes_a_descontar.get(id_ingrediente, 0) + cantidad_necesaria
 
+    # Actualizar stock de ingredientes
     for id_ingrediente, cantidad_a_restar in ingredientes_a_descontar.items():
         stock_entry = Stock.query.filter_by(id_servicio=id_servicio, id_ingrediente=id_ingrediente).first()
         if not stock_entry:
@@ -110,8 +130,10 @@ def crear_pedido():
 
         stock_entry.cantidad -= cantidad_a_restar
 
+    nuevo_pedido.total = total
     db.session.commit()
     return jsonify({"mensaje": "Pedido creado correctamente"}), 201
+
 
 @pedidos_bp.route('/<int:id_pedido>', methods=['GET'])
 @jwt_required()

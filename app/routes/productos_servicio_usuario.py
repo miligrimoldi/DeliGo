@@ -49,5 +49,10 @@ def obtener_producto(id_producto):
         "puntaje_promedio": producto.puntaje_promedio,
         "cantidad_opiniones": producto.cantidad_opiniones,
         "ingredientes": ingredientes_serializados,
-        "max_disponible": max_disponible
+        "max_disponible": max_disponible,
+        "es_desperdicio_cero": producto.es_desperdicio_cero,
+        "precio_oferta": producto.precio_oferta,
+        "cantidad_restante": producto.cantidad_restante,
+        "tiempo_limite": producto.tiempo_limite.isoformat() if producto.tiempo_limite else None
     })
+

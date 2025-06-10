@@ -1,6 +1,7 @@
 import {useParams, useNavigate } from "react-router-dom";
 import {useEffect, useState} from "react";
 import {getStockPorServicio, StockIngrediente, updateStockDisponibilidad} from "../../api.ts";
+import "../../css/StockPage.css";
 
 
 const StockPage = () => {
@@ -40,35 +41,26 @@ const StockPage = () => {
     if (loading) return <p>Cargando stock...</p>;
 
     return (
-        <div className="stock-container">
-            <h2>Gestión de Stock</h2>
-            <ul className="stock-list">
-                {ingredientes.map(ing => (
-                    <li key={ing.id_ingrediente} className="stock-item">
-                        <span className="nombre">{ing.nombre}</span>
-                        <div className="cantidad-control">
-                            <button
-                                onClick={() =>
-                                    cambiarCantidad(ing.id_ingrediente, Math.max(0, ing.cantidad - 1))
-                                }
-                            >
-                                -
-                            </button>
-                            <span className="cantidad">{ing.cantidad}</span>
-                            <button
-                                onClick={() =>
-                                    cambiarCantidad(ing.id_ingrediente, ing.cantidad + 1)
-                                }
-                            >
-                                +
-                            </button>
-                        </div>
-                    </li>
-                ))}
-            </ul>
-            <button className="inicio" onClick={() => navigate(`/empleado/${id_servicio}`)}>Home</button>
+        <div className="page-container">
+            <div className="panel-box">
+                <h2>Gestión de Stock</h2>
+                <ul className="lista-items">
+                    {ingredientes.map(ing => (
+                        <li key={ing.id_ingrediente} className="item">
+                            <span>{ing.nombre}</span>
+                            <div className="controls">
+                                <button onClick={() => cambiarCantidad(ing.id_ingrediente, Math.max(0, ing.cantidad - 1))}>-</button>
+                                <span>{ing.cantidad}</span>
+                                <button onClick={() => cambiarCantidad(ing.id_ingrediente, ing.cantidad + 1)}>+</button>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+                <button className="btn-home" onClick={() => navigate(`/empleado/${id_servicio}`)}>Volver al Home</button>
+            </div>
         </div>
     );
+
 
 }
 export default StockPage;
