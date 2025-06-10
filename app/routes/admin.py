@@ -23,6 +23,10 @@ def alta_empleados(id_servicio):
     if usuario_existente:
         return jsonify({"error": "Ya existe un usuario con ese email"}), 409
 
+    empleado_con_dni = UsuarioEmpleado.query.filter_by(dni=dni).first()
+    if empleado_con_dni:
+        return jsonify({"error": "Ya existe un usuario con ese dni"}), 409
+
     if len(dni) != 8:
         return jsonify({"error": "Numero incorrecto de digitos para el dni"}), 400
 
