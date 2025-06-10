@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import { api } from "../../api";
 import { FaStar } from "react-icons/fa";
 
@@ -23,6 +23,7 @@ const Opiniones = () => {
     const [puntajeServicio, setPuntajeServicio] = useState(0);
     const [opinionesServicio, setOpinionesServicio] = useState<OpinionServicio[]>([]);
     const [productosOpinados, setProductosOpinados] = useState<ProductoOpinion[]>([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchOpiniones = async () => {
@@ -80,6 +81,7 @@ const Opiniones = () => {
                     ))}
                 </div>
             </div>
+            <button className="btn-home" onClick={() => navigate(`/empleado/${id_servicio}`)}>Volver al Home</button>
         </div>
     );
 };
