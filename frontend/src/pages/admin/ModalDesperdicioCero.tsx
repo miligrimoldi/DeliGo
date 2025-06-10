@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { marcarComoDesperdicioCero, desmarcarComoDesperdicioCero } from "../../api.ts";
+import { getMaxDisponible } from "../../api";
 
 interface ModalProps {
     idProducto: number;
@@ -28,6 +29,8 @@ const ModalDesperdicioCero = ({
     const [cantidadRestante, setCantidadRestante] = useState(1);
     const [tiempoLimite, setTiempoLimite] = useState("");
     const [loading, setLoading] = useState(false);
+    const [maximoDisponible, setMaximoDisponible] = useState<number | null>(null);
+
 
     useEffect(() => {
         if (yaMarcado) {
@@ -63,6 +66,13 @@ const ModalDesperdicioCero = ({
             setDescuentoPorcentaje(parseFloat(nuevoDescuento.toFixed(1)));
         }
     }, [precioOferta]);
+
+
+    useEffect(() => {
+        getMaxDisponible(idProducto)
+            .then(setMaximoDisponible)
+            .catch(() => setMaximoDisponible(null));
+    }, [idProducto]);
 
     const handleSubmit = async () => {
         setLoading(true);
@@ -160,14 +170,25 @@ const ModalDesperdicioCero = ({
                     style={{width: "100%", padding: 8, marginBottom: 12}}
                 />
 
-                <label>Cantidad restante:</label>
                 <input
                     type="number"
                     min={1}
+                    max={maximoDisponible || undefined}
                     value={cantidadRestante}
-                    onChange={(e) => setCantidadRestante(parseInt(e.target.value))}
-                    style={{width: "100%", padding: 8, marginBottom: 12}}
+                    onChange={(e) => {
+                        const nueva = parseInt(e.target.value);
+                        if (!isNaN(nueva)) {
+                            const limitada = maximoDisponible ? Math.min(nueva, maximoDisponible) : nueva;
+                            setCantidadRestante(Math.max(1, limitada));
+                        }
+                    }}
+                    style={{ width: "100%", padding: 8, marginBottom: 12 }}
                 />
+                {maximoDisponible !== null && (
+                    <p style={{ fontSize: 12, color: "#888" }}>
+                        Stock disponible para oferta: {maximoDisponible}
+                    </p>
+                )}
 
                 <label>Disponible hasta (opcional):</label>
                 <input

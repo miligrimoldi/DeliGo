@@ -427,6 +427,12 @@ export const getPedidoById = async (id_pedido: number) => {
     }
 }
 
+export async function getMaxDisponible(id_producto: number) {
+    const response = await api.get(`/producto/${id_producto}/max_disponible`);
+    return response.data.max_disponible;
+}
+
+
 
 
 
