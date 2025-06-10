@@ -19,6 +19,7 @@ const EmpleadosServicio = () => {
         contrasena: "",
     });
     const [error, setError] = useState<string | null> (null);
+    const user = JSON.parse(localStorage.getItem("user") || "null");
 
     useEffect(() => {
         if (id_servicio) {
@@ -51,6 +52,12 @@ const EmpleadosServicio = () => {
 
     const handleEliminar = async (id_empleado: number) => {
         if (!id_servicio) return;
+
+        if (user && id_empleado === user.id_usuario) {
+            alert("No podés eliminarte a vos mismo desde esta sección. Hacelo desde tu perfil si estás seguro.");
+            return;
+        }
+
         try {
             await eliminarEmpleado(Number(id_servicio), id_empleado);
             setEmpleados(empleados.filter(e => e.id !== id_empleado));
