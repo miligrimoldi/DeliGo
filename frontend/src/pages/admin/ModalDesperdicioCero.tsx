@@ -30,6 +30,7 @@ const ModalDesperdicioCero = ({
     const [tiempoLimite, setTiempoLimite] = useState("");
     const [loading, setLoading] = useState(false);
     const [maximoDisponible, setMaximoDisponible] = useState<number | null>(null);
+    const [errorMensaje, setErrorMensaje] = useState<string | null>(null);
 
 
     useEffect(() => {
@@ -75,6 +76,17 @@ const ModalDesperdicioCero = ({
     }, [idProducto]);
 
     const handleSubmit = async () => {
+        setErrorMensaje(null); // Limpiar mensaje previo
+
+        if (tiempoLimite) {
+            const fechaLimite = new Date(tiempoLimite);
+            const ahora = new Date();
+            if (fechaLimite < ahora) {
+                setErrorMensaje("La fecha límite no puede ser anterior al momento actual.");
+                return;
+            }
+        }
+
         setLoading(true);
         try {
             await marcarComoDesperdicioCero(idProducto, {
@@ -90,6 +102,8 @@ const ModalDesperdicioCero = ({
             setLoading(false);
         }
     };
+
+
 
     const handleDesmarcar = async () => {
         const confirmar = window.confirm("¿Estás seguro que querés quitar este producto de Desperdicio Cero?");
@@ -197,6 +211,12 @@ const ModalDesperdicioCero = ({
                     onChange={(e) => setTiempoLimite(e.target.value)}
                     style={{width: "100%", padding: 8, marginBottom: 16}}
                 />
+
+                {errorMensaje && (
+                    <p style={{ color: "red", fontSize: 13, marginTop: -8, marginBottom: 12 }}>
+                        {errorMensaje}
+                    </p>
+                )}
 
                 <div style={{display: "flex", justifyContent: "space-between", marginTop: 12}}>
                     <button onClick={onClose} style={{padding: "8px 16px"}}>Cancelar</button>
