@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+from flask_jwt_extended import jwt_required
 
 from app import db, Ingrediente
 from app.models.ingrediente_producto import IngredienteProducto
@@ -27,6 +28,7 @@ def calcular_max_disponible(id_producto, id_servicio):
 
 
 @producto_servicio_usuario_bp.route('/api/productos/<int:id_producto>', methods=['GET'])
+@jwt_required()
 def obtener_producto(id_producto):
     producto = ProductoServicio.query.get_or_404(id_producto)
 
@@ -56,3 +58,9 @@ def obtener_producto(id_producto):
         "tiempo_limite": producto.tiempo_limite.isoformat() if producto.tiempo_limite else None
     })
 
+@producto_servicio_usuario_bp.route("/producto/<int:id_producto>/max_disponible", methods=["GET"])
+@jwt_required()
+def obtener_max_disponible(id_producto):
+    producto = ProductoServicio.query.get_or_404(id_producto)
+    maximo = calcular_max_disponible(producto.id_producto, producto.id_servicio)
+    return jsonify({"max_disponible": maximo})
