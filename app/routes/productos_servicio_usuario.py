@@ -58,6 +58,8 @@ def obtener_producto(id_producto):
         "tiempo_limite": producto.tiempo_limite.isoformat() if producto.tiempo_limite else None
     })
 
+
+
 @producto_servicio_usuario_bp.route("/producto/<int:id_producto>/max_disponible", methods=["GET"])
 @jwt_required()
 def obtener_max_disponible(id_producto):
