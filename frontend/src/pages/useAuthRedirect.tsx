@@ -8,28 +8,34 @@ export const useAuthRedirect = () => {
     useEffect(() => {
         const checkAuth = () => {
             const token = localStorage.getItem("token");
-            const isProtectedRoute = !['/login', '/register'].includes(location.pathname);
+            const path = location.pathname;
+
+            const isPublicRoute =
+                path === "/login" ||
+                path === "/register" ||
+                path === "/recuperar" ||
+                path.startsWith("/reset-password");
+
+            const isProtectedRoute = !isPublicRoute;
 
             if (!token && isProtectedRoute) {
                 navigate('/login');
             }
 
-            if (token && (location.pathname === '/login' || location.pathname === '/register')) {
+            if (token && (path === '/login' || path === '/register' || path === '/recuperar' || path.startsWith("/reset-password"))) {
                 navigate('/entidades');
             }
         };
 
-        checkAuth(); // Ejecutar en mount y cambio de ruta
+        checkAuth();
 
-        document.addEventListener("visibilitychange", () => {
+        const onVisible = () => {
             if (document.visibilityState === "visible") {
-                checkAuth(); // Ejecutar si vuelve a pestaña
+                checkAuth();
             }
-        });
-
-        return () => {
-            document.removeEventListener("visibilitychange", checkAuth);
         };
+
+        document.addEventListener("visibilitychange", onVisible);
+        return () => document.removeEventListener("visibilitychange", onVisible);
     }, [location.pathname, navigate]);
 };
-

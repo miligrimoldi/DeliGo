@@ -29,6 +29,7 @@ const ModalDesperdicioCero = ({
     const [cantidadRestante, setCantidadRestante] = useState(1);
     const [tiempoLimite, setTiempoLimite] = useState("");
     const [loading, setLoading] = useState(false);
+    const [confirmarDesmarcar, setConfirmarDesmarcar] = useState(false);
     const [maximoDisponible, setMaximoDisponible] = useState<number | null>(null);
     const [errorMensaje, setErrorMensaje] = useState<string | null>(null);
 
@@ -103,12 +104,7 @@ const ModalDesperdicioCero = ({
         }
     };
 
-
-
-    const handleDesmarcar = async () => {
-        const confirmar = window.confirm("¿Estás seguro que querés quitar este producto de Desperdicio Cero?");
-        if (!confirmar) return;
-
+    const desmarcarProducto = async () => {
         setLoading(true);
         try {
             await desmarcarComoDesperdicioCero(idProducto);
@@ -120,6 +116,7 @@ const ModalDesperdicioCero = ({
             setLoading(false);
         }
     };
+
 
     return (
         <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
@@ -233,9 +230,9 @@ const ModalDesperdicioCero = ({
                     </button>
                 </div>
 
-                {yaMarcado && (
+                {yaMarcado && !confirmarDesmarcar && (
                     <button
-                        onClick={handleDesmarcar}
+                        onClick={() => setConfirmarDesmarcar(true)}
                         disabled={loading}
                         style={{
                             marginTop: 20,
@@ -249,8 +246,51 @@ const ModalDesperdicioCero = ({
                             cursor: loading ? "not-allowed" : "pointer"
                         }}
                     >
-                        {loading ? "Quitando..." : "Quitar Desperdicio Cero"}
+                        Quitar Desperdicio Cero
                     </button>
+                )}
+
+                {confirmarDesmarcar && (
+                    <div style={{
+                        marginTop: 5,
+                        backgroundColor: '#fcebea',
+                        padding: 12,
+                        borderRadius: 6,
+                        border: '1px solid #a94442',
+                        fontFamily: 'Poppins',
+                        textAlign: 'center'
+                    }}>
+                        <p style={{ marginBottom: 5 }}>¿Estás seguro que querés quitar este producto de Desperdicio Cero?</p>
+                        <div style={{ display: 'flex', gap: 5, justifyContent: 'center' }}>
+                            <button
+                                onClick={() => setConfirmarDesmarcar(false)}
+                                style={{
+                                    padding: "6px 12px",
+                                    backgroundColor: "#ccc",
+                                    border: "none",
+                                    borderRadius: 4,
+                                    cursor: "pointer"
+                                }}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={desmarcarProducto}
+                                disabled={loading}
+                                style={{
+                                    padding: "6px 12px",
+                                    backgroundColor: "#a94442",
+                                    color: "white",
+                                    border: "none",
+                                    borderRadius: 4,
+                                    fontWeight: 400,
+                                    cursor: loading ? "not-allowed" : "pointer"
+                                }}
+                            >
+                                Confirmar
+                            </button>
+                        </div>
+                    </div>
                 )}
             </div>
         </div>

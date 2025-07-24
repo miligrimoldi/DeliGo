@@ -223,6 +223,8 @@ def create_app():
     app.register_blueprint(desperdicio_bp)
     from app.routes.chatbot import chatbot_bp
     app.register_blueprint(chatbot_bp)
+    from app.routes.recuperacion import recuperacion_bp
+    app.register_blueprint(recuperacion_bp)
 
     # Rutas frontend
     @app.route('/')

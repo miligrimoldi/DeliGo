@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { Entidad } from './pages/EntitiesTabs.tsx';
+import { toast } from 'react-toastify';
 
 const API_URL = 'http://127.0.0.1:5000';
 
@@ -27,13 +28,23 @@ api.interceptors.response.use(
     error => {
         const isLoginRequest = error.config?.url?.includes('/login');
 
-        // Solo redireccionamos si no es un intento de login
         if (error.response?.status === 401 && !isLoginRequest) {
             localStorage.setItem("redirectAfterLogin", window.location.pathname);
             localStorage.removeItem("token");
             localStorage.removeItem("user");
-            alert("Tu sesión ha expirado. Por favor, iniciá sesión nuevamente.");
-            window.location.href = "/login";
+
+            toast.error("Tu sesión ha expirado. Iniciá sesión nuevamente.", {
+                position: "top-center",
+                autoClose: 4000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+            });
+
+            setTimeout(() => {
+                window.location.href = "/login";
+            }, 4100);
         }
 
         return Promise.reject(error);
@@ -233,7 +244,6 @@ export type PedidoConDetalles = {
     detalles: DetallePedido[];
 };
 
-// Nuevo
 
 export const fetchPedidosPorServicio = async (id_servicio: number): Promise<PedidoConDetalles[]> => {
     const response = await api.get(`/servicios/${id_servicio}/pedidos`);
@@ -431,6 +441,19 @@ export async function getMaxDisponible(id_producto: number) {
     const response = await api.get(`/producto/${id_producto}/max_disponible`);
     return response.data.max_disponible;
 }
+
+export const enviarMailRecuperacion = async (email: string) =>
+    (await api.post("/recuperar", { email })).data;
+
+export const cambiarContrasenaConToken = async ({ token, nueva }: { token: string, nueva: string }) =>
+    (await api.post("/reset-password", { token, nueva })).data;
+
+export const obtenerProductoPorId = async (id_producto: number) => {
+    const res = await api.get(`/productos/${id_producto}`);
+    return res.data;
+};
+
+
 
 
 

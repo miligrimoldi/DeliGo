@@ -1,12 +1,20 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { useRef } from "react";
 
 interface DetallePedido {
+    id_detalle: number;
     producto: string;
     foto: string;
     cantidad: number;
     precio_unitario: number;
     subtotal: number;
+    precio_original?: number;
+    es_oferta?: boolean;
+    cantidad_oferta?: number;
+    cantidad_normal?: number;
+    precio_oferta?: number;
 }
 
 interface Pedido {
@@ -24,6 +32,19 @@ const MisPedidosUsuario = () => {
     const [pedidos, setPedidos] = useState<Pedido[]>([]);
     const navigate = useNavigate();
     const [opinados, setOpinados] = useState<Record<number, boolean>>({});
+    const estadoPrevio = useRef<Map<number, string>>(new Map());
+    const tiempoPrevio = useRef<Map<number, number | undefined>>(new Map());
+    const traducirEstado = (estado: string) => {
+        switch (estado) {
+            case "esperando_confirmacion": return "esperando confirmación";
+            case "en_preparacion": return "en preparación";
+            case "listo": return "listo";
+            case "entregado": return "entregado";
+            case "cancelado": return "cancelado";
+            default: return estado;
+        }
+    };
+
 
     useEffect(() => {
         const fetchPedidos = async () => {
@@ -35,6 +56,28 @@ const MisPedidosUsuario = () => {
                 });
                 const data = await response.json();
                 setPedidos(data);
+                data.forEach((pedido: Pedido) => {
+                    const anterior = estadoPrevio.current.get(pedido.id);
+                    const actual = pedido.estado;
+                    const tiempoAntes = tiempoPrevio.current.get(pedido.id);
+                    const tiempoAhora = pedido.tiempo_estimado_minutos;
+
+                    if (
+                        pedido.estado === "en_preparacion" &&
+                        tiempoAntes !== undefined &&
+                        tiempoAhora !== undefined &&
+                        tiempoAntes !== tiempoAhora
+                    ) {
+                        toast.info(`Se actualizó el tiempo estimado del pedido #${pedido.id}: de ${tiempoAntes} a ${tiempoAhora} minutos`);
+                    }
+
+                    tiempoPrevio.current.set(pedido.id, tiempoAhora);
+
+                    if (anterior && anterior !== actual) {
+                        toast.info(`Tu pedido #${pedido.id} pasó de ${traducirEstado(anterior)} a ${traducirEstado(actual)}`);
+                    }
+                    estadoPrevio.current.set(pedido.id, actual);
+                });
                 const checks = await Promise.all(
                     data
                         .filter((p: Pedido) => p.estado === "entregado")
@@ -60,20 +103,18 @@ const MisPedidosUsuario = () => {
             }
         };
 
-        // Llamada inicial
         fetchPedidos();
 
-        // Refresca cada 10 segundos
         const intervalo = setInterval(fetchPedidos, 10000);
 
-        // Si el usuario se va a otra pagina, corta el fetch
         return () => clearInterval(intervalo);
     }, []);
 
 
     const formatearFecha = (fechaStr: string) => {
         const fecha = new Date(fechaStr);
-        return fecha.toLocaleDateString("es-AR", {
+        return fecha.toLocaleString("es-AR", {
+            timeZone: "America/Argentina/Buenos_Aires",
             weekday: "short",
             day: "2-digit",
             month: "short",
@@ -107,12 +148,12 @@ const MisPedidosUsuario = () => {
             <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <span style={{ fontWeight: 700}}>{p.entidad} - {p.servicio}</span>
                 <span style={{...getEstadoStyle(p.estado), textAlign: "right", display: "inline-block"}}>
-    {p.estado === "esperando_confirmacion" && (
-        <>
-            <div>ESPERANDO</div>
-            <div>CONFIRMACIÓN</div>
-        </>
-    )}
+                {p.estado === "esperando_confirmacion" && (
+                    <>
+                        <div>ESPERANDO</div>
+                        <div>CONFIRMACIÓN</div>
+                    </>
+                )}
                     {p.estado === "en_preparacion" && (
                         <>
                             <div>EN</div>
@@ -134,24 +175,62 @@ const MisPedidosUsuario = () => {
                             <div>CANCELADO</div>
                         </>
                     )}
-</span>
+            </span>
             </div>
             <div style={{fontSize: 14, marginBottom: 10}}>{formatearFecha(p.fecha)}</div>
 
-            {p.detalles.map((d, index) => (
-                <div key={index} style={{display: "flex", alignItems: "center", marginBottom: 10}}>
-                    <img src={d.foto} alt={d.producto} style={{
-                        width: 50, height: 50, borderRadius: 10, objectFit: "cover", marginRight: 10
-                    }}/>
-                    <div style={{flex: 1}}>
-                        <div style={{fontWeight: 600}}>{d.producto}</div>
-                        <div style={{fontSize: 13}}>{d.cantidad} x ${d.precio_unitario.toFixed(2)}</div>
-                    </div>
-                    <div style={{ fontWeight: 600 }}>${d.subtotal.toFixed(2)}</div>
-                </div>
-            ))}
+            {p.detalles.map((d) => {
+                return (
+                    <div key={d.id_detalle}
+                         style={{ display: "flex", alignItems: "center", marginBottom: 10 }}>
+                        <img
+                            src={d.foto}
+                            alt={d.producto}
+                            style={{
+                                width: 50,
+                                height: 50,
+                                borderRadius: 10,
+                                objectFit: "cover",
+                                marginRight: 10
+                            }}
+                        />
+                        <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: 600 }}>{d.producto}</div>
 
-            <div style={{ textAlign: "right", fontWeight: 700, marginTop: 10 }}>
+                            {/* Lógica copiada exactamente del Carrito.tsx */}
+                            {d.precio_oferta && d.cantidad_oferta !== undefined && d.cantidad_oferta > 0 ? (
+                                <div>
+                                    <div style={{ fontSize: 12, color: '#EF574B', fontWeight: 600 }}>
+                                        Oferta: ${d.precio_oferta.toFixed(2)} x {d.cantidad_oferta}
+                                    </div>
+                                    {d.cantidad - d.cantidad_oferta > 0 && (
+                                        <div style={{ fontSize: 12, color: '#6CC51D', fontWeight: 500 }}>
+                                            Sin oferta: ${d.precio_unitario.toFixed(2)} x {d.cantidad - d.cantidad_oferta}
+                                        </div>
+                                    )}
+                                    {d.precio_original && (
+                                        <div style={{
+                                            fontSize: 11,
+                                            color: '#888',
+                                            textDecoration: 'line-through',
+                                            marginTop: 2
+                                        }}>
+                                            ${d.precio_original.toFixed(2)} x {d.cantidad}
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div style={{ fontSize: 12, color: '#6CC51D', fontWeight: 500 }}>
+                                    ${d.precio_unitario.toFixed(2)} x {d.cantidad}
+                                </div>
+                            )}
+                        </div>
+                        <div style={{ fontWeight: 600 }}>${d.subtotal.toFixed(2)}</div>
+                    </div>
+                );
+            })}
+
+            <div style={{textAlign: "right", fontWeight: 700, marginTop: 10}}>
                 Total: ${p.total.toFixed(2)}
             </div>
 
@@ -204,7 +283,6 @@ const MisPedidosUsuario = () => {
                     </div>
                 </div>
             )}
-
 
             {p.estado === "en_preparacion" && p.tiempo_estimado_minutos && (
                 <div style={{ marginTop: 10, fontSize: 14 }}>

@@ -1,8 +1,9 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useCarrito } from '../pages/CarritoContext';
-import { FaArrowLeft, FaTrash } from 'react-icons/fa';
+import { FaArrowLeft, FaTrash, FaShoppingCart } from 'react-icons/fa';
 import { realizarPedido } from '../api';
+import { getStockPorServicio, obtenerIngredientesDeProducto, obtenerProductoPorId } from '../api';
 
 const Carrito = () => {
     const { id_servicio } = useParams<{ id_servicio: string }>();
@@ -12,11 +13,13 @@ const Carrito = () => {
         modificarCantidad,
         eliminarItem,
         vaciarCarrito,
-        setServicioActivo
+        setServicioActivo,
+        actualizarMaximoDisponible
     } = useCarrito();
     const navigate = useNavigate();
     const from = localStorage.getItem('lastFromCarrito') || '/entidades';
     const [errorMensaje, setErrorMensaje] = useState('');
+    const [mensajeStockAgotado, setMensajeStockAgotado] = useState<Record<number, boolean>>({});
 
     useEffect(() => {
         if (id_servicio) {
@@ -24,22 +27,90 @@ const Carrito = () => {
         }
     }, [id_servicio]);
 
+    useEffect(() => {
+        const sincronizarCarrito = async () => {
+            if (!id_servicio) return;
+
+            const stock = await getStockPorServicio(Number(id_servicio));
+
+            const nuevosItems = await Promise.all(items.map(async (item) => {
+                const ingredientes = await obtenerIngredientesDeProducto(item.id_producto);
+                const productoActual = await obtenerProductoPorId(item.id_producto);
+
+                const maximo = Math.min(
+                    ...ingredientes.map((ing) => {
+                        const stockIng = stock.find(s => s.id_ingrediente === ing.id_ingrediente);
+                        if (!stockIng || stockIng.cantidad === 0) return 0;
+                        return Math.floor(stockIng.cantidad / ing.cantidad);
+                    })
+                );
+
+                const hayOferta = productoActual.es_desperdicio_cero && productoActual.precio_oferta !== null && productoActual.cantidad_restante > 0;
+                const nuevaCantidadOferta = hayOferta
+                    ? Math.min(productoActual.cantidad_restante, item.cantidad)
+                    : 0;
+
+                return {
+                    ...item,
+                    max_disponible: maximo,
+                    precio_oferta: hayOferta ? productoActual.precio_oferta : undefined,
+                    cantidad_oferta: nuevaCantidadOferta,
+                    tiempo_limite: hayOferta ? productoActual.tiempo_limite : null,
+                };
+            }));
+
+            nuevosItems.forEach((item) => {
+                modificarCantidad(item.id_servicio, item.id_producto, item.cantidad);
+                actualizarMaximoDisponible(item.id_servicio, item.id_producto, item.max_disponible ?? Infinity);
+            });
+        };
+
+        sincronizarCarrito();
+    }, [id_servicio]);
+
+    useEffect(() => {
+        const nuevosMensajes: Record<number, boolean> = {};
+        items.forEach((item) => {
+            if (
+                item.max_disponible !== undefined &&
+                item.cantidad === item.max_disponible
+            ) {
+                nuevosMensajes[item.id_producto] = true;
+                setTimeout(() => {
+                    setMensajeStockAgotado(prev => ({
+                        ...prev,
+                        [item.id_producto]: false
+                    }));
+                }, 3000);
+            }
+        });
+        setMensajeStockAgotado(nuevosMensajes);
+    }, [items]);
+
     const handleRealizarPedido = async () => {
         try {
             setErrorMensaje('');
-            await realizarPedido(items);
+
+            const itemsFiltrados = items.map(item => {
+                if (item.cantidad_oferta && !item.precio_oferta) {
+                    return {
+                        ...item,
+                        cantidad_oferta: 0,
+                    };
+                }
+                return item;
+            });
+
+            await realizarPedido(itemsFiltrados);
             if (id_servicio) vaciarCarrito(Number(id_servicio));
             navigate("/mis-pedidos");
         } catch (error: unknown) {
             console.error("Error al realizar el pedido:", error);
-
             if (error instanceof Error) {
                 setErrorMensaje(error.message);
             } else {
                 setErrorMensaje('Ocurrió un error al realizar el pedido');
             }
-
-
         }
     };
 
@@ -48,12 +119,12 @@ const Carrito = () => {
         return (
             <div style={{ background: 'white', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
                 <div style={{
-                    padding: '30px 20px',
+                    padding: '50px 20px',
                     textAlign: 'center',
                     maxWidth: '768px',
                     margin: '0 auto',
                 }}>
-                    <img src="/img/carrito_compras.png" alt="Carrito vacío" style={{ width: 120, marginTop: 80 }} />
+                    <FaShoppingCart size={90} color="#000" />
                     <div style={{ paddingTop: 30 }}>
                         <h2>¡El carrito está vacío!</h2>
                         <p>Podés volver atrás para seguir comprando.</p>
@@ -129,21 +200,28 @@ const Carrito = () => {
                         }}>
                             <img src={item.foto || "https://placehold.co/68x68"} alt="Producto"
                                  style={{ width: 68, height: 68, borderRadius: '50%' }} />
-                            <div style={{ flex: 1 }}>
-                                <div style={{ fontWeight: 600, fontFamily: 'Poppins' }}>{item.nombre}</div>
-                                {item.precio_original && item.precio_original > item.precio_actual ? (
+                            <div style={{flex: 1}}>
+                                <div style={{fontWeight: 600, fontFamily: 'Poppins'}}>{item.nombre}</div>
+                                {item.precio_oferta && item.cantidad_oferta !== undefined && item.cantidad_oferta > 0 ? (
                                     <div>
                                         <div style={{ fontSize: 12, color: '#EF574B', fontWeight: 600 }}>
-                                            Oferta: ${item.precio_actual.toFixed(2)} x {item.cantidad}
+                                            Oferta: ${item.precio_oferta.toFixed(2)} x {item.cantidad_oferta}
                                         </div>
-                                        <div style={{
-                                            fontSize: 11,
-                                            color: '#888',
-                                            textDecoration: 'line-through',
-                                            marginTop: 2
-                                        }}>
-                                            ${item.precio_original.toFixed(2)} x {item.cantidad}
-                                        </div>
+                                        {item.cantidad - item.cantidad_oferta > 0 && (
+                                            <div style={{ fontSize: 12, color: '#6CC51D', fontWeight: 500 }}>
+                                                Sin oferta: ${item.precio_actual.toFixed(2)} x {item.cantidad - item.cantidad_oferta}
+                                            </div>
+                                        )}
+                                        {item.precio_original && (
+                                            <div style={{
+                                                fontSize: 11,
+                                                color: '#888',
+                                                textDecoration: 'line-through',
+                                                marginTop: 2
+                                            }}>
+                                                ${item.precio_original.toFixed(2)} x {item.cantidad}
+                                            </div>
+                                        )}
                                         {item.tiempo_limite && (
                                             <div style={{
                                                 fontSize: 10,
@@ -151,7 +229,10 @@ const Carrito = () => {
                                                 marginTop: 4,
                                                 fontStyle: 'italic'
                                             }}>
-                                                Válido hasta {new Date(item.tiempo_limite).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                Válido hasta {new Date(item.tiempo_limite).toLocaleTimeString([], {
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            })}
                                             </div>
                                         )}
                                     </div>
@@ -160,23 +241,57 @@ const Carrito = () => {
                                         ${item.precio_actual.toFixed(2)} x {item.cantidad}
                                     </div>
                                 )}
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
+                                <div style={{display: 'flex', alignItems: 'center', gap: 12, marginTop: 8}}>
                                     <button
                                         onClick={() => modificarCantidad(item.id_servicio, item.id_producto, item.cantidad - 1)}
-                                        style={{ fontSize: 20, background: 'none', border: 'none', cursor: 'pointer' }}
-                                    >−</button>
-                                    <span style={{ fontSize: 16 }}>{item.cantidad}</span>
+                                        disabled={item.cantidad === 1}
+                                        style={{
+                                            fontSize: 20,
+                                            background: 'none',
+                                            border: 'none',
+                                            color: item.cantidad === 1 ? '#ccc' : 'black',
+                                            cursor: item.cantidad === 1 ? 'not-allowed' : 'pointer',
+                                            fontWeight: 600
+                                        }}
+                                    >
+                                        −
+                                    </button>
+
+                                    <span style={{fontSize: 16}}>{item.cantidad}</span>
+
                                     <button
                                         onClick={() => modificarCantidad(item.id_servicio, item.id_producto, item.cantidad + 1)}
-                                        style={{ fontSize: 20, background: 'none', border: 'none', cursor: 'pointer' }}
-                                    >+</button>
+                                        disabled={item.max_disponible !== undefined && item.cantidad >= item.max_disponible}
+                                        style={{
+                                            fontSize: 20,
+                                            background: 'none',
+                                            border: 'none',
+                                            color: item.max_disponible !== undefined && item.cantidad >= item.max_disponible ? '#ccc' : 'black',
+                                            cursor: item.max_disponible !== undefined && item.cantidad >= item.max_disponible ? 'not-allowed' : 'pointer',
+                                            fontWeight: 600
+                                        }}
+                                    >
+                                        +
+                                    </button>
                                 </div>
+
+                                {mensajeStockAgotado[item.id_producto] && (
+                                    <div style={{
+                                        fontSize: 11,
+                                        color: '#D8000C',
+                                        marginTop: 4,
+                                        fontFamily: 'Poppins',
+                                        fontWeight: 500,
+                                    }}>
+                                        No puedes agregar más. Stock máximo alcanzado.
+                                    </div>
+                                )}
                             </div>
                             <button
                                 onClick={() => eliminarItem(item.id_servicio, item.id_producto)}
-                                style={{ background: 'none', border: 'none', color: '#EF574B', cursor: 'pointer' }}
+                                style={{background: 'none', border: 'none', color: '#EF574B', cursor: 'pointer'}}
                             >
-                                <FaTrash />
+                                <FaTrash/>
                             </button>
                         </div>
                     ))}
@@ -190,8 +305,8 @@ const Carrito = () => {
                         justifyContent: 'space-between',
                         alignItems: 'center'
                     }}>
-                        <span style={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: 18 }}>Total</span>
-                        <span style={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: 18 }}>${total.toFixed(2)}</span>
+                        <span style={{fontFamily: 'Poppins', fontWeight: 600, fontSize: 18}}>Total</span>
+                        <span style={{fontFamily: 'Poppins', fontWeight: 600, fontSize: 18}}>${total.toFixed(2)}</span>
                     </div>
 
                     {errorMensaje && (

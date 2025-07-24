@@ -450,28 +450,49 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
                                     ))}
                                 </ul>
 
-                                <input
-                                    type="text"
-                                    placeholder="Agregar ingrediente nuevo"
-                                    value={nuevoIngrediente}
-                                    onChange={(e) => setNuevoIngrediente(e.target.value)}
-                                    style={{ width: "80%", marginTop: 10 }}
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        const ing = nuevoIngrediente.trim();
-                                        if (ing && !ingredientesDisponibles.includes(ing)) {
-                                            setIngredientesDisponibles([...ingredientesDisponibles, ing]);
-                                        }
-                                        setNuevoIngrediente("");
-                                    }}
-                                >
-                                    Agregar
-                                </button>
+                                <div style={{display: "flex", gap: 10, marginTop: 10}}>
+                                    <input
+                                        type="text"
+                                        placeholder="Agregar ingrediente nuevo"
+                                        value={nuevoIngrediente}
+                                        onChange={(e) => setNuevoIngrediente(e.target.value)}
+                                        style={{flex: 1, padding: 8, borderRadius: 5, border: "1px solid #ccc"}}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const ing = nuevoIngrediente.trim();
+                                            if (ing && !ingredientesDisponibles.includes(ing)) {
+                                                setIngredientesDisponibles([...ingredientesDisponibles, ing]);
+                                            }
+                                            setNuevoIngrediente("");
+                                        }}
+                                        style={{
+                                            backgroundColor: "#7A916C",
+                                            color: "white",
+                                            border: "none",
+                                            borderRadius: 5,
+                                            padding: "8px 16px",
+                                            fontSize: 17,
+                                            fontFamily: "Montserrat",
+                                            cursor: "pointer"
+                                        }}
+                                    >
+                                        Agregar
+                                    </button>
+                                </div>
                             </div>
 
-                            <button type="submit" className="btn-submit" style={{ backgroundColor: "#008cba", color: "white", border: "none", borderRadius: 8, padding: "10px 15px", cursor: "pointer", fontSize: 16, fontFamily: "Montserrat" }}>
+                            <button type="submit" className="btn-submit" style={{
+                                backgroundColor: "#008cba",
+                                color: "white",
+                                border: "none",
+                                borderRadius: 8,
+                                padding: "10px 15px",
+                                cursor: "pointer",
+                                fontSize: 16,
+                                fontFamily: "Montserrat"
+                            }}>
                                 {productoEditando ? "Modificar Producto" : "Crear Producto"}
                             </button>
                         </form>

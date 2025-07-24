@@ -41,6 +41,7 @@ const ProductoDetalle = () => {
     const [cantidad, setCantidad] = useState(1);
     const { agregarItem, items, setServicioActivo } = useCarrito();
     const [esFavorito, setEsFavorito] = useState(false);
+    const [mostrarAvisoStock, setMostrarAvisoStock] = useState(false);
 
     const totalArticulos = items.reduce((sum, item) => sum + item.cantidad, 0);
 
@@ -67,11 +68,23 @@ const ProductoDetalle = () => {
         localStorage.setItem('lastFromCarrito', window.location.pathname);
     }, []);
 
+    useEffect(() => {
+        if (producto?.max_disponible !== undefined && cantidad === producto.max_disponible) {
+            setMostrarAvisoStock(true);
+            const timeoutId = setTimeout(() => {
+                setMostrarAvisoStock(false);
+            }, 3000);
+            return () => clearTimeout(timeoutId);
+        }
+    }, [cantidad, producto?.max_disponible]);
+
+
     const aumentarCantidad = () => {
         if (producto?.max_disponible && cantidad < producto.max_disponible) {
-            setCantidad((prev) => prev + 1);
+            setCantidad(prev => prev + 1);
         }
     };
+
     const disminuirCantidad = () => setCantidad((prev) => (prev > 1 ? prev - 1 : 1));
 
     const handleIrAlCarrito = () => {
@@ -162,11 +175,12 @@ const ProductoDetalle = () => {
                     }}>
                         <div>
                             {producto.es_desperdicio_cero ? (
-                                <div style={{ fontFamily: 'Poppins' }}>
+                                <div style={{fontFamily: 'Poppins'}}>
                                     <div style={{
                                         color: '#EF574B',
                                         fontSize: 18,
                                         fontWeight: 700,
+                                        marginTop: 18
                                     }}>
                                         Oferta: ${producto.precio_oferta?.toFixed(2)}
                                     </div>
@@ -180,14 +194,14 @@ const ProductoDetalle = () => {
                                     </div>
                                 </div>
                             ) : (
-                                <div style={{ color: '#769B7B', fontSize: 18, fontFamily: 'Poppins', fontWeight: 600 }}>
+                                <div style={{color: '#769B7B', fontSize: 18, fontFamily: 'Poppins', fontWeight: 600}}>
                                     ${producto.precio_actual.toFixed(2)}
                                 </div>
                             )}
-                            <div style={{ fontSize: 20, fontFamily: 'Poppins', fontWeight: 600 }}>
+                            <div style={{fontSize: 20, fontFamily: 'Poppins', fontWeight: 600}}>
                                 {producto.nombre}
                             </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
+                            <div style={{display: 'flex', alignItems: 'center', gap: 6, marginTop: 6}}>
                                 <span style={{
                                     fontSize: 14,
                                     fontWeight: 600,
@@ -197,7 +211,7 @@ const ProductoDetalle = () => {
                                 }}>
                                     {producto.puntaje_promedio?.toFixed(1) || "0.0"}
                                 </span>
-                                <EstrellasPuntaje rating={producto.puntaje_promedio || 0} />
+                                <EstrellasPuntaje rating={producto.puntaje_promedio || 0}/>
                                 <span style={{
                                     fontSize: 12,
                                     color: '#868889',
@@ -208,10 +222,10 @@ const ProductoDetalle = () => {
                             </div>
                         </div>
 
-                        <div onClick={toggleFavorito} style={{ cursor: 'pointer' }}>
+                        <div onClick={toggleFavorito} style={{cursor: 'pointer'}}>
                             {esFavorito
-                                ? <FaHeart color="4B614C" size={20} />
-                                : <FaRegHeart color="grey" size={20} />}
+                                ? <FaHeart color="4B614C" size={20}/>
+                                : <FaRegHeart color="grey" size={20}/>}
                         </div>
                     </div>
 
@@ -227,11 +241,11 @@ const ProductoDetalle = () => {
                     </div>
 
                     {producto.ingredientes && producto.ingredientes.length > 0 && (
-                        <div style={{ marginTop: 20 }}>
-                            <h4 style={{ fontSize: 14, fontFamily: 'Poppins', color: '#4B614C', marginBottom: 6 }}>
+                        <div style={{marginTop: 20}}>
+                            <h4 style={{fontSize: 14, fontFamily: 'Poppins', color: '#4B614C', marginBottom: 6}}>
                                 Ingredientes
                             </h4>
-                            <ul style={{ paddingLeft: 16, color: '#555', fontSize: 13, fontFamily: 'Poppins' }}>
+                            <ul style={{paddingLeft: 16, color: '#555', fontSize: 13, fontFamily: 'Poppins'}}>
                                 {producto.ingredientes.map((ing) => (
                                     <li key={ing.id_ingrediente}>{ing.nombre}</li>
                                 ))}
@@ -244,51 +258,88 @@ const ProductoDetalle = () => {
                         marginTop: 20,
                         padding: 10,
                         borderRadius: 5,
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        height: 40
                     }}>
-                        <span style={{ color: '#868889', fontSize: 12, fontFamily: 'Poppins', fontWeight: 500 }}>
-                            Cantidad
-                        </span>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                            <button onClick={disminuirCantidad} style={{ fontSize: 20, background: 'none', border: 'none' }}>−</button>
-                            <span style={{ fontSize: 18, fontFamily: 'Poppins', fontWeight: 500 }}>{cantidad}</span>
-                            <button
-                                onClick={aumentarCantidad}
-                                disabled={producto?.max_disponible !== undefined && cantidad >= producto.max_disponible}
-                                style={{
-                                    fontSize: 20,
-                                    background: 'none',
-                                    border: 'none',
-                                    color: cantidad >= (producto?.max_disponible || Infinity) ? '#ccc' : 'inherit',
-                                    cursor: cantidad >= (producto?.max_disponible || Infinity) ? 'not-allowed' : 'pointer'
-                                }}
-                            >
-                                +
-                            </button>
-
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                        }}>
+        <span style={{color: '#868889', fontSize: 12, fontFamily: 'Poppins', fontWeight: 500}}>
+            Cantidad
+        </span>
+                            <div style={{display: 'flex', alignItems: 'center', gap: 16}}>
+                                <button
+                                    onClick={disminuirCantidad}
+                                    disabled={cantidad === 1}
+                                    style={{
+                                        fontSize: 20,
+                                        background: 'none',
+                                        border: 'none',
+                                        color: cantidad === 1 ? '#ccc' : 'black',
+                                        cursor: cantidad === 1 ? 'not-allowed' : 'pointer',
+                                        fontWeight: 600
+                                    }}
+                                >
+                                    −
+                                </button>
+                                <span style={{fontSize: 18, fontFamily: 'Poppins', fontWeight: 500}}>{cantidad}</span>
+                                <button
+                                    onClick={aumentarCantidad}
+                                    disabled={producto?.max_disponible !== undefined && cantidad >= producto.max_disponible}
+                                    style={{
+                                        fontSize: 20,
+                                        background: 'none',
+                                        border: 'none',
+                                        color:
+                                            producto?.max_disponible !== undefined && cantidad >= producto.max_disponible
+                                                ? '#ccc'
+                                                : 'black',
+                                        cursor:
+                                            producto?.max_disponible !== undefined && cantidad >= producto.max_disponible
+                                                ? 'not-allowed'
+                                                : 'pointer',
+                                        fontWeight: 600
+                                    }}
+                                >
+                                    +
+                                </button>
+                            </div>
                         </div>
+
+                        {mostrarAvisoStock && (
+                            <div style={{
+                                marginTop: 8,
+                                fontSize: 12,
+                                color: '#D8000C',
+                                fontFamily: 'Poppins',
+                                fontWeight: 500
+                            }}>
+                                No puedes agregar más. Stock máximo alcanzado.
+                            </div>
+                        )}
                     </div>
 
                     <button
                         onClick={() => {
-                            const precioFinal = producto.es_desperdicio_cero && producto.precio_oferta !== undefined
-                                ? producto.precio_oferta
-                                : producto.precio_actual;
+                            const cantidadOferta = producto.cantidad_restante
+                                ? Math.min(cantidad, producto.cantidad_restante)
+                                : 0;
 
                             agregarItem(producto.id_servicio, {
                                 id_producto: producto.id_producto,
                                 nombre: producto.nombre,
-                                precio_actual: precioFinal,
-                                precio_original: producto.precio_actual,
-                                tiempo_limite: producto.tiempo_limite,
                                 cantidad,
+                                cantidad_oferta: cantidadOferta,
+                                precio_oferta: producto.precio_oferta,
+                                precio_actual: producto.precio_actual,
+                                precio_original: producto.precio_actual,
+                                cantidad_restante: producto.cantidad_restante,
+                                tiempo_limite: producto.tiempo_limite,
                                 foto: producto.foto,
                                 id_servicio: producto.id_servicio,
                                 nombre_servicio: producto.nombre_servicio ?? ''
                             });
+
                             navigate(`/carrito/${producto.id_servicio}`);
                             setTimeout(() => window.scrollTo(0, 0), 100);
                         }}

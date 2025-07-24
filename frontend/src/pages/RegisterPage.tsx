@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 const RegisterPage = () => {
 
-    const navigate = useNavigate(); //
+    const navigate = useNavigate();
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -84,7 +84,7 @@ const RegisterPage = () => {
             <h2 className="titulo">Registrarse</h2>
 
             {successMessage && (
-                <div className="success-message">✅ {successMessage}
+                <div className="success-message">{successMessage}
                     <div className="go-login-container">
                         <button
                             className="btn-ingresar"

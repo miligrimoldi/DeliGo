@@ -59,22 +59,33 @@ const LoginPage = () => {
                 <input
                     className="input"
                     type="email"
+                    name="email"
+                    id="login-email"
                     placeholder="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="email"
                     required
                 />
+
                 <input
                     className="input"
                     type="password"
+                    name="password"
+                    id="login-password"
                     placeholder="Contraseña"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="current-password"
                     required
                 />
                 <button className="btn-login" type="submit">
                     Ingresar
                 </button>
+
+                <p className="register-text">
+                    ¿Olvidaste tu contraseña? <Link to="/recuperar">Recuperar</Link>
+                </p>
 
                 <p className="register-text">
                     ¿No tenés cuenta? <Link to="/register">Regístrate</Link>

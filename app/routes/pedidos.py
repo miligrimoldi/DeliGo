@@ -4,7 +4,6 @@ from app.extensions import db
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.ingrediente_producto import IngredienteProducto
 from app.models.stock import Stock
-from sqlalchemy.exc import IntegrityError
 from app.models.producto_servicio import ProductoServicio
 from app.models.detalle_pedido import DetallePedido
 from app.models.usuario_consumidor import UsuarioConsumidor
@@ -20,13 +19,23 @@ def obtener_mis_pedidos():
 
     resultado = []
     for pedido in pedidos:
-        detalles = [{
-            "producto": d.producto.nombre,
-            "foto": d.producto.foto,
-            "cantidad": d.cantidad,
-            "precio_unitario": float(d.precio_unitario),
-            "subtotal": float(d.subtotal)
-        } for d in pedido.detalles]
+        detalles = []
+        for d in pedido.detalles:
+            producto = d.producto
+            detalles.append({
+                "id_detalle": d.id_detalle,
+                "id_producto": producto.id_producto,
+                "producto": producto.nombre,
+                "foto": producto.foto,
+                "cantidad": d.cantidad,
+                "precio_unitario": float(d.precio_unitario),
+                "subtotal": float(d.subtotal),
+                "es_oferta": d.es_oferta or False,
+                "precio_original": float(d.precio_original) if d.precio_original else None,
+                "cantidad_oferta": d.cantidad_oferta or 0,
+                "cantidad_normal": d.cantidad_normal or d.cantidad,
+                "precio_oferta": float(d.precio_oferta) if d.precio_oferta else None
+            })
 
         resultado.append({
             "id": pedido.id_pedido,
@@ -41,6 +50,7 @@ def obtener_mis_pedidos():
         })
 
     return jsonify(resultado)
+
 
 @pedidos_bp.route('', methods=['POST'])
 @jwt_required()
@@ -68,7 +78,7 @@ def crear_pedido():
         id_usuario_consumidor=id_usuario,
         id_entidad=id_entidad,
         id_servicio=id_servicio,
-        total=0  # se actualizará más abajo
+        total=0
     )
     db.session.add(nuevo_pedido)
     db.session.flush()
@@ -77,47 +87,65 @@ def crear_pedido():
 
     for item in items:
         id_producto = item["id_producto"]
-        cantidad_producto = item["cantidad"]
+        cantidad_total = item["cantidad"]
 
         producto = ProductoServicio.query.get(id_producto)
         if not producto:
             return jsonify({"error": f"Producto con id {id_producto} no encontrado"}), 404
 
-        # Determinar el precio a usar
-        if producto.es_desperdicio_cero and producto.precio_oferta is not None:
-            precio_unitario = producto.precio_oferta
-            # Verificar cantidad restante en oferta
-            if producto.cantidad_restante is None or producto.cantidad_restante < cantidad_producto:
-                return jsonify({"error": f"No hay suficiente cantidad disponible en oferta para '{producto.nombre}'"}), 400
-            producto.cantidad_restante -= cantidad_producto
-        else:
-            precio_unitario = producto.precio_actual
+        cantidad_oferta = 0
+        cantidad_normal = cantidad_total
+        precio_oferta = None
+        precio_original = None
+        es_oferta = False
 
-        if producto.es_desperdicio_cero and producto.cantidad_restante is not None:
-            producto.cantidad_restante -= item["cantidad"]
+        # Calcular cantidad con oferta y normal
+        if producto.es_desperdicio_cero and producto.precio_oferta is not None and producto.cantidad_restante:
+            cantidad_oferta = min(cantidad_total, producto.cantidad_restante)
+            cantidad_normal = cantidad_total - cantidad_oferta
+            precio_oferta = float(producto.precio_oferta)
+            precio_original = float(producto.precio_actual)
+            es_oferta = True
+
+            producto.cantidad_restante -= cantidad_oferta
             if producto.cantidad_restante <= 0:
                 producto.cantidad_restante = 0
                 producto.es_desperdicio_cero = False
                 producto.precio_oferta = None
                 producto.tiempo_limite = None
 
-        subtotal = precio_unitario * cantidad_producto
-        total += subtotal
+        # Calcular subtotal total
+        subtotal_oferta = (precio_oferta or 0) * cantidad_oferta
+        subtotal_normal = float(producto.precio_actual) * cantidad_normal
+        subtotal_total = subtotal_oferta + subtotal_normal
+
+        if cantidad_total > 0:
+            precio_unitario_promedio = subtotal_total / cantidad_total
+        else:
+            precio_unitario_promedio = float(producto.precio_actual)
+
+        total += subtotal_total
 
         detalle = DetallePedido(
             id_pedido=nuevo_pedido.id_pedido,
             id_producto=id_producto,
-            cantidad=cantidad_producto,
-            precio_unitario=precio_unitario,
-            subtotal=subtotal
+            cantidad=cantidad_total,
+            precio_unitario=precio_unitario_promedio,
+            subtotal=subtotal_total,
+            cantidad_oferta=cantidad_oferta,
+            cantidad_normal=cantidad_normal,
+            precio_oferta=precio_oferta,
+            precio_original=precio_original,
+            es_oferta=es_oferta
         )
         db.session.add(detalle)
 
         asociaciones = IngredienteProducto.query.filter_by(id_producto=id_producto).all()
         for asociacion in asociaciones:
             id_ingrediente = asociacion.id_ingrediente
-            cantidad_necesaria = asociacion.cantidad_necesaria * cantidad_producto
-            ingredientes_a_descontar[id_ingrediente] = ingredientes_a_descontar.get(id_ingrediente, 0) + cantidad_necesaria
+            cantidad_necesaria = asociacion.cantidad_necesaria * cantidad_total
+            ingredientes_a_descontar[id_ingrediente] = ingredientes_a_descontar.get(id_ingrediente,
+                                                                                    0) + cantidad_necesaria
 
     # Actualizar stock de ingredientes
     for id_ingrediente, cantidad_a_restar in ingredientes_a_descontar.items():
@@ -147,16 +175,25 @@ def obtener_pedido_por_id(id_pedido):
     detalles = []
     for d in pedido.detalles:
         producto = d.producto
+        if not producto:
+            continue
+
         detalles.append({
+            "id_detalle": d.id_detalle,
             "id_producto": producto.id_producto,
             "producto": {
-                "id_producto": producto.id_producto,
                 "nombre": producto.nombre,
-                "foto": producto.foto
+                "precio": float(producto.precio_actual)
             },
+            "foto": producto.foto,
             "cantidad": d.cantidad,
             "precio_unitario": float(d.precio_unitario),
-            "subtotal": float(d.subtotal)
+            "subtotal": float(d.subtotal),
+            "es_oferta": d.es_oferta or False,
+            "precio_original": float(d.precio_original) if d.precio_original else None,
+            "cantidad_oferta": d.cantidad_oferta or 0,
+            "cantidad_normal": d.cantidad_normal or d.cantidad,
+            "precio_oferta": float(d.precio_oferta) if d.precio_oferta else None
         })
 
     servicio = pedido.servicio
@@ -170,9 +207,10 @@ def obtener_pedido_por_id(id_pedido):
             "id_servicio": servicio.id_servicio,
             "nombre": servicio.nombre
         },
-        "entidad": pedido.entidad.nombre,
+        "entidad": {
+            "nombre": pedido.entidad.nombre
+        },
         "detalles": detalles,
         **({"tiempo_estimado_minutos": pedido.tiempo_estimado_minutos}
            if pedido.estado == "en_preparacion" else {})
     })
-

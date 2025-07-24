@@ -18,14 +18,13 @@ interface ProductoDesperdicio {
 const DesperdicioCero = () => {
     const { id_servicio } = useParams<{ id_servicio: string }>();
     const [productos, setProductos] = useState<ProductoDesperdicio[]>([]);
-    const { agregarItem } = useCarrito();
+    const { agregarItem, items } = useCarrito();
     const [nombreServicio, setNombreServicio] = useState("");
     const navigate = useNavigate();
 
     useEffect(() => {
         if (!id_servicio) return;
 
-        // Obtener nombre del servicio
         getDetalleServicio(Number(id_servicio))
             .then(data => {
                 setNombreServicio(data.servicio.nombre);
@@ -54,17 +53,29 @@ const DesperdicioCero = () => {
                 console.log("Productos desperdicio crudos:", data);
 
                 const ahora = new Date();
-                const filtrados = data.filter((p: ProductoDesperdicio) => {
-                    if (!p.tiempo_limite) return p.cantidad_restante > 0;
+                const filtrados = data
+                    .map((p: ProductoDesperdicio) => {
+                        const carritoItem = items.find(i => i.id_producto === p.id_producto);
+                        const cantidadEnCarrito = carritoItem?.cantidad_oferta ?? 0;
 
-                    const vencimiento = new Date(p.tiempo_limite);
-                    if (isNaN(vencimiento.getTime())) {
-                        console.warn("Fecha inválida en producto:", p);
-                        return false;
-                    }
+                        const cantidadRealDisponible = p.cantidad_restante - cantidadEnCarrito;
 
-                    return ahora <= vencimiento && p.cantidad_restante > 0;
-                });
+                        return {
+                            ...p,
+                            cantidad_restante: cantidadRealDisponible
+                        };
+                    })
+                    .filter((p: ProductoDesperdicio) => {
+                        if (!p.tiempo_limite) return p.cantidad_restante > 0;
+
+                        const vencimiento = new Date(p.tiempo_limite);
+                        if (isNaN(vencimiento.getTime())) {
+                            console.warn("Fecha inválida en producto:", p);
+                            return false;
+                        }
+
+                        return ahora <= vencimiento && p.cantidad_restante > 0;
+                    });
 
                 setProductos(filtrados);
             } catch (error) {
@@ -74,7 +85,7 @@ const DesperdicioCero = () => {
         };
 
         fetchYFiltrar();
-        const intervalId = setInterval(fetchYFiltrar, 20000); // refresca cada 20s
+        const intervalId = setInterval(fetchYFiltrar, 20000);
 
         return () => clearInterval(intervalId);
     }, [id_servicio]);
@@ -110,15 +121,12 @@ const DesperdicioCero = () => {
 
             const detalle = await response.json();
 
-            // Verificar si el producto sigue siendo válido
             if (!detalle.es_valido || !detalle.es_desperdicio_cero || detalle.cantidad_restante <= 0) {
                 alert("Este producto ya no está disponible con descuento.");
-                // Actualizar la lista de productos
                 setProductos(prev => prev.filter(p => p.id_producto !== producto.id_producto));
                 return;
             }
 
-            // Verificar tiempo límite en el frontend también
             if (detalle.tiempo_limite) {
                 const ahora = new Date();
                 const vencimiento = new Date(detalle.tiempo_limite);
@@ -130,12 +138,12 @@ const DesperdicioCero = () => {
                 }
             }
 
-            // Agregar al carrito
             agregarItem(Number(id_servicio), {
                 id_producto: detalle.id_producto,
                 nombre: detalle.nombre,
                 precio_actual: detalle.precio_oferta || detalle.precio_actual,
                 cantidad: 1,
+                cantidad_restante: detalle.cantidad_restante,
                 foto: detalle.foto,
                 id_servicio: Number(id_servicio),
                 nombre_servicio: nombreServicio,
@@ -143,7 +151,6 @@ const DesperdicioCero = () => {
                 tiempo_limite: detalle.tiempo_limite
             });
 
-            // Actualizar la cantidad restante localmente
             setProductos(prev => prev.map(p =>
                 p.id_producto === producto.id_producto
                     ? { ...p, cantidad_restante: Math.max(0, p.cantidad_restante - 1) }

@@ -25,12 +25,18 @@ import DesperdicioCero from "./pages/DesperdicioCero.tsx";
 import ComprobantePedido from "./pages/admin/ComprobantePedido.tsx";
 import ComprobanteUsuarioPedido from "./pages/ComprobanteUsuarioPedido.tsx";
 import AdminLayout from "./components/AdminLayout.tsx";
+import RecuperarPassword from "./pages/RecuperarPassword.tsx";
+import CambiarConToken from "./pages/CambiarConToken.tsx";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 function App() {
     useAuthRedirect();
 
     return (
         <div style={{minHeight: '100vh', backgroundColor: '#F4F5F9'}}>
+            <ToastContainer position="top-center" autoClose={4000} />
             <Routes>
                 {/* Redirección inicial */}
                 <Route path="/" element={<Navigate to="/login"/>}/>
@@ -38,6 +44,8 @@ function App() {
                 {/* Rutas públicas */}
                 <Route path="/login" element={<LoginPage/>}/>
                 <Route path="/register" element={<RegisterPage/>}/>
+                <Route path="/recuperar" element={<RecuperarPassword />} />
+                <Route path="/reset-password/:token" element={<CambiarConToken />} />
 
                 {/* Rutas para Admin y Clientes */}
                 <Route
