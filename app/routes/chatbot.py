@@ -8,18 +8,11 @@ import os
 
 # Cargar .env
 load_dotenv()
-
 FAKE_MODE = os.getenv("FAKE_MODE") == "1"
 
-if not FAKE_MODE:
-    import openai
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        raise RuntimeError("OPENAI_API_KEY no está definida. Verificá tu archivo .env")
-    openai.api_key = api_key
-
-# Importar lógica personalizada
 from app.intents.chat_intents import procesar_mensaje
+from app.ai.context_builder import obtener_contexto_para_usuario
+from app.ai.gemini_client import responder_con_gemini
 
 chatbot_bp = Blueprint('chatbot', __name__)
 
@@ -30,7 +23,7 @@ def chat():
     data = request.get_json()
     user_input = data.get("message", "").lower().strip()
 
-    # Historial guardado
+    # Historial guardado (para mostrar en frontend si hace falta)
     history = ChatMessage.query.filter_by(user_id=user_id).order_by(ChatMessage.timestamp).all()
     messages = [{"role": m.role, "content": m.content} for m in history]
     messages.append({"role": "user", "content": user_input})
@@ -54,13 +47,12 @@ def chat():
             reply = f"(Respuesta simulada a: '{user_input}')"
     else:
         try:
-            response = openai.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[{"role": "system", "content": "Sos un asistente amable del comedor universitario."}] + messages
-            )
-            reply = response.choices[0].message.content.strip()
+            # Inyectar contexto personalizado para este usuario
+            contexto = obtener_contexto_para_usuario(user_id)
+            prompt = f"{contexto}\n\nUsuario pregunta: {user_input}"
+            reply = responder_con_gemini(prompt)
         except Exception as e:
-            return jsonify({"reply": f"Error en OpenAI: {str(e)}"}), 500
+            reply = f"[Error en Gemini: {str(e)}]"
 
     # Guardar interacción
     db.session.add(ChatMessage(user_id=user_id, role='user', content=user_input))
