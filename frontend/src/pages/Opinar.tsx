@@ -53,7 +53,7 @@ const Opinar = () => {
         try {
             await api.post("/api/opinion/servicio", {
                 id_servicio: pedido.servicio.id_servicio,
-                id_pedido: pedido.id,
+                id_pedido: pedido.id_pedido,
                 comentario: comentarioServicio,
                 puntaje: puntajeServicio,
             });
@@ -61,7 +61,7 @@ const Opinar = () => {
             for (const opinion of opinionesProducto) {
                 await api.post("/api/opinion/producto", {
                     id_producto: opinion.id_producto,
-                    id_pedido: pedido.id,
+                    id_pedido: pedido.id_pedido,
                     comentario: opinion.comentario,
                     puntaje: opinion.puntaje,
                 });
