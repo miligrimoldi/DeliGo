@@ -427,8 +427,16 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
 
                                 <ul style={{ marginTop: 10 }}>
                                     {ingredientesSeleccionados.map((ing,idx) => (
-                                        <li key={ing.nombre} style={{ marginBottom: 8 }}>
-                                            {ing.nombre}
+                                        <li
+                                            key={ing.nombre}
+                                            style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: 10,
+                                                marginBottom: 8
+                                            }}
+                                        >
+                                            <span style={{ minWidth: 70 }}>{ing.nombre}</span>
                                             <input
                                                 type="number"
                                                 value={ing.cantidad}
@@ -439,14 +447,27 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
                                                         prev.map((i, iIdx) => iIdx === idx ? { ...i, cantidad: nuevaCantidad } : i)
                                                     );
                                                 }}
-                                                style={{ width: 60, marginLeft: 10 }}
+                                                style={{ width: 60 }}
                                             />
-                                            <button type="button" onClick={() =>
-                                                setIngredientesSeleccionados(prev => prev.filter(i => i.nombre !== ing.nombre))
-                                            }>
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    setIngredientesSeleccionados(prev => prev.filter(i => i.nombre !== ing.nombre))
+                                                }
+                                                style={{
+                                                    backgroundColor: "#7A916C",
+                                                    border: "none",
+                                                    color: "white",
+                                                    borderRadius: 4,
+                                                    padding: "4px 8px",
+                                                    fontSize: 16,
+                                                    cursor: "pointer"
+                                                }}
+                                            >
                                                 ❌
                                             </button>
                                         </li>
+
                                     ))}
                                 </ul>
 
