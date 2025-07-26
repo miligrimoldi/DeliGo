@@ -168,7 +168,7 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
     useEffect(() => {
         const fetchIngredientes = async () => {
             try {
-                const res = await fetch(`/ingredientes/por-servicio/${id_servicio}`, {
+                const res = await fetch(`/ingredientes/disponibles/${id_servicio}`, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('token')}`,
                     },

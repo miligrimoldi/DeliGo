@@ -14,6 +14,62 @@ const StockPage = () => {
     const [confirmandoId, setConfirmandoId] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+    const [nuevoNombre, setNuevoNombre] = useState("");
+    const [nuevaCantidad, setNuevaCantidad] = useState(0);
+    const [confirmandoEliminarId, setConfirmandoEliminarId] = useState<number | null>(null);
+
+    const agregarIngrediente = async () => {
+        if (!nuevoNombre.trim()) return;
+        try {
+            const res = await fetch(`/stock/${id_servicio}/nuevo`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+                body: JSON.stringify({
+                    nombre: nuevoNombre.trim(),
+                    cantidad: nuevaCantidad,
+                }),
+            });
+
+            if (!res.ok) throw new Error("Ya existe o error al agregar");
+            toast.success("Ingrediente agregado");
+            setNuevoNombre("");
+            setNuevaCantidad(0);
+
+            const data = await getStockPorServicio(Number(id_servicio));
+            setIngredientes(data);
+            const iniciales: Record<number, number> = {};
+            data.forEach((ing) => (iniciales[ing.id_ingrediente] = ing.cantidad));
+            setValoresTemporales(iniciales);
+        } catch (e) {
+            console.error(e);
+            toast.error("No se pudo agregar el ingrediente");
+        }
+    };
+
+    const eliminarIngrediente = async (id_ingrediente: number) => {
+        try {
+            const res = await fetch(`/stock/${id_servicio}/${id_ingrediente}`, {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            });
+
+            if (!res.ok) throw new Error("No se pudo eliminar");
+
+            setIngredientes(prev => prev.filter(i => i.id_ingrediente !== id_ingrediente));
+            toast.success("Ingrediente eliminado");
+            setConfirmandoEliminarId(null);
+        } catch (e) {
+            console.error(e);
+            toast.error("Error al eliminar ingrediente");
+        }
+    };
+
+
 
     useEffect(() => {
         const fetchStock = async () => {
@@ -78,6 +134,39 @@ const StockPage = () => {
                     Gestión de Stock
                 </h2>
 
+                {/* Formulario para nuevo ingrediente */}
+                <div style={{ marginBottom: 30 }}>
+                    <h4 style={{ marginBottom: 10 }}>Agregar nuevo ingrediente</h4>
+                    <input
+                        type="text"
+                        placeholder="Nombre del ingrediente"
+                        value={nuevoNombre}
+                        onChange={(e) => setNuevoNombre(e.target.value)}
+                        style={{ marginRight: 10 }}
+                    />
+                    <input
+                        type="number"
+                        placeholder="Cantidad"
+                        min={0}
+                        value={nuevaCantidad}
+                        onChange={(e) => setNuevaCantidad(parseInt(e.target.value))}
+                        style={{ marginRight: 10, width: 80 }}
+                    />
+                    <button
+                        onClick={agregarIngrediente}
+                        style={{
+                            backgroundColor: "#7A916C",
+                            color: "white",
+                            border: "none",
+                            borderRadius: 5,
+                            padding: "8px 12px",
+                            fontFamily: "Poppins"
+                        }}
+                    >
+                        Agregar
+                    </button>
+                </div>
+
                 <ul style={{ listStyle: "none", padding: 0, margin: 0, marginBottom: 30 }}>
                     {ingredientes.map((ing) => (
                         <li key={ing.id_ingrediente} style={{
@@ -87,15 +176,15 @@ const StockPage = () => {
                             padding: "12px 0",
                             borderBottom: "1px solid #eee"
                         }}>
-                            <span style={{
-                                fontSize: 15,
-                                color: "#333",
-                                flex: 1,
-                                marginRight: 20,
-                                wordBreak: "break-word"
-                            }}>
-                                {ing.nombre}
-                            </span>
+                        <span style={{
+                            fontSize: 15,
+                            color: "#333",
+                            flex: 1,
+                            marginRight: 20,
+                            wordBreak: "break-word"
+                        }}>
+                            {ing.nombre}
+                        </span>
 
                             <input
                                 type="number"
@@ -152,6 +241,41 @@ const StockPage = () => {
                             >
                                 ✔
                             </button>
+
+                            {confirmandoEliminarId === ing.id_ingrediente ? (
+                                <button
+                                    onClick={() => eliminarIngrediente(ing.id_ingrediente)}
+                                    style={{
+                                        backgroundColor: "red",
+                                        color: "white",
+                                        marginLeft: 6,
+                                        borderRadius: 5,
+                                        padding: "4px 8px",
+                                        fontFamily: "Poppins",
+                                        border: "none",
+                                        fontSize: 13,
+                                        cursor: "pointer"
+                                    }}
+                                >
+                                    Confirmar ❌
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={() => setConfirmandoEliminarId(ing.id_ingrediente)}
+                                    style={{
+                                        backgroundColor: "#ccc",
+                                        marginLeft: 6,
+                                        borderRadius: 5,
+                                        padding: "4px 8px",
+                                        fontFamily: "Poppins",
+                                        border: "none",
+                                        fontSize: 13,
+                                        cursor: "pointer"
+                                    }}
+                                >
+                                    ❌
+                                </button>
+                            )}
                         </li>
                     ))}
                 </ul>
@@ -175,6 +299,7 @@ const StockPage = () => {
             </div>
         </div>
     );
+
 };
 
 export default StockPage;

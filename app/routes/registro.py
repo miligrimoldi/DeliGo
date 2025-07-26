@@ -37,7 +37,8 @@ def register():
         return jsonify({"error": "Ya existe un usuario con ese email"}), 409
 
     # Hasheo de contrasena
-    hashed_password = generate_password_hash(password)
+    hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+
 
     if es_admin:
         servicio_existente = Servicio.query.filter_by(id_servicio=id_servicio).first()

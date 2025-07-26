@@ -125,3 +125,19 @@ def desasociar_ingredientes_de_producto(id_producto):
 
     db.session.commit()
     return jsonify({'mensaje': 'Ingredientes desasociados correctamente'}), 200
+
+@ingredientes_bp.route('/ingredientes/disponibles/<int:id_servicio>', methods=['GET'])
+@jwt_required()
+def ingredientes_disponibles_para_servicio(id_servicio):
+    stock_items = (
+        db.session.query(Stock, Ingrediente)
+        .join(Ingrediente, Stock.id_ingrediente == Ingrediente.id_ingrediente)
+        .filter(Stock.id_servicio == id_servicio)
+        .all()
+    )
+
+    resultado = [
+        {'id': ingr.id_ingrediente, 'nombre': ingr.nombre}
+        for stock, ingr in stock_items
+    ]
+    return jsonify(resultado), 200
