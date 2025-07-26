@@ -39,9 +39,11 @@ const HomeEmpleado = () => {
                 <button className="admin-btn" onClick={() => navigate(`/empleado/${id_servicio}/stock`)}>
                     Stock
                 </button>
-                <button className="admin-btn" onClick={() => navigate(`/admin/${id_servicio}/opiniones`)}>
-                    Opiniones
-                </button>
+                {user?.esAdmin && (
+                    <button className="admin-btn" onClick={() => navigate(`/admin/${id_servicio}/opiniones`)}>
+                        Opiniones
+                    </button>
+                )}
             </div>
             {info ? (
                 <>

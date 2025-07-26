@@ -14,10 +14,33 @@ const ProtectedRoute: React.FC<Props> = ({ children, onlyEmployee = false, onlyU
 
     if (!user) return <Navigate to="/login" replace />;
 
+    const isAdmin = user.esAdmin === true;
+    const isEmployee = user.tipo === "empleado";
+    const isConsumer = !isEmployee; // por ahora solo hay empleados o consumidores
 
-    if (onlyAdmin && !user.esAdmin) return <Navigate to={`/admin/${user.id_servicio}`} />;
-    if (onlyEmployee && !(user.tipo === "empleado")) return <Navigate to="/home/1" />;
-    if (onlyUser && (user.tipo === "empleado")) return <Navigate to="/admin/1" />;
+    // 🔒 Rutas solo admin
+    if (onlyAdmin) {
+        if (!isAdmin) {
+            if (isEmployee) return <Navigate to={`/empleado/${user.id_servicio}`} replace />;
+            return <Navigate to="/entidades" replace />; // consumidor
+        }
+    }
+
+    // 🔒 Rutas solo empleado
+    if (onlyEmployee) {
+        if (!isEmployee) {
+            if (isAdmin) return <Navigate to={`/empleado/${user.id_servicio}`} replace />;
+            return <Navigate to="/entidades" replace />; // consumidor
+        }
+    }
+
+    // 🔒 Rutas solo consumidor
+    if (onlyUser) {
+        if (!isConsumer) {
+            if (isAdmin) return <Navigate to={`/empleado/${user.id_servicio}`} replace />;
+            return <Navigate to={`/empleado/${user.id_servicio}`} replace />;
+        }
+    }
 
     return <>{children}</>;
 };
