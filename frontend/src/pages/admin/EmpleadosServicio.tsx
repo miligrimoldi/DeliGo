@@ -54,7 +54,8 @@ const EmpleadosServicio = () => {
         if (!id_servicio) return;
 
         if (user && id_empleado === user.id_usuario) {
-            alert("No podés eliminarte a vos mismo desde esta sección. Hacelo desde tu perfil si estás seguro.");
+            setError("No podés eliminarte a vos mismo desde esta sección. Hacelo desde tu perfil si estás seguro.");
+            setTimeout(() => setError(null), 5000);
             return;
         }
 
@@ -63,8 +64,10 @@ const EmpleadosServicio = () => {
             setEmpleados(empleados.filter(e => e.id !== id_empleado));
         } catch (err) {
             console.error("Error al eliminar empleado:", err);
+            setError("Ocurrió un error al eliminar el empleado.");
         }
     };
+
 
     const navigate = useNavigate();
 
