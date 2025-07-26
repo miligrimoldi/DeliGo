@@ -54,10 +54,27 @@ const ComprobanteUsuarioPedido = () => {
                         borderBottom: "1px solid #ddd"
                     }}>
                         <strong>{d.producto.nombre}</strong> × {d.cantidad}<br />
-                        <span style={{ fontSize: "14px", color: "#666" }}>
-                            Precio unitario: ${parseFloat(d.producto.precio).toFixed(2)}<br />
-                            Subtotal: ${(parseFloat(d.producto.precio) * d.cantidad).toFixed(2)}
-                        </span>
+
+                        {d.precio_oferta && d.cantidad_oferta > 0 ? (
+                            <div style={{ fontSize: "14px", color: "#555" }}>
+                                <div style={{ color: "#EF574B", fontWeight: 600 }}>
+                                    Oferta: ${d.precio_oferta.toFixed(2)} × {d.cantidad_oferta}
+                                </div>
+                                {d.cantidad_normal > 0 && (
+                                    <div style={{ color: "#6CC51D", fontWeight: 500 }}>
+                                        Normal: ${d.precio_original.toFixed(2)} × {d.cantidad_normal}
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div style={{ fontSize: "14px", color: "#555" }}>
+                                ${d.precio_unitario.toFixed(2)} × {d.cantidad}
+                            </div>
+                        )}
+
+                        <div style={{ fontSize: "14px", color: "#666", marginTop: 4 }}>
+                            Subtotal: ${d.subtotal.toFixed(2)}
+                        </div>
                     </li>
                 ))}
             </ul>

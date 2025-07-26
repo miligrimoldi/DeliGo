@@ -38,7 +38,7 @@ def obtener_mis_pedidos():
             })
 
         resultado.append({
-            "id_pedido": pedido.id_pedido,
+            "id": pedido.id_pedido,
             "fecha": pedido.fecha.isoformat(),
             "estado": pedido.estado,
             "total": float(pedido.total),
@@ -182,7 +182,8 @@ def obtener_pedido_por_id(id_pedido):
             "id_detalle": d.id_detalle,
             "id_producto": producto.id_producto,
             "producto": {
-                "nombre": producto.nombre
+                "nombre": producto.nombre,
+                "precio": float(d.precio_unitario)
             },
             "foto": producto.foto,
             "cantidad": d.cantidad,
@@ -213,3 +214,4 @@ def obtener_pedido_por_id(id_pedido):
         **({"tiempo_estimado_minutos": pedido.tiempo_estimado_minutos}
            if pedido.estado == "en_preparacion" else {})
     })
+
