@@ -48,16 +48,25 @@ const ComprobantePedido = () => {
             <h3 style={{ marginTop: "20px", color: "#2f6f3f" }}>Productos:</h3>
             <ul style={{ paddingLeft: "0" }}>
                 {pedido.detalles.map((d: any) => (
-                    <li key={d.id_detalle} style={{
-                        listStyle: "none",
-                        marginBottom: "10px",
-                        padding: "10px",
-                        borderBottom: "1px solid #ddd"
-                    }}>
+                    <li key={d.id_detalle} style={{ listStyle: "none", marginBottom: "10px", padding: "10px", borderBottom: "1px solid #ddd" }}>
                         <strong>{d.producto.nombre}</strong> × {d.cantidad}<br />
                         <span style={{ fontSize: "14px", color: "#666" }}>
-                            Precio unitario: ${parseFloat(d.producto.precio).toFixed(2)}<br />
-                            Subtotal: ${(parseFloat(d.producto.precio) * d.cantidad).toFixed(2)}
+                            {d.precio_oferta && d.cantidad_oferta > 0 ? (
+                                <>
+                                    <div>Oferta: ${d.precio_oferta.toFixed(2)} x {d.cantidad_oferta}</div>
+                                    {d.cantidad_normal > 0 && d.precio_original != null && (
+                                        <div>Sin oferta: ${d.precio_original.toFixed(2)} x {d.cantidad_normal}</div>
+                                    )}
+                                    {d.precio_original != null && (
+                                        <div style={{ fontSize: 12, textDecoration: 'line-through', color: '#888' }}>
+                                            Precio original: ${d.precio_original.toFixed(2)} x {d.cantidad}
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                <div>${d.precio_original != null ? d.precio_original.toFixed(2) : "N/A"} x {d.cantidad}</div>
+                            )}
+                            <div><strong>Subtotal:</strong> ${d.subtotal.toFixed(2)}</div>
                         </span>
                     </li>
                 ))}

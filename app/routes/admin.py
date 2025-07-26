@@ -114,10 +114,12 @@ def quitar_desperdicio_cero(id_producto):
 
 # Agrego ruta para buscar un pedido por id (para comprobantes)
 
+
 @empleados_bp.route("/admin/<int:id_pedido>", methods=['GET'])
 @jwt_required()
 def obtener_pedido(id_pedido):
     pedido = Pedido.query.get_or_404(id_pedido)
+
     return jsonify({
         "id_pedido": pedido.id_pedido,
         "fecha": pedido.fecha.isoformat(),
@@ -136,9 +138,20 @@ def obtener_pedido(id_pedido):
                 "cantidad": d.cantidad,
                 "producto": {
                     "nombre": d.producto.nombre,
-                    "precio": float(d.producto.precio_actual)
-                }
+                    "foto": d.producto.foto
+                },
+                # No devolvemos precio_unitario para evitar confusiones
+                "subtotal": float(d.subtotal),
+                "cantidad_oferta": d.cantidad_oferta or 0,
+                "cantidad_normal": d.cantidad_normal if d.cantidad_normal is not None else (
+                    d.cantidad - d.cantidad_oferta if d.cantidad_oferta else d.cantidad
+                ),
+                "precio_oferta": float(d.precio_oferta) if d.precio_oferta is not None else None,
+                "precio_original": float(d.precio_original) if d.precio_original is not None else None,
+                "es_oferta": d.es_oferta or False
             }
             for d in pedido.detalles
         ]
     })
+
+

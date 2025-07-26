@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getPedidoById } from "../api.ts";
+import { getPedidoByIdUsuario } from "../api.ts";
 
 const ComprobanteUsuarioPedido = () => {
     const { id } = useParams();
@@ -10,7 +10,7 @@ const ComprobanteUsuarioPedido = () => {
     useEffect(() => {
         const obtenerPedido = async () => {
             try {
-                const data = await getPedidoById(Number(id));
+                const data = await getPedidoByIdUsuario(Number(id));
                 setPedido(data);
             } catch (err) {
                 console.error("Error al obtener el pedido:", err);

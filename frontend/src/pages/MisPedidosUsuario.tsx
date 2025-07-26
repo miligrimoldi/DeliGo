@@ -180,6 +180,7 @@ const MisPedidosUsuario = () => {
             <div style={{fontSize: 14, marginBottom: 10}}>{formatearFecha(p.fecha)}</div>
 
             {p.detalles.map((d) => {
+                const cantidadNormal = d.cantidad - (d.cantidad_oferta ?? 0);
                 return (
                     <div key={d.id_detalle}
                          style={{ display: "flex", alignItems: "center", marginBottom: 10 }}>
@@ -203,9 +204,9 @@ const MisPedidosUsuario = () => {
                                     <div style={{ fontSize: 12, color: '#EF574B', fontWeight: 600 }}>
                                         Oferta: ${d.precio_oferta.toFixed(2)} x {d.cantidad_oferta}
                                     </div>
-                                    {d.cantidad - d.cantidad_oferta > 0 && (
+                                    {cantidadNormal > 0 && d.precio_original && (
                                         <div style={{ fontSize: 12, color: '#6CC51D', fontWeight: 500 }}>
-                                            Sin oferta: ${d.precio_unitario.toFixed(2)} x {d.cantidad - d.cantidad_oferta}
+                                            Sin oferta: ${d.precio_original.toFixed(2)} x {cantidadNormal}
                                         </div>
                                     )}
                                     {d.precio_original && (

@@ -436,6 +436,15 @@ export const getPedidoById = async (id_pedido: number) => {
         throw error;
     }
 }
+export const getPedidoByIdUsuario = async (id_pedido: number) => {
+    try {
+        const response = await api.get(`/api/pedidos/${id_pedido}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error al obtener el pedido del usuario:", error);
+        throw error;
+    }
+};
 
 export async function getMaxDisponible(id_producto: number) {
     const response = await api.get(`/producto/${id_producto}/max_disponible`);
