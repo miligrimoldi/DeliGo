@@ -147,7 +147,11 @@ def obtener_pedido(id_pedido):
                     d.cantidad - d.cantidad_oferta if d.cantidad_oferta else d.cantidad
                 ),
                 "precio_oferta": float(d.precio_oferta) if d.precio_oferta is not None else None,
-                "precio_original": float(d.precio_original) if d.precio_original is not None else None,
+                "precio_original": float(
+    d.precio_original
+    if d.precio_original is not None
+    else d.precio_unitario  # fallback al precio_unitario usado
+),
                 "es_oferta": d.es_oferta or False
             }
             for d in pedido.detalles
