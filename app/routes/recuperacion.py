@@ -48,7 +48,7 @@ def cambiar_con_token():
         return jsonify({"msg": "Usuario no encontrado"}), 404
 
     from werkzeug.security import generate_password_hash
-    user.contrasena = generate_password_hash(nueva)
+    user.contrasena = generate_password_hash(nueva, method='pbkdf2:sha256')
 
     db.session.delete(reset)
     db.session.commit()
