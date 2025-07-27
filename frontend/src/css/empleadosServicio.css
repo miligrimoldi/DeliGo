@@ -1,9 +1,32 @@
-.page-container {
-    background-color: #e7f5f4;
-    padding: 30px 20px;
-    font-family: 'Montserrat', sans-serif;
+/* Encabezado fijo dentro del contenedor */
+.header-fijo {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 800px;
+    background-color: white;
+    padding: 20px 0;
+    font-size: 26px;
+    font-weight: 600;
+    text-align: center;
+    font-family: 'Georgia', serif;
+    color: #2f4030;
+    border-bottom: 1px solid black;
+    z-index: 100;
+    border-radius: 0 0 8px 8px;
 }
 
+/* Fondo general de la página */
+.page-container {
+    background-color: #f5f6f7; /* gris claro, más elegante */
+    padding: 30px 20px 80px;
+    font-family: 'Montserrat', sans-serif;
+    margin-top: 100px; /* suficiente espacio para el header fijo */
+}
+
+/* Caja central con sombra */
 .panel-box {
     background-color: white;
     border-radius: 10px;
@@ -11,13 +34,6 @@
     padding: 20px;
     max-width: 800px;
     margin: 0 auto;
-}
-
-.panel-box h2 {
-    text-align: center;
-    color: #4b614c;
-    font-size: 24px;
-    margin-bottom: 20px;
 }
 
 .lista-items {
@@ -31,21 +47,23 @@
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid #eee;
-    padding: 10px 0;
+    padding: 12px 0;
 }
 
 .item span {
     font-size: 16px;
     color: #333;
+    padding-right: 20px;
+    flex: 1;
 }
 
 .controls {
     display: flex;
-    gap: 10px;
     align-items: center;
+    margin-left: 10px;
 }
 
-button {
+.controls button {
     background-color: #7a916c;
     color: white;
     border: none;
@@ -57,15 +75,22 @@ button {
     transition: background-color 0.2s;
 }
 
-button:hover {
+.controls button:hover {
     background-color: #5e7350;
+}
+
+.subtitulo-formulario {
+    margin-top: 20px;
+    color: #4b614c;
+    font-size: 20px;
+    font-weight: 500;
 }
 
 .form {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-top: 20px;
+    margin-top: 15px;
 }
 
 .form input {
@@ -75,7 +100,17 @@ button:hover {
     font-family: inherit;
 }
 
-.btn-home {
-    margin-top: 20px;
-    background-color: #9aaa88;
+button {
+    background-color: #7a916c;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 15px;
+}
+
+button:hover {
+    background-color: #5e7350;
 }

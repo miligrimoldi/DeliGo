@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import CategoriasPanel from "./CategoriasPanel.tsx";
 import { fetchServicioAdmin, ServicioInfor } from "../../api.ts";
+import AdminNavbar from "../../components/AdminNavbar";
 import "../../css/HomeEmpleado.css";
 
 const HomeEmpleado = () => {
     const { id_servicio } = useParams();
     const [info, setInfo] = useState<ServicioInfor | null>(null);
-    const navigate = useNavigate();
-    const userData = localStorage.getItem('user');
+    const userData = localStorage.getItem("user");
     const user = userData ? JSON.parse(userData) : null;
 
     useEffect(() => {
@@ -23,38 +23,30 @@ const HomeEmpleado = () => {
         fetchData();
     }, [id_servicio]);
 
+    if (!info) {
+        return <p className="admin-loading">Cargando información del servicio...</p>;
+    }
+
     return (
         <div className="home-admin">
-            <div className="admin-navbar">
-                <button className="admin-btn" onClick={() => navigate(`/empleado/${id_servicio}/pedidos`)}>
-                    Pedidos
-                </button>
-                <button className="admin-btn" onClick={() => navigate("/empleado-perfil")}>
-                    Mi perfil
-                </button>
-                {user.esAdmin && (
-                    <button className="admin-btn" onClick={() => navigate(`/admin/${id_servicio}/empleados`)}>
-                        Empleados
-                    </button>)}
-                <button className="admin-btn" onClick={() => navigate(`/empleado/${id_servicio}/stock`)}>
-                    Stock
-                </button>
-                {user?.esAdmin && (
-                    <button className="admin-btn" onClick={() => navigate(`/admin/${id_servicio}/opiniones`)}>
-                        Opiniones
-                    </button>
-                )}
+            <div className="admin-scrollable">
+                <div className="admin-header-internal">
+                    <div className="admin-header-content">
+                        <h2 className="admin-header-title">
+                            {info.nombre_servicio} - {info.nombre_entidad}
+                        </h2>
+                    </div>
+                </div>
+
+                <CategoriasPanel id_servicio={Number(id_servicio)} />
             </div>
-            {info ? (
-                <>
-                    <h1 className="admin-titulo">{info.nombre_servicio} - {info.nombre_entidad}</h1>
-                    <CategoriasPanel id_servicio={Number(id_servicio)} />
-                </>
-            ) : (
-                <p className="admin-loading">Cargando información del servicio...</p>
+
+            {user && (
+                <AdminNavbar id_servicio={Number(id_servicio)} esAdmin={user.esAdmin} />
             )}
         </div>
     );
+
 };
 
 export default HomeEmpleado;

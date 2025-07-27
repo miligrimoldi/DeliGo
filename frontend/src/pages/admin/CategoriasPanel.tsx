@@ -214,6 +214,9 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
     if (error) return <p className="admin-error">{error}</p>;
 
     return (
+        <div className="admin-container">
+
+            <div className="admin-content">
         <div className="categorias-panel">
             <h2 className="panel-titulo">Categorias</h2>
             <div style={{
@@ -272,7 +275,9 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
                     {productos.length === 0 ? (
                         <p className="admin-loading">No hay productos aún en esta categoría.</p>
                     ) : (
-                        <div className="grid-productos-admin">
+
+                            <div className="scroll-productos">
+                                <ul className="lista-productos">
                             {productos.map((producto) => (
                                 <div key={producto.id_producto} className="tarjeta-producto-admin">
                                     <img src={producto.foto} alt={producto.nombre} className="foto-producto-admin" />
@@ -328,7 +333,8 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
                                     </div>
                                 </div>
                             ))}
-                        </div>
+                                </ul>
+                            </div>
                     )}
 
                     {productoDesperdicio && user?.esAdmin && (
@@ -417,7 +423,14 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
                                         }
                                     }}
                                     defaultValue=""
-                                    style={{ width: "100%", padding: 8 }}
+                                    style={{
+                                        width: "100%",
+                                        padding: 8,
+                                        fontFamily: 'Segoe UI',
+                                        fontSize: 15,
+                                        borderRadius: 5,
+                                        border: "1px solid #ccc"
+                                    }}
                                 >
                                     <option value="" disabled>Seleccionar ingrediente...</option>
                                     {ingredientesDisponibles.map((ing) => (
@@ -436,7 +449,7 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
                                                 marginBottom: 8
                                             }}
                                         >
-                                            <span style={{ minWidth: 70 }}>{ing.nombre}</span>
+                                            <span style={{ fontFamily: 'Segoe UI', fontSize: 15, minWidth: 70 }}>{ing.nombre}</span>
                                             <input
                                                 type="number"
                                                 value={ing.cantidad}
@@ -521,6 +534,9 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
                 </div>
             )}
         </div>
+            </div>
+        </div>
+
     );
 };
 

@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
     getStockPorServicio,
@@ -6,14 +6,15 @@ import {
     updateStockDisponibilidad
 } from "../../api.ts";
 import { toast } from "react-toastify";
+import AdminNavbar from "../../components/AdminNavbar";
 
 const StockPage = () => {
     const { id_servicio } = useParams();
+    const servicioId = parseInt(id_servicio ?? "0", 10);
     const [ingredientes, setIngredientes] = useState<StockIngrediente[]>([]);
     const [valoresTemporales, setValoresTemporales] = useState<Record<number, number>>({});
     const [confirmandoId, setConfirmandoId] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
     const [nuevoNombre, setNuevoNombre] = useState("");
     const [nuevaCantidad, setNuevaCantidad] = useState(0);
     const [confirmandoEliminarId, setConfirmandoEliminarId] = useState<number | null>(null);
@@ -69,8 +70,6 @@ const StockPage = () => {
         }
     };
 
-
-
     useEffect(() => {
         const fetchStock = async () => {
             try {
@@ -107,42 +106,49 @@ const StockPage = () => {
 
     if (loading) return <p style={{ textAlign: "center", marginTop: 40, fontFamily: "Poppins, sans-serif" }}>Cargando stock...</p>;
 
+
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+
     return (
-        <div style={{
-            backgroundColor: "#F4F5F9",
-            minHeight: "100vh",
-            padding: "40px 20px",
-            display: "flex",
-            justifyContent: "center",
-            width: "45vw",
-        }}>
+        <div style={{ backgroundColor: "#f4f5f9", minHeight: "100vh", paddingBottom: 60 }}>
             <div style={{
-                backgroundColor: "white",
-                padding: "30px 40px",
-                borderRadius: 15,
-                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                width: "100%",
-                maxWidth: 900,
-                fontFamily: "Poppins, sans-serif"
+                backgroundColor: "#f4f5f9",
+                padding: "25px 40px",
+                borderBottom: "1px solid #ccc",
+                position: "sticky",
+                top: 0,
+                zIndex: 10,
+                textAlign: "center"
             }}>
                 <h2 style={{
-                    color: "#5d7554",
+                    fontFamily: "Poppins",
                     fontSize: 26,
-                    marginBottom: 30,
-                    textAlign: "center"
+                    color: "#333",
+                    margin: 0
                 }}>
                     Gestión de Stock
                 </h2>
+            </div>
 
+
+            <div style={{
+                backgroundColor: "#ffffff",
+                borderRadius: 10,
+                padding: "30px 40px",
+                margin: "30px auto",
+                maxWidth: 800,
+                boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
+                fontFamily: "Poppins, sans-serif"
+            }}>
                 {/* Formulario para nuevo ingrediente */}
-                <div style={{ marginBottom: 30 }}>
-                    <h4 style={{ marginBottom: 10 }}>Agregar nuevo ingrediente</h4>
+                <div style={{ marginBottom: 30, textAlign: "center" }}>
+                    <h4 style={{ marginBottom: 10, fontSize: 18, fontWeight: 500 }}>Agregar nuevo ingrediente</h4>
                     <input
                         type="text"
                         placeholder="Nombre del ingrediente"
                         value={nuevoNombre}
                         onChange={(e) => setNuevoNombre(e.target.value)}
-                        style={{ marginRight: 10 }}
+                        style={{ marginRight: 10, padding: 8, borderRadius: 6, border: "1px solid #ccc", width: 180 }}
                     />
                     <input
                         type="number"
@@ -150,7 +156,7 @@ const StockPage = () => {
                         min={0}
                         value={nuevaCantidad}
                         onChange={(e) => setNuevaCantidad(parseInt(e.target.value))}
-                        style={{ marginRight: 10, width: 80 }}
+                        style={{ marginRight: 10, padding: 8, borderRadius: 6, border: "1px solid #ccc", width: 100 }}
                     />
                     <button
                         onClick={agregarIngrediente}
@@ -158,8 +164,8 @@ const StockPage = () => {
                             backgroundColor: "#7A916C",
                             color: "white",
                             border: "none",
-                            borderRadius: 5,
-                            padding: "8px 12px",
+                            borderRadius: 6,
+                            padding: "8px 16px",
                             fontFamily: "Poppins"
                         }}
                     >
@@ -167,7 +173,7 @@ const StockPage = () => {
                     </button>
                 </div>
 
-                <ul style={{ listStyle: "none", padding: 0, margin: 0, marginBottom: 30 }}>
+                <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
                     {ingredientes.map((ing) => (
                         <li key={ing.id_ingrediente} style={{
                             display: "flex",
@@ -176,15 +182,15 @@ const StockPage = () => {
                             padding: "12px 0",
                             borderBottom: "1px solid #eee"
                         }}>
-                        <span style={{
-                            fontSize: 15,
-                            color: "#333",
-                            flex: 1,
-                            marginRight: 20,
-                            wordBreak: "break-word"
-                        }}>
-                            {ing.nombre}
-                        </span>
+                            <span style={{
+                                fontSize: 15,
+                                color: "#333",
+                                flex: 1,
+                                marginRight: 20,
+                                wordBreak: "break-word"
+                            }}>
+                                {ing.nombre}
+                            </span>
 
                             <input
                                 type="number"
@@ -204,8 +210,7 @@ const StockPage = () => {
                                     border: "1px solid #ccc",
                                     borderRadius: 5,
                                     fontFamily: "Poppins, sans-serif",
-                                    marginRight: 6,
-                                    lineHeight: 1.1
+                                    marginRight: 6
                                 }}
                             />
 
@@ -234,9 +239,7 @@ const StockPage = () => {
                                             : "pointer",
                                     display: "flex",
                                     alignItems: "center",
-                                    justifyContent: "center",
-                                    padding: 0,
-                                    fontFamily: "Poppins, sans-serif"
+                                    justifyContent: "center"
                                 }}
                             >
                                 ✔
@@ -279,27 +282,12 @@ const StockPage = () => {
                         </li>
                     ))}
                 </ul>
-
-                <button
-                    onClick={() => navigate(`/empleado/${id_servicio}`)}
-                    style={{
-                        backgroundColor: "#9AAA88",
-                        color: "white",
-                        padding: "10px 20px",
-                        border: "none",
-                        borderRadius: 8,
-                        fontSize: 16,
-                        cursor: "pointer",
-                        display: "block",
-                        margin: "0 auto"
-                    }}
-                >
-                    Volver al Home
-                </button>
             </div>
+
+            {/* Barra de navegación al final */}
+            <AdminNavbar id_servicio={servicioId} esAdmin={user?.esAdmin || false}/>
         </div>
     );
-
 };
 
 export default StockPage;

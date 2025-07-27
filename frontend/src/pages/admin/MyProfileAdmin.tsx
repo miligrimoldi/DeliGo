@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaSignOutAlt, FaUserEdit } from 'react-icons/fa';
 import { eliminarCuenta } from '../../api';
+import AdminNavbar from "../../components/AdminNavbar";
 import '../../css/perfil.css';
 
 const MyProfileAdmin: React.FC = () => {
@@ -31,23 +32,28 @@ const MyProfileAdmin: React.FC = () => {
     };
 
     return (
-        <div className="perfil-container">
-            <h3 className="user-name">{fullName}</h3>
-            <p className="user-email">{email}</p>
+        <>
+            <div className="perfil-container">
+                <h3 className="user-name">{fullName}</h3>
+                <p className="user-email">{email}</p>
 
-            <div className="perfil-opciones">
-                <div className="perfil-item" onClick={() => navigate('/editar-perfil')}>
-                    <FaUserEdit className="perfil-icon"/> Editar perfil
+                <div className="perfil-opciones">
+                    <div className="perfil-item" onClick={() => navigate('/editar-perfil')}>
+                        <FaUserEdit className="perfil-icon"/> Editar perfil
+                    </div>
+                    <div className="cerrar-sesion-item" onClick={handleLogout}>
+                        <FaSignOutAlt className="cerrar-sesion-icon"/> Cerrar sesión
+                    </div>
                 </div>
-                <div className="cerrar-sesion-item" onClick={handleLogout}>
-                    <FaSignOutAlt className="cerrar-sesion-icon"/> Cerrar sesión
-                </div>
+
+                <button className="eliminar-cuenta-btn" onClick={handleEliminarCuenta}>
+                    Eliminar cuenta
+                </button>
             </div>
 
-            <button className="eliminar-cuenta-btn" onClick={handleEliminarCuenta}>
-                Eliminar cuenta
-            </button>
-        </div>
+            <AdminNavbar id_servicio={user.id_servicio} esAdmin={user.esAdmin || false} />
+
+        </>
     );
 };
 

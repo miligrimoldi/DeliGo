@@ -16,7 +16,7 @@ def alta_empleados(id_servicio):
 
     contrasena = data.get('contrasena')
     email = data.get('email')
-    hashed_password = generate_password_hash(contrasena)
+    hashed_password = generate_password_hash(contrasena, method='pbkdf2:sha256')
     dni = data.get('dni')
 
     usuario_existente = User.query.filter_by(email=email).first()

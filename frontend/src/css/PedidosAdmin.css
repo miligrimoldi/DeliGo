@@ -98,3 +98,115 @@ select {
 .btn-volver:hover {
     background-color: #43a047;
 }
+.pedido-card p {
+    font-size: 15px;
+    color: #2f6f3f;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.pedido-card li {
+    font-size: 14px;
+    color: #444;
+    margin-bottom: 2px;
+}
+
+.pedido-card select,
+.pedido-card input[type="number"] {
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 14px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #d6e4d6;
+    background-color: #fefefe;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    transition: border-color 0.2s;
+}
+
+.pedido-card select:focus,
+.pedido-card input[type="number"]:focus {
+    border-color: #7A916C;
+    outline: none;
+}
+
+.pedido-card button {
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 14px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+}
+
+.pedido-card button:hover {
+    transform: translateY(-1px);
+}
+
+.pedido-card .opiniones {
+    background-color: #f7faf7;
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.pedido-card .opiniones strong {
+    display: block;
+    color: #2f6f3f;
+    margin-bottom: 4px;
+}
+
+.pedido-card .opiniones img {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+@media (max-width: 768px) {
+    .solapas {
+        flex-direction: column;
+    }
+
+    .pedido-card {
+        padding: 14px;
+    }
+
+    .pedido-card button {
+        width: 100%;
+        margin-top: 6px;
+    }
+}
+
+.solapas {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+    justify-content: center;
+}
+
+.solapa-btn {
+    background-color: white;
+    color: #2f6f3f;
+    border: 1px solid #7A916C;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.solapa-btn:hover {
+    background-color: #e6f7e6;
+}
+
+.solapa-btn.solapa-activa {
+    background-color: #7A916C;
+    color: white;
+    border: 1px solid #7A916C;
+}
