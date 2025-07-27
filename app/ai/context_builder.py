@@ -10,9 +10,11 @@ from app.models.favoritos_servicios import FavoritoServicio
 from app.models.favoritos_productos import FavoritoProducto
 from sqlalchemy import func
 from app.models.stock import Stock
+from app.models.pedido import Pedido
 from app.extensions import db
 from app.models.ingrediente_producto import IngredienteProducto
 from app.routes.productos_servicio_usuario import calcular_max_disponible
+from decimal import Decimal
 
 
 def obtener_contexto_para_usuario(user_id: int) -> str:
@@ -26,61 +28,76 @@ def obtener_contexto_para_usuario(user_id: int) -> str:
     # Si no es empleado, asumimos que es consumidor
     return contexto_consumidor(user_id)
 
+from app.models.pedido import Pedido
+
+from difflib import get_close_matches
 def contexto_consumidor(user_id: int) -> str:
+    # Aquí el código para obtener el contexto del consumidor con productos y favoritos
+    # Mejorando el filtro de productos y detalles
+
     entidades = Entidad.query.all()
+
     favoritos_productos_ids = {
         f.id_producto for f in FavoritoProducto.query.filter_by(id_usuario_consumidor=user_id).all()
     }
     favoritos_servicios_ids = {
         f.id_servicio for f in FavoritoServicio.query.filter_by(id_usuario_consumidor=user_id).all()
     }
-    contexto = "Información para consumidor:\n"
+
+    lines = ["Información para consumidor:\n"]
+
+    # Favoritos
+    if favoritos_productos_ids:
+        productos_fav = ProductoServicio.query.filter(ProductoServicio.id_producto.in_(favoritos_productos_ids)).all()
+        lines.append("Productos en favoritos:")
+        for p in productos_fav:
+            if p.nombre and len(p.nombre.strip()) > 2:
+                lines.append(f"- {p.nombre}")
+        lines.append("")
+    if favoritos_servicios_ids:
+        servicios_fav = Servicio.query.filter(Servicio.id_servicio.in_(favoritos_servicios_ids)).all()
+        lines.append("Servicios en favoritos:")
+        for s in servicios_fav:
+            lines.append(f"- {s.nombre}")
+        lines.append("")
+
+    # Desperdicio Cero
+    productos_dc = ProductoServicio.query.filter_by(es_desperdicio_cero=True).all()
+    if productos_dc:
+        lines.append("Productos en oferta (Desperdicio Cero):")
+        for p in productos_dc:
+            if p.precio_oferta and p.precio_actual and p.nombre and len(p.nombre.strip()) > 2:
+                lines.append(f"- {p.nombre} (${p.precio_oferta:.2f}, antes ${p.precio_actual:.2f})")
+        lines.append("")
+
+    # Entidades, servicios y productos
+    for entidad in entidades:
+        lines.append(f"Entidad: {entidad.nombre}")
+        lines.append(f"  Ubicación: {entidad.ubicacion}")
+        if entidad.descripcion:
+            lines.append(f"  Descripción: {entidad.descripcion}")
+        servicios = entidad.servicios
+        lines.append(f"  Servicios disponibles: {', '.join(s.nombre for s in servicios)}")
+
+        productos = [p for s in servicios for p in s.productos if p.nombre and len(p.nombre.strip()) > 2]
+        lines.append(f"  Productos: {', '.join(p.nombre for p in productos)}\n")
+
+    # Detalles de productos
+    lines.append("Detalles de productos:\n")
 
     for entidad in entidades:
-        contexto += f"\nEntidad: {entidad.nombre}\n"
-        total_productos_entidad = 0
-
         for servicio in entidad.servicios:
-            servicio_fav = " (Favorito)" if servicio.id_servicio in favoritos_servicios_ids else ""
-            contexto += f"  Servicio: {servicio.nombre}{servicio_fav}\n"
-
-            # Opiniones del servicio
-            opiniones_servicio = servicio.opiniones
-            if opiniones_servicio:
-                promedio = round(
-                    sum(o.puntaje for o in opiniones_servicio) / len(opiniones_servicio), 2
-                )
-                contexto += f"    Opiniones del servicio: {promedio}/5 ({len(opiniones_servicio)} opiniones)\n"
-
-            total_productos_servicio = 0
-
             for producto in servicio.productos:
-                total_productos_servicio += 1
-                total_productos_entidad += 1
+                if not producto.nombre or len(producto.nombre.strip()) <= 2:
+                    continue
 
-                prod_fav = " ⭐" if producto.id_producto in favoritos_productos_ids else ""
-                contexto += f"    Producto: {producto.nombre}{prod_fav}\n"
-                contexto += f"      - Precio actual: ${producto.precio_actual:.2f}\n"
-
-                # Desperdicio cero
-                if producto.es_desperdicio_cero:
-                    contexto += f"      - DESPERDICIO CERO: Sí\n"
-                    if producto.precio_oferta:
-                        contexto += f"        * Precio en oferta: ${producto.precio_oferta:.2f}\n"
-                    if producto.cantidad_restante is not None:
-                        contexto += f"        * Cantidad restante: {producto.cantidad_restante}\n"
-                    if producto.tiempo_limite:
-                        contexto += (
-                            f"        * Disponible hasta: "
-                            f"{producto.tiempo_limite.strftime('%Y-%m-%d %H:%M:%S')}\n"
-                        )
-                else:
-                    contexto += f"      - DESPERDICIO CERO: No\n"
-
-                # Disponibilidad
-                max_disponible = calcular_max_disponible(producto.id_producto, servicio.id_servicio)
-                disponible = max_disponible > 0
-                contexto += f"      - Disponible: {'Sí' if disponible else 'No'}\n"
+                lines.append(f"Producto: {producto.nombre}{' ⭐' if producto.id_producto in favoritos_productos_ids else ''}")
+                lines.append(f"  Servicio: {servicio.nombre}{' (Favorito)' if servicio.id_servicio in favoritos_servicios_ids else ''}")
+                lines.append(f"  Precio: ${producto.precio_actual:.2f}")
+                if producto.descripcion:
+                    lines.append(f"  Descripción: {producto.descripcion}")
+                if producto.informacion_nutricional:
+                    lines.append(f"  Info nutricional: {producto.informacion_nutricional}")
 
                 # Ingredientes
                 ingredientes = (
@@ -90,24 +107,51 @@ def contexto_consumidor(user_id: int) -> str:
                     .all()
                 )
                 if ingredientes:
-                    contexto += "      - Ingredientes: " + ", ".join(
-                        f"{nom} ({cant})" for nom, cant in ingredientes
-                    ) + "\n"
+                    ingredientes_str = ", ".join(f"{nom} ({cant})" for nom, cant in ingredientes)
+                    lines.append(f"  Ingredientes: {ingredientes_str}")
+                else:
+                    lines.append("  Ingredientes: No especificados")
 
-                # Opiniones del producto
+                if producto.es_desperdicio_cero and producto.precio_oferta:
+                    lines.append(f"  Desperdicio Cero: Sí (precio en oferta: ${producto.precio_oferta:.2f})")
+                else:
+                    lines.append("  Desperdicio Cero: No")
+
+                max_disp = calcular_max_disponible(producto.id_producto, servicio.id_servicio)
+                lines.append(f"  Máx. unidades disponibles: {max_disp}")
+
                 if producto.opiniones:
-                    promedio_prod = round(
-                        sum(o.puntaje for o in producto.opiniones) / len(producto.opiniones), 2
-                    )
-                    contexto += f"      - Opiniones: {promedio_prod}/5 ({len(producto.opiniones)} opiniones)\n"
+                    prom = round(sum(o.puntaje for o in producto.opiniones) / len(producto.opiniones), 2)
+                    lines.append(f"  Opiniones: {prom}/5 ({len(producto.opiniones)} opiniones)")
 
-            contexto += f"    Total de productos en este servicio: {total_productos_servicio}\n"
+                lines.append("")
 
-        contexto += f"  Total de productos en esta entidad: {total_productos_entidad}\n"
+    # Últimos pedidos
+    pedidos = Pedido.query.filter_by(id_usuario_consumidor=user_id).order_by(Pedido.fecha.desc()).limit(5).all()
+    if pedidos:
+        lines.append("Últimos pedidos realizados:")
+        for pedido in pedidos:
+            lines.append(f"- Pedido #{pedido.id_pedido} en {pedido.servicio.nombre} ({pedido.fecha.strftime('%Y-%m-%d')}):")
+            total = 0.0
+            for detalle in pedido.detalles:
+                precio_unitario = detalle.precio_unitario or detalle.producto.precio_actual
+                subtotal = detalle.cantidad * float(precio_unitario)
+                total += subtotal
+                lines.append(f"   · {detalle.producto.nombre} x{detalle.cantidad} = ${subtotal:.2f}")
+            lines.append(f"   Total del pedido: ${total:.2f}")
+        lines.append("")
 
-    return contexto
+    # Opiniones del usuario
+    opiniones_prod = OpinionProducto.query.filter_by(id_usuario=user_id).all()
+    opiniones_serv = OpinionServicio.query.filter_by(id_usuario=user_id).all()
+    if opiniones_prod or opiniones_serv:
+        lines.append("Opiniones del usuario:")
+        for op in opiniones_prod:
+            lines.append(f"- Producto: {op.producto.nombre}, Puntaje: {op.puntaje}, Comentario: {op.comentario or 'Sin comentario'}")
+        for op in opiniones_serv:
+            lines.append(f"- Servicio: {op.servicio.nombre}, Puntaje: {op.puntaje}, Comentario: {op.comentario or 'Sin comentario'}")
 
-
+    return "\n".join(lines)
 def contexto_empleado(empleado: UsuarioEmpleado) -> str:
     servicio = empleado.servicio
     contexto = f"Sos empleado del servicio '{servicio.nombre}'\n"
