@@ -121,7 +121,7 @@ def editar_producto(id_producto):
 @jwt_required()
 def eliminar_producto(id_producto):
     producto = ProductoServicio.query.get_or_404(id_producto)
-    producto.activo = False
+    db.session.delete(producto)
     db.session.commit()
     return jsonify({"mensaje": "Producto eliminado con éxito"}), 200
 

@@ -114,3 +114,21 @@ button {
 button:hover {
     background-color: #5e7350;
 }
+.btn-eliminar {
+    background-color: #ccc;
+    color: black;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-confirmar {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}

@@ -21,6 +21,7 @@ const EmpleadosServicio = () => {
     });
     const [error, setError] = useState<string | null>(null);
     const user = JSON.parse(localStorage.getItem("user") || "null");
+    const [confirmarEliminarId, setConfirmarEliminarId] = useState<number | null>(null);
 
     useEffect(() => {
         if (id_servicio) {
@@ -67,6 +68,7 @@ const EmpleadosServicio = () => {
             console.error("Error al eliminar empleado:", err);
             setError("Ocurrió un error al eliminar el empleado.");
         }
+        setConfirmarEliminarId(null);
     };
 
     return (
@@ -80,10 +82,30 @@ const EmpleadosServicio = () => {
                             <li key={e.id} className="item">
                                 <span>{e.nombre} {e.apellido} - {e.email} ({e.dni})</span>
                                 <div className="controls">
-                                    <button onClick={() => handleEliminar(e.id)}>Eliminar</button>
+                                    {confirmarEliminarId === e.id ? (
+                                        <button
+                                            className="btn-confirmar"
+                                            onClick={() => handleEliminar(e.id)}
+                                        >
+                                            Confirmar
+                                        </button>
+                                    ) : (
+                                        <button
+                                            className="btn-eliminar"
+                                            onClick={() => {
+                                                setConfirmarEliminarId(e.id);
+                                                setTimeout(() => {
+                                                    setConfirmarEliminarId(null);
+                                                }, 5000);
+                                            }}
+                                        >
+                                            Eliminar
+                                        </button>
+                                    )}
                                 </div>
                             </li>
                         ))}
+
                     </ul>
 
                     <h3 className="subtitulo-formulario">Agregar nuevo empleado</h3>
