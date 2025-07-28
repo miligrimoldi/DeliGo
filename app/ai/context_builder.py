@@ -1,3 +1,5 @@
+from collections import Counter
+
 from sqlalchemy.orm import joinedload
 
 from app.models.usuario import User
@@ -133,13 +135,20 @@ def contexto_consumidor(user_id: int) -> str:
 
     # Pedidos: activos y antiguos
     pedidos = Pedido.query.filter_by(id_usuario_consumidor=user_id).order_by(Pedido.fecha.desc()).all()
-    pedidos_activos = [p for p in pedidos if p.estado not in ("entregado", "cancelado")]
+    pedidos_activos = [p for p in pedidos if p.estado and p.estado.lower() not in ("entregado", "cancelado")]
     pedidos_antiguos = [p for p in pedidos if p.estado == "entregado"]
+
+    estados_activos = Counter(p.estado for p in pedidos_activos)
+    lines.append(f"Tenés {len(pedidos_activos)} pedidos activos.")
+    for estado, count in estados_activos.items():
+        lines.append(f"- {count} en estado '{estado}'")
+    lines.append("")
 
     if pedidos_activos:
         lines.append("Pedidos activos:")
         for pedido in pedidos_activos:
-            lines.append(f"- Pedido #{pedido.id_pedido} en {pedido.servicio.nombre} ({pedido.fecha.strftime('%Y-%m-%d')}):")
+            lines.append(
+                f"- Pedido #{pedido.id_pedido} en {pedido.servicio.nombre} ({pedido.fecha.strftime('%Y-%m-%d')}) – Estado: {pedido.estado}")
             total = 0.0
             for det in pedido.detalles:
                 precio_unitario = det.precio_unitario or det.producto.precio_actual
@@ -161,6 +170,54 @@ def contexto_consumidor(user_id: int) -> str:
                 lines.append(f"   · {det.producto.nombre} x{det.cantidad} = ${subtotal:.2f}")
             lines.append(f"   Total del pedido: ${total:.2f}")
         lines.append("")
+
+
+    # Análisis extra de pedidos antiguos: productos en oferta y ahorro
+    # Análisis extra de pedidos: productos que SE COMPRARON en oferta (no si lo están ahora)
+    pedidos_con_oferta = []
+    ahorro_total = 0.0
+
+    for pedido in pedidos:
+        total_pedido = 0.0
+        ahorro_pedido = 0.0
+        tiene_oferta = False
+        for det in pedido.detalles:
+            prod = det.producto
+            precio_unitario_en_el_momento = float(det.precio_unitario or prod.precio_actual)
+            precio_normal = float(prod.precio_actual)
+
+            subtotal = det.cantidad * precio_unitario_en_el_momento
+            total_pedido += subtotal
+
+            # Comparar el precio pagado vs el precio normal del producto
+            if precio_unitario_en_el_momento < precio_normal:
+                ahorro_unitario = precio_normal - precio_unitario_en_el_momento
+                ahorro_pedido += ahorro_unitario * det.cantidad
+                ahorro_total += ahorro_unitario * det.cantidad
+                tiene_oferta = True
+
+        if tiene_oferta:
+            pedidos_con_oferta.append((pedido.id_pedido, ahorro_pedido))
+
+    # Resultado de productos en oferta actuales
+    if productos_dc:
+        lines.append("Productos en oferta (Desperdicio Cero):")
+        for p in productos_dc:
+            if p.precio_oferta and p.precio_actual:
+                lines.append(f"- {p.nombre} (${p.precio_oferta:.2f}, antes ${p.precio_actual:.2f})")
+        lines.append("")
+    else:
+        lines.append("No hay productos en oferta en este momento.\n")
+
+    # Resumen de ahorro en pedidos
+    if pedidos_con_oferta:
+        lines.append("Pedidos que incluyeron productos en oferta:")
+        for id_pedido, ahorro in pedidos_con_oferta:
+            lines.append(f"- Pedido #{id_pedido}: te ahorraste ${ahorro:.2f}")
+        lines.append(f"Ahorro total acumulado en ofertas: ${ahorro_total:.2f}\n")
+    else:
+        lines.append("No realizaste pedidos que incluyeran productos en oferta.\n")
+
 
     # Opiniones del usuario
     opiniones_prod = OpinionProducto.query.filter_by(id_usuario=user_id).all()
@@ -212,9 +269,21 @@ def contexto_admin(admin: UsuarioEmpleado) -> str:
         .all()
     )
     contexto += "STOCK ACTUAL:\n"
+    ingredientes_en_stock = []
     for nombre, cantidad in stock:
+        ingredientes_en_stock.append(nombre.lower())
         contexto += f"- {nombre}: {cantidad} unidades\n"
     contexto += "\n"
+
+    nombres_visibles = ", ".join(sorted(ingredientes_en_stock))
+
+    contexto += "LISTA DE INGREDIENTES DISPONIBLES EN STOCK:\n"
+    contexto += f"{nombres_visibles}\n"
+    contexto += (
+        "IMPORTANTE: Cualquier ingrediente que no aparezca en esta lista "
+        "no forma parte del stock del servicio. No existe ningún registro "
+        "de dicho ingrediente para este servicio.\n\n"
+    )
 
     # CATEGORÍAS DEL SERVICIO
     categorias = servicio.categorias
@@ -233,6 +302,8 @@ def contexto_admin(admin: UsuarioEmpleado) -> str:
             contexto += f"  Descripción: {producto.descripcion}\n"
         if producto.informacion_nutricional:
             contexto += f"  Info nutricional: {producto.informacion_nutricional}\n"
+        if producto.es_desperdicio_cero:
+            contexto += f"  🔥 OFERTA: {producto.cantidad_restante} unidades a ${producto.precio_oferta:.2f}\n"
 
         # Ingredientes
         ingredientes = (
@@ -257,6 +328,29 @@ def contexto_admin(admin: UsuarioEmpleado) -> str:
         contexto += "\n"
     contexto += "\n"
 
+    contexto += (
+        "IMPORTANTE: Todos los productos listados arriba forman parte del servicio, "
+        "independientemente de si tienen stock disponible o no. El stock se informa por separado "
+        "y no afecta a la existencia del producto dentro del servicio.\n"
+    )
+    if productos:
+        producto_mas_caro = max(productos, key=lambda p: p.precio_actual)
+        producto_mas_barato = min(productos, key=lambda p: p.precio_actual)
+
+        contexto += (
+            f"\nRESUMEN DE PRECIOS:\n"
+            f"- Producto más caro: {producto_mas_caro.nombre} (${producto_mas_caro.precio_actual:.2f})\n"
+            f"- Producto más barato: {producto_mas_barato.nombre} (${producto_mas_barato.precio_actual:.2f})\n\n"
+        )
+
+    ofertas = [p for p in productos if p.es_desperdicio_cero and p.cantidad_restante > 0]
+    if ofertas:
+        contexto += "RESUMEN DE PRODUCTOS EN OFERTA:\n"
+        for p in ofertas:
+            contexto += f"- {p.nombre}: {p.cantidad_restante} unidades a ${p.precio_oferta:.2f}\n"
+    else:
+        contexto += "NO HAY PRODUCTOS EN OFERTA (Desperdicio Cero) EN ESTE MOMENTO.\n"
+
     # PEDIDOS (activos y antiguos)
     pedidos = Pedido.query.filter_by(id_servicio=servicio.id_servicio).order_by(Pedido.fecha.desc()).all()
     activos = [p for p in pedidos if p.estado not in ("entregado", "cancelado")]
@@ -265,7 +359,7 @@ def contexto_admin(admin: UsuarioEmpleado) -> str:
     if activos:
         contexto += "PEDIDOS ACTIVOS:\n"
         for pedido in activos:
-            contexto += f"- Pedido #{pedido.id_pedido} de {pedido.usuario.nombre} ({pedido.estado})\n"
+            contexto += f"- Pedido #{pedido.id_pedido} realizado por {pedido.usuario.nombre} ({pedido.estado})\n"
             total = 0
             for det in pedido.detalles:
                 subtotal = det.cantidad * float(det.precio_unitario or det.producto.precio_actual)
@@ -277,7 +371,7 @@ def contexto_admin(admin: UsuarioEmpleado) -> str:
     if antiguos:
         contexto += "PEDIDOS ANTIGUOS:\n"
         for pedido in antiguos:
-            contexto += f"- Pedido #{pedido.id_pedido} de {pedido.usuario.nombre} ({pedido.estado})\n"
+            contexto += f"- Pedido #{pedido.id_pedido} realizado por {pedido.usuario.nombre} ({pedido.estado})\n"
             total = 0
             for det in pedido.detalles:
                 subtotal = det.cantidad * float(det.precio_unitario or det.producto.precio_actual)
@@ -318,9 +412,22 @@ def contexto_empleado(empleado: UsuarioEmpleado) -> str:
         .all()
     )
     contexto += "STOCK ACTUAL:\n"
+    ingredientes_en_stock = []
     for nombre, cantidad in stock:
+        ingredientes_en_stock.append(nombre.lower())
         contexto += f"- {nombre}: {cantidad} unidades\n"
     contexto += "\n"
+
+    nombres_visibles = ", ".join(sorted(ingredientes_en_stock))
+
+    contexto += "LISTA DE INGREDIENTES DISPONIBLES EN STOCK:\n"
+    contexto += f"{nombres_visibles}\n"
+    contexto += (
+        "IMPORTANTE: Cualquier ingrediente que no aparezca en esta lista "
+        "no forma parte del stock del servicio. No existe ningún registro "
+        "de dicho ingrediente para este servicio.\n\n"
+    )
+
 
     # CATEGORÍAS
     categorias = servicio.categorias
@@ -339,6 +446,8 @@ def contexto_empleado(empleado: UsuarioEmpleado) -> str:
             contexto += f"  Descripción: {producto.descripcion}\n"
         if producto.informacion_nutricional:
             contexto += f"  Info nutricional: {producto.informacion_nutricional}\n"
+        if producto.es_desperdicio_cero:
+            contexto += f"  🔥 OFERTA: {producto.cantidad_restante} unidades a ${producto.precio_oferta:.2f}\n"
 
         # Ingredientes
         ingredientes = (
@@ -355,6 +464,29 @@ def contexto_empleado(empleado: UsuarioEmpleado) -> str:
 
         max_disp = calcular_max_disponible(producto.id_producto, producto.id_servicio)
         contexto += f"  Máx. unidades disponibles: {max_disp}\n\n"
+
+    contexto += (
+        "IMPORTANTE: Todos los productos listados arriba forman parte del servicio, "
+        "independientemente de si tienen stock disponible o no. El stock se informa por separado "
+        "y no afecta a la existencia del producto dentro del servicio.\n"
+    )
+    if productos:
+        producto_mas_caro = max(productos, key=lambda p: p.precio_actual)
+        producto_mas_barato = min(productos, key=lambda p: p.precio_actual)
+
+        contexto += (
+            f"\nRESUMEN DE PRECIOS:\n"
+            f"- Producto más caro: {producto_mas_caro.nombre} (${producto_mas_caro.precio_actual:.2f})\n"
+            f"- Producto más barato: {producto_mas_barato.nombre} (${producto_mas_barato.precio_actual:.2f})\n\n"
+        )
+
+    ofertas = [p for p in productos if p.es_desperdicio_cero and p.cantidad_restante > 0]
+    if ofertas:
+        contexto += "RESUMEN DE PRODUCTOS EN OFERTA:\n"
+        for p in ofertas:
+            contexto += f"- {p.nombre}: {p.cantidad_restante} unidades a ${p.precio_oferta:.2f}\n"
+    else:
+        contexto += "NO HAY PRODUCTOS EN OFERTA (Desperdicio Cero) EN ESTE MOMENTO.\n"
 
     # PEDIDOS (activos y antiguos)
     pedidos = (

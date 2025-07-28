@@ -13,7 +13,7 @@ def responder_admin_intents(user_id: int, user_input: str):
     input_lower = user_input.lower()
 
     empleado = UsuarioEmpleado.query.get(user_id)
-    if not (empleado and empleado.esAdmin):
+    if not (empleado):
         return None
 
     reply = None
