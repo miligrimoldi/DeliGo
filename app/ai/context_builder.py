@@ -136,7 +136,7 @@ def contexto_consumidor(user_id: int) -> str:
     # Pedidos: activos y antiguos
     pedidos = Pedido.query.filter_by(id_usuario_consumidor=user_id).order_by(Pedido.fecha.desc()).all()
     pedidos_activos = [p for p in pedidos if p.estado and p.estado.lower() not in ("entregado", "cancelado")]
-    pedidos_antiguos = [p for p in pedidos if p.estado == "entregado"]
+    pedidos_antiguos = [p for p in pedidos if (p.estado == "entregado" or p.estado == "cancelado")]
 
     estados_activos = Counter(p.estado for p in pedidos_activos)
     lines.append(f"Tenés {len(pedidos_activos)} pedidos activos.")
