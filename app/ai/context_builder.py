@@ -114,7 +114,7 @@ def contexto_consumidor(user_id: int) -> str:
                     .all()
                 )
                 if ingredientes:
-                    ing_str = ", ".join(f"{nom} ({cant})" for nom, cant in ingredientes)
+                    ing_str = ", ".join(nom for nom, _ in ingredientes)
                     lines.append(f"  Ingredientes: {ing_str}")
                 else:
                     lines.append("  Ingredientes: No especificados")
@@ -251,6 +251,32 @@ def contexto_consumidor(user_id: int) -> str:
             lines.append(f"- Servicio: {op.servicio.nombre}, Puntaje: {op.puntaje}, Comentario: {comentario}")
     else:
         lines.append("No dejaste opiniones sobre productos ni servicios.")
+
+
+    # Mapeo completo de productos a sus servicios y entidades
+    lines.append("\nListado estructurado de productos con su ubicación:")
+    for entidad in entidades:
+        for servicio in entidad.servicios:
+            for producto in servicio.productos:
+                if producto.nombre and len(producto.nombre.strip()) > 2:
+                    lines.append(
+                        f"- {producto.nombre} pertenece al servicio '{servicio.nombre}' de la entidad '{entidad.nombre}'."
+                    )
+
+    lines.append("\nPrecios agrupados por servicio:")
+    for entidad in entidades:
+        for servicio in entidad.servicios:
+            lines.append(f"Servicio: {servicio.nombre} (Entidad: {entidad.nombre})")
+            productos = [p for p in servicio.productos if p.nombre and len(p.nombre.strip()) > 2]
+            if not productos:
+                lines.append("  No hay productos.")
+                continue
+            for producto in productos:
+                linea = f"  - {producto.nombre}: ${producto.precio_actual:.2f}"
+                if producto.es_desperdicio_cero and producto.precio_oferta:
+                    linea += f" (oferta: ${producto.precio_oferta:.2f})"
+                lines.append(linea)
+            lines.append("")  # espacio entre servicios
 
     return "\n".join(lines)
 
