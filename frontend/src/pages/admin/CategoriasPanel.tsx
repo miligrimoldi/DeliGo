@@ -44,6 +44,7 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
     const [nuevoIngrediente, setNuevoIngrediente] = useState("");
     const [ingredientesOriginales, setIngredientesOriginales] = useState<IngredienteOriginal[]>([]);
     const [productoDesperdicio, setProductoDesperdicio] = useState<Producto | null>(null);
+    const [productoAEliminar, setProductoAEliminar] = useState<Producto | null>(null);
 
 
     const [formData, setFormData] = useState({
@@ -197,16 +198,17 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
         }
     };
 
-    const handleEliminarProducto = async (id_producto: number) => {
-        const confirmado = confirm("¿Estás seguro que quieres eliminar este producto?");
-        if (!confirmado || !categoriaSeleccionada) return;
+    const handleEliminarProducto = async () => {
+        if (!productoAEliminar || !categoriaSeleccionada) return;
         try {
-            await eliminarProducto(id_producto);
+            await eliminarProducto(productoAEliminar.id_producto);
             const nuevosProductos = await fetchProductosPorCategoria(id_servicio, categoriaSeleccionada.id_categoria);
             setProductos(nuevosProductos);
         } catch (error) {
             console.error("Error al eliminar producto:", error);
             alert("Error al eliminar el producto.");
+        } finally {
+            setProductoAEliminar(null);
         }
     };
 
@@ -215,8 +217,44 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
 
     return (
         <div className="admin-container">
-
-            <div className="admin-content">
+            {productoAEliminar && (
+                <div className="modal-confirmacion">
+                    <div className="modal-contenido">
+                        <p>¿Estás seguro de que querés eliminar el producto <strong>{productoAEliminar.nombre}</strong>?</p>
+                        <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 20 }}>
+                            <button
+                                onClick={handleEliminarProducto}
+                                style={{
+                                    backgroundColor: "#c0392b",
+                                    color: "white",
+                                    padding: "8px 16px",
+                                    border: "none",
+                                    borderRadius: 5,
+                                    fontFamily: "Montserrat",
+                                    cursor: "pointer"
+                                }}
+                            >
+                                Confirmar
+                            </button>
+                            <button
+                                onClick={() => setProductoAEliminar(null)}
+                                style={{
+                                    backgroundColor: "#95a5a6",
+                                    color: "white",
+                                    padding: "8px 16px",
+                                    border: "none",
+                                    borderRadius: 5,
+                                    fontFamily: "Montserrat",
+                                    cursor: "pointer"
+                                }}
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+    <div className="admin-content">
         <div className="categorias-panel">
             <h2 className="panel-titulo">Categorias</h2>
             <div style={{
@@ -317,7 +355,7 @@ const CategoriasPanel = ({ id_servicio }: Props) => {
                                             </button>
                                             <button
                                                 className="btn-accion eliminar"
-                                                onClick={() => handleEliminarProducto(producto.id_producto)}
+                                                onClick={() => setProductoAEliminar(producto)}
                                             >
                                                 Eliminar
                                             </button>
